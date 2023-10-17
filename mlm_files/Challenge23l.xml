@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<XModeler>
+  <Version>3</Version>
+  <Categories/>
+  <Projects>
+    <Project name="Root::Challenge23"/>
+  </Projects>
+  <Diagrams>
+    <Diagram label="Products" package_path="Root::Challenge23">
+      <Categories/>
+      <Owners/>
+      <Objects>
+        <Object hidden="false" ref="Root::Challenge23::Matey" x="1172" y="873"/>
+        <Object hidden="false" ref="Root::Challenge23::MobilePhoneCase" x="1171" y="536"/>
+        <Object hidden="false" ref="Root::Challenge23::MobilePhone" x="1632" y="103"/>
+        <Object hidden="false" ref="Root::Challenge23::SpOd" x="710" y="1419"/>
+        <Object hidden="false" ref="Root::Challenge23::Battery" x="-644" y="504"/>
+        <Object hidden="false" ref="Root::Challenge23::DVD_Player" x="-263" y="699"/>
+        <Object hidden="false" ref="Root::Challenge23::Author" x="2548" y="825"/>
+        <Object hidden="false" ref="Root::Challenge23::BulkProduct" x="-164" y="332"/>
+        <Object hidden="false" ref="Root::Challenge23::dVD_3001" x="-246" y="1579"/>
+        <Object hidden="false" ref="Root::Challenge23::HardCover" x="1633" y="1066"/>
+        <Object hidden="false" ref="Root::Challenge23::haChi779" x="-385" y="1098"/>
+        <Object hidden="false" ref="Root::Challenge23::ProPower100" x="-607" y="1552"/>
+        <Object hidden="false" ref="Root::Challenge23::hardCover1" x="1703" y="1391"/>
+        <Object hidden="false" ref="Root::Challenge23::Book" x="1655" y="671"/>
+        <Object hidden="false" ref="Root::Challenge23::Monograph" x="2137" y="681"/>
+        <Object hidden="false" ref="Root::Challenge23::mate08151" x="954" y="1215"/>
+        <Object hidden="false" ref="Root::Challenge23::DVD" x="333" y="712"/>
+        <Object hidden="false" ref="Root::Challenge23::SpaceOdyssee" x="220" y="1203"/>
+        <Object hidden="false" ref="Root::Challenge23::mat1" x="1291" y="1125"/>
+        <Object hidden="false" ref="Root::Challenge23::WarehouseManager" x="842" y="-263"/>
+        <Object hidden="false" ref="Root::Challenge23::McEwan_Amsterdam" x="2167" y="1223"/>
+        <Object hidden="false" ref="Root::Challenge23::a3_Author" x="2615" y="1292"/>
+        <Object hidden="false" ref="Root::Challenge23::warehouseManager" x="843" y="-92"/>
+        <Object hidden="false" ref="Root::Challenge23::SpO1" x="233" y="1598"/>
+        <Object hidden="false" ref="Root::Challenge23::Movie" x="895" y="803"/>
+        <Object hidden="false" ref="Root::Challenge23::Product" x="66" y="-159"/>
+        <Object hidden="false" ref="Root::Challenge23::IdentityProduct" x="334" y="366"/>
+        <Object hidden="false" ref="Root::Challenge23::Mate0815" x="749" y="992"/>
+      </Objects>
+      <Edges>
+        <Edge name="&lt;IdentityProduct Book&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;IdentityProduct Book&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge ref="AssociationLinkMapping: Root::Challenge23::DVD/Root::Challenge23::DVD_Player/Root::Challenge23::mayRecommend" source_port="WEST" target_port="EAST" type="link">
+          <IntermediatePoints>
+            <IntermediatePoint x="230.95361" y="878.4708"/>
+            <IntermediatePoint x="230.95361" y="865.6582"/>
+          </IntermediatePoints>
+        </Edge>
+        <Edge name="&lt;IdentityProduct DVD&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;IdentityProduct DVD&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="&lt;Enum BattSize&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;Enum BattSize&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="writtenBy" parent_association="VOID" ref="Root::Challenge23::writtenBy" source_port="EAST" target_port="WEST" type="association">
+          <IntermediatePoints>
+            <IntermediatePoint x="2478.0725" y="735.05273"/>
+            <IntermediatePoint x="2478.0725" y="868.2422"/>
+          </IntermediatePoints>
+        </Edge>
+        <Edge name="&lt;Book HardCover&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;Book HardCover&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge ref="InheritanceMapping: Root::Challenge23::IdentityProduct/Root::Challenge23::Product" source_port="NORTH" target_port="SOUTH" type="inheritance">
+          <IntermediatePoints>
+            <IntermediatePoint x="489.59464" y="280.31146"/>
+            <IntermediatePoint x="211.29492" y="280.31146"/>
+          </IntermediatePoints>
+        </Edge>
+        <Edge ref="AssociationLinkMapping: Root::Challenge23::SpaceOdyssee/Root::Challenge23::SpOd/Root::Challenge23::hasContent" source_port="EAST" target_port="WEST" type="link">
+          <IntermediatePoints>
+            <IntermediatePoint x="685.26514" y="1326.1205"/>
+            <IntermediatePoint x="685.26514" y="1474.7653"/>
+          </IntermediatePoints>
+        </Edge>
+        <Edge name="&lt;MetaClass Movie&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;MetaClass Movie&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="represents" parent_association="VOID" ref="Root::Challenge23::represents" source_port="EAST" target_port="WEST" type="association">
+          <IntermediatePoints>
+            <IntermediatePoint x="2077.85" y="838.00134"/>
+            <IntermediatePoint x="2077.85" y="735.05273"/>
+          </IntermediatePoints>
+        </Edge>
+        <Edge name="&lt;MetaClass Monograph&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;MetaClass Monograph&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="&lt;DVD SpaceOdyssee&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;DVD SpaceOdyssee&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="&lt;IdentityProduct MobilePhone&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;IdentityProduct MobilePhone&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="&lt;Battery ProPower100&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;Battery ProPower100&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="&lt;MetaClass Author&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;MetaClass Author&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge ref="AssociationLinkMapping: Root::Challenge23::HardCover/Root::Challenge23::McEwan_Amsterdam/Root::Challenge23::represents" source_port="EAST" target_port="WEST" type="link">
+          <IntermediatePoints>
+            <IntermediatePoint x="2088.4626" y="1189.416"/>
+            <IntermediatePoint x="2088.4626" y="1279.0302"/>
+          </IntermediatePoints>
+        </Edge>
+        <Edge name="&lt;MobilePhoneCase Matey&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;MobilePhoneCase Matey&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="&lt;MetaClass BulkProduct&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;MetaClass BulkProduct&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="&lt;IdentityProduct DVD_Player&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;IdentityProduct DVD_Player&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="hasContent" parent_association="VOID" ref="Root::Challenge23::hasContent" source_port="EAST" target_port="WEST" type="association">
+          <IntermediatePoints>
+            <IntermediatePoint x="816.2926" y="878.6582"/>
+            <IntermediatePoint x="816.2926" y="856.9562"/>
+          </IntermediatePoints>
+        </Edge>
+        <Edge ref="AssociationLinkMapping: Root::Challenge23::McEwan_Amsterdam/Root::Challenge23::a3_Author/Root::Challenge23::writtenBy" source_port="EAST" target_port="WEST" type="link">
+          <IntermediatePoints>
+            <IntermediatePoint x="2444.6174" y="1279.0302"/>
+            <IntermediatePoint x="2444.6174" y="1337.2422"/>
+          </IntermediatePoints>
+        </Edge>
+        <Edge name="&lt;MobilePhone Mate0815&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;MobilePhone Mate0815&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="&lt;DVD_Player haChi779&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;DVD_Player haChi779&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="&lt;Enum Unit&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;Enum Unit&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="&lt;MetaClass WarehouseManager&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;MetaClass WarehouseManager&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="&lt;Enum CopyType&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;Enum CopyType&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="&lt;BulkProduct Battery&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;BulkProduct Battery&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge ref="AssociationLinkMapping: Root::Challenge23::SpaceOdyssee/Root::Challenge23::haChi779/Root::Challenge23::recommends" source_port="WEST" target_port="EAST" type="link">
+          <IntermediatePoints>
+            <IntermediatePoint x="109.07964" y="1326.416"/>
+            <IntermediatePoint x="109.07964" y="1219.916"/>
+          </IntermediatePoints>
+        </Edge>
+        <Edge ref="InheritanceMapping: Root::Challenge23::BulkProduct/Root::Challenge23::Product" source_port="NORTH" target_port="SOUTH" type="inheritance">
+          <IntermediatePoints>
+            <IntermediatePoint x="-8.366176" y="282.59045"/>
+            <IntermediatePoint x="138.24113" y="282.59045"/>
+          </IntermediatePoints>
+        </Edge>
+        <Edge name="&lt;MetaClass IdentityProduct&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;MetaClass IdentityProduct&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="&lt;IdentityProduct MobilePhoneCase&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;IdentityProduct MobilePhoneCase&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="&lt;MetaClass Product&gt;" parent_association="VOID" ref="Root::Challenge23::&lt;MetaClass Product&gt;" source_port="null" target_port="null" type="association">
+          <IntermediatePoints/>
+        </Edge>
+        <Edge name="recommends" parent_association="VOID" ref="Root::Challenge23::recommends" source_port="NORTH" target_port="WEST" type="association">
+          <IntermediatePoints>
+            <IntermediatePoint x="138.24113" y="-283.28998"/>
+            <IntermediatePoint x="-146.96992" y="-283.28998"/>
+            <IntermediatePoint x="-146.96992" y="-49.360657"/>
+          </IntermediatePoints>
+        </Edge>
+        <Edge name="mayRecommend" parent_association="VOID" ref="Root::Challenge23::mayRecommend" source_port="EAST" target_port="NORTH" type="association">
+          <IntermediatePoints>
+            <IntermediatePoint x="499.98752" y="-49.360657"/>
+            <IntermediatePoint x="499.98752" y="-276.35004"/>
+            <IntermediatePoint x="210.8886" y="-276.35004"/>
+          </IntermediatePoints>
+        </Edge>
+      </Edges>
+      <Labels>
+        <Label localID="5" ownerID="Root::Challenge23::mayRecommend" x="118.97119" y="10.0"/>
+        <Label localID="5" ownerID="Root::Challenge23::represents" x="-206.90869" y="10.0"/>
+        <Label localID="2" ownerID="Root::Challenge23::mayRecommend" x="-17.546875" y="-138.22656"/>
+        <Label localID="3" ownerID="Root::Challenge23::mayRecommend" x="118.97119" y="-28.621094"/>
+        <Label localID="4" ownerID="Root::Challenge23::mayRecommend" x="10.0" y="-138.22656"/>
+        <Label localID="0" ownerID="Root::Challenge23::represents" x="0.0" y="-27.93164"/>
+        <Label localID="0" ownerID="Root::Challenge23::mayRecommend" x="176.05736" y="-195.64136"/>
+        <Label localID="2" ownerID="Root::Challenge23::represents" x="100.293945" y="-28.621094"/>
+        <Label localID="4" ownerID="Root::Challenge23::represents" x="100.293945" y="10.0"/>
+        <Label localID="3" ownerID="Root::Challenge23::represents" x="-195.00049" y="-28.621094"/>
+        <Label localID="3" ownerID="Root::Challenge23::recommends" x="118.97119" y="-28.621094"/>
+        <Label localID="4" ownerID="Root::Challenge23::recommends" x="10.0" y="-138.22656"/>
+        <Label localID="2" ownerID="Root::Challenge23::recommends" x="-17.546875" y="-138.22656"/>
+        <Label localID="5" ownerID="Root::Challenge23::recommends" x="118.97119" y="10.0"/>
+        <Label localID="0" ownerID="Root::Challenge23::recommends" x="-270.973" y="-213.90738"/>
+        <Label localID="0" ownerID="AssociationLinkMapping: Root::Challenge23::SpaceOdyssee/Root::Challenge23::SpOd/Root::Challenge23::hasContent" x="15.333333" y="-127.26498"/>
+        <Label localID="4" ownerID="Root::Challenge23::writtenBy" x="100.293945" y="10.0"/>
+        <Label localID="5" ownerID="Root::Challenge23::writtenBy" x="-121.45801" y="10.0"/>
+        <Label localID="0" ownerID="Root::Challenge23::hasContent" x="68.64934" y="-120.77863"/>
+        <Label localID="0" ownerID="AssociationLinkMapping: Root::Challenge23::HardCover/Root::Challenge23::McEwan_Amsterdam/Root::Challenge23::represents" x="-38.054626" y="-31.10286"/>
+        <Label localID="0" ownerID="AssociationLinkMapping: Root::Challenge23::McEwan_Amsterdam/Root::Challenge23::a3_Author/Root::Challenge23::writtenBy" x="-22.84699" y="-25.300951"/>
+        <Label localID="2" ownerID="Root::Challenge23::writtenBy" x="100.293945" y="-28.621094"/>
+        <Label localID="3" ownerID="Root::Challenge23::writtenBy" x="-107.84082" y="-28.621094"/>
+        <Label localID="0" ownerID="AssociationLinkMapping: Root::Challenge23::SpaceOdyssee/Root::Challenge23::haChi779/Root::Challenge23::recommends" x="-51.87358" y="-82.3989"/>
+        <Label localID="0" ownerID="Root::Challenge23::writtenBy" x="-29.225405" y="-23.841478"/>
+        <Label localID="3" ownerID="Root::Challenge23::hasContent" x="-195.00049" y="-28.621094"/>
+        <Label localID="4" ownerID="Root::Challenge23::hasContent" x="100.293945" y="10.0"/>
+        <Label localID="2" ownerID="Root::Challenge23::hasContent" x="100.293945" y="-28.621094"/>
+        <Label localID="5" ownerID="Root::Challenge23::hasContent" x="-206.90869" y="10.0"/>
+        <Label localID="0" ownerID="AssociationLinkMapping: Root::Challenge23::DVD/Root::Challenge23::DVD_Player/Root::Challenge23::mayRecommend" x="0.0" y="-27.93164"/>
+      </Labels>
+      <Preferences/>
+      <View name="Main View" tx="463.0467" ty="229.25446" xx="0.5452539"/>
+      <DiagramDisplayProperties CONCRETESYNTAX="true" CONSTRAINTREPORTS="true" CONSTRAINTS="true" DERIVEDATTRIBUTES="true" DERIVEDOPERATIONS="true" GETTERSANDSETTERS="false" ISSUETABLE="false" METACLASSNAME="false" OPERATIONS="true" OPERATIONVALUES="true" SLOTS="true"/>
+    </Diagram>
+  </Diagrams>
+  <Logs>
+    <addMetaClass abstract="true" level="3" name="Product" package="Root::Challenge23" parents=""/>
+    <addMetaClass abstract="false" level="3" name="BulkProduct" package="Root::Challenge23" parents=""/>
+    <addMetaClass abstract="false" level="3" name="IdentityProduct" package="Root::Challenge23" parents=""/>
+    <addMetaClass abstract="false" level="1" name="WarehouseManager" package="Root::Challenge23" parents=""/>
+    <addMetaClass abstract="false" level="1" name="Author" package="Root::Challenge23" parents=""/>
+    <addMetaClass abstract="false" level="1" name="Monograph" package="Root::Challenge23" parents=""/>
+    <addMetaClass abstract="false" level="1" name="Movie" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="MobilePhoneCase" of="Root::Challenge23::IdentityProduct" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="MobilePhone" of="Root::Challenge23::IdentityProduct" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="DVD" of="Root::Challenge23::IdentityProduct" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="Battery" of="Root::Challenge23::BulkProduct" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="DVD_Player" of="Root::Challenge23::IdentityProduct" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="Book" of="Root::Challenge23::IdentityProduct" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="ProPower100" of="Root::Challenge23::Battery" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="haChi779" of="Root::Challenge23::DVD_Player" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="HardCover" of="Root::Challenge23::Book" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="SpaceOdyssee" of="Root::Challenge23::DVD" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="Mate0815" of="Root::Challenge23::MobilePhone" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="Matey" of="Root::Challenge23::MobilePhoneCase" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="mat1" of="Root::Challenge23::Matey" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="mate08151" of="Root::Challenge23::Mate0815" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="SpO1" of="Root::Challenge23::SpaceOdyssee" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="a3_Author" of="Root::Challenge23::Author" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="McEwan_Amsterdam" of="Root::Challenge23::Monograph" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="dVD_3001" of="Root::Challenge23::haChi779" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="hardCover1" of="Root::Challenge23::HardCover" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="SpOd" of="Root::Challenge23::Movie" package="Root::Challenge23" parents=""/>
+    <addInstance abstract="false" name="warehouseManager" of="Root::Challenge23::WarehouseManager" package="Root::Challenge23" parents=""/>
+    <changeParent class="Root::Challenge23::BulkProduct" new="Root::Challenge23::Product" old="" package="Root::Challenge23"/>
+    <changeParent class="Root::Challenge23::IdentityProduct" new="Root::Challenge23::Product" old="" package="Root::Challenge23"/>
+    <addEnumeration name="BattSize"/>
+    <addEnumeration name="CopyType"/>
+    <addEnumeration name="Unit"/>
+    <addEnumerationValue enum_name="BattSize" enum_value_name="AA"/>
+    <addEnumerationValue enum_name="BattSize" enum_value_name="AAA"/>
+    <addEnumerationValue enum_name="CopyType" enum_value_name="CD"/>
+    <addEnumerationValue enum_name="CopyType" enum_value_name="hard"/>
+    <addEnumerationValue enum_name="CopyType" enum_value_name="soft"/>
+    <addEnumerationValue enum_name="Unit" enum_value_name="piece"/>
+    <addAttribute class="Root::Challenge23::Author" level="0" multiplicity="Seq{1,1,true,false}" name="firstName" package="Root::Challenge23" type="Root::XCore::String"/>
+    <addAttribute class="Root::Challenge23::Author" level="0" multiplicity="Seq{1,1,true,false}" name="lastName" package="Root::Challenge23" type="Root::XCore::String"/>
+    <addAttribute class="Root::Challenge23::Battery" level="1" multiplicity="Seq{1,1,true,false}" name="size" package="Root::Challenge23" type="Root::Challenge23::BattSize"/>
+    <addAttribute class="Root::Challenge23::Battery" level="1" multiplicity="Seq{1,1,true,false}" name="voltage" package="Root::Challenge23" type="Root::XCore::Float"/>
+    <addAttribute class="Root::Challenge23::Book" level="0" multiplicity="Seq{1,1,true,false}" name="soldOn" package="Root::Challenge23" type="Root::Auxiliary::Date"/>
+    <addAttribute class="Root::Challenge23::Book" level="1" multiplicity="Seq{1,1,true,false}" name="copyType" package="Root::Challenge23" type="Root::Challenge23::CopyType"/>
+    <addAttribute class="Root::Challenge23::Book" level="1" multiplicity="Seq{1,1,true,false}" name="pages" package="Root::Challenge23" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::Challenge23::BulkProduct" level="1" multiplicity="Seq{1,1,true,false}" name="bundle" package="Root::Challenge23" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::Challenge23::BulkProduct" level="1" multiplicity="Seq{1,1,true,false}" name="inStock" package="Root::Challenge23" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::Challenge23::BulkProduct" level="2" multiplicity="Seq{1,1,true,false}" name="dangerous" package="Root::Challenge23" type="Root::XCore::Boolean"/>
+    <addAttribute class="Root::Challenge23::DVD" level="1" multiplicity="Seq{1,1,true,false}" name="capacity" package="Root::Challenge23" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::Challenge23::DVD" level="1" multiplicity="Seq{1,1,true,false}" name="protected" package="Root::Challenge23" type="Root::XCore::Boolean"/>
+    <addAttribute class="Root::Challenge23::DVD" level="1" multiplicity="Seq{1,1,true,false}" name="resolution" package="Root::Challenge23" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::Challenge23::DVD_Player" level="1" multiplicity="Seq{1,1,true,false}" name="hdmi" package="Root::Challenge23" type="Root::XCore::Boolean"/>
+    <addAttribute class="Root::Challenge23::DVD_Player" level="1" multiplicity="Seq{1,1,true,false}" name="mobile" package="Root::Challenge23" type="Root::XCore::Boolean"/>
+    <addAttribute class="Root::Challenge23::DVD_Player" level="1" multiplicity="Seq{1,1,true,false}" name="resolution" package="Root::Challenge23" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::Challenge23::DVD_Player" level="1" multiplicity="Seq{1,1,true,false}" name="upscaling" package="Root::Challenge23" type="Root::XCore::Boolean"/>
+    <addAttribute class="Root::Challenge23::IdentityProduct" level="0" multiplicity="Seq{1,1,true,false}" name="id" package="Root::Challenge23" type="Root::XCore::String"/>
+    <addAttribute class="Root::Challenge23::IdentityProduct" level="0" multiplicity="Seq{1,1,true,false}" name="reducedPrice" package="Root::Challenge23" type="Root::Auxiliary::MonetaryValue"/>
+    <addAttribute class="Root::Challenge23::Monograph" level="0" multiplicity="Seq{1,1,true,false}" name="edition" package="Root::Challenge23" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::Challenge23::Monograph" level="0" multiplicity="Seq{1,1,true,false}" name="firstPublished" package="Root::Challenge23" type="Root::Auxiliary::Date"/>
+    <addAttribute class="Root::Challenge23::Monograph" level="0" multiplicity="Seq{1,1,true,false}" name="title" package="Root::Challenge23" type="Root::XCore::String"/>
+    <addAttribute class="Root::Challenge23::Movie" level="0" multiplicity="Seq{1,1,true,false}" name="length" package="Root::Challenge23" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::Challenge23::Movie" level="0" multiplicity="Seq{1,1,true,false}" name="produced" package="Root::Challenge23" type="Root::Auxiliary::Date"/>
+    <addAttribute class="Root::Challenge23::Movie" level="0" multiplicity="Seq{1,1,true,false}" name="title" package="Root::Challenge23" type="Root::XCore::String"/>
+    <addAttribute class="Root::Challenge23::Product" level="1" multiplicity="Seq{1,1,true,false}" name="standardPrice" package="Root::Challenge23" type="Root::Auxiliary::MonetaryValue"/>
+    <addAttribute class="Root::Challenge23::Product" level="2" multiplicity="Seq{1,1,true,false}" name="currency" package="Root::Challenge23" type="Root::Auxiliary::Currency"/>
+    <addAttribute class="Root::Challenge23::Product" level="2" multiplicity="Seq{1,1,true,false}" name="introduced" package="Root::Challenge23" type="Root::Auxiliary::Date"/>
+    <addAttribute class="Root::Challenge23::Product" level="2" multiplicity="Seq{1,1,true,false}" name="reducedTax" package="Root::Challenge23" type="Root::XCore::Boolean"/>
+    <addOperation body="@Operation bulkValueInStock[monitor=true,delToClassAllowed=false]():Auxiliary::MonetaryValue&#10;  let sum = Auxiliary::MonetaryValue(0.0,Auxiliary::eur)&#10;  in @For p in Challenge23::BulkProduct.allMetaInstances()-&gt;select(o |&#10;       o.level = 1) do&#10;       sum := sum.add(p.priceAfterTax())&#10;     end;&#10;     sum&#10;  end&#10;end" class="Root::Challenge23::WarehouseManager" level="0" monitored="true" name="bulkValueInStock" package="Root::Challenge23" paramNames="" paramTypes="" type="Root::Auxiliary::MonetaryValue"/>
+    <addOperation body="@Operation identityValueInStock[monitor=true,delToClassAllowed=false]():Auxiliary::MonetaryValue&#10;  let sum = Auxiliary::MonetaryValue(0.0,Auxiliary::eur)&#10;  in @For p in Challenge23::IdentityProduct.allMetaInstances()-&gt;select(o |&#10;       o.level = 0) do&#10;       sum := sum.add(p.priceAfterTax())&#10;     end;&#10;     sum&#10;  end&#10;end" class="Root::Challenge23::WarehouseManager" level="0" monitored="true" name="identityValueInStock" package="Root::Challenge23" paramNames="" paramTypes="" type="Root::Auxiliary::MonetaryValue"/>
+    <addOperation body="@Operation netPrice[monitor=true,delToClassAllowed=false]():XCore::Element&#10;  if self.reducedPrice = null&#10;  then self.of().standardPrice&#10;  else self.reducedPrice&#10;  end &#10;end" class="Root::Challenge23::IdentityProduct" level="0" monitored="true" name="netPrice" package="Root::Challenge23" paramNames="" paramTypes="" type="Root::XCore::Element"/>
+    <addOperation body="@Operation priceAfterTax[monitor=true,delToClassAllowed=false]():XCore::Element&#10;  self.netPrice().mul(1 + self.of().of().taxRate())&#10;end" class="Root::Challenge23::IdentityProduct" level="0" monitored="true" name="priceAfterTax" package="Root::Challenge23" paramNames="" paramTypes="" type="Root::XCore::Element"/>
+    <addOperation body="@Operation priceAfterTax[monitor=true,delToClassAllowed=false]():XCore::Element&#10;  self.standardPrice.mul(1 + self.of().taxRate())&#10;end" class="Root::Challenge23::BulkProduct" level="1" monitored="true" name="priceAfterTax" package="Root::Challenge23" paramNames="" paramTypes="" type="Root::XCore::Element"/>
+    <addOperation body="@Operation taxRate[monitor=true,delToClassAllowed=false]():XCore::Float&#10;  if self.reducedTax&#10;  then 0.07&#10;  else 0.15&#10;  end &#10;end" class="Root::Challenge23::Product" level="2" monitored="true" name="taxRate" package="Root::Challenge23" paramNames="" paramTypes="" type="Root::XCore::Float"/>
+    <addOperation body="@Operation title[monitor=true,delToClassAllowed=false]():XCore::String&#10;  self.getMonograph().getTitle()&#10;end" class="Root::Challenge23::Book" level="1" monitored="true" name="title" package="Root::Challenge23" paramNames="" paramTypes="" type="Root::XCore::String"/>
+    <addOperation body="@Operation title[monitor=true,delToClassAllowed=false]():XCore::String&#10;  self.getMovie().getTitle()&#10;end" class="Root::Challenge23::DVD" level="1" monitored="true" name="title" package="Root::Challenge23" paramNames="" paramTypes="" type="Root::XCore::String"/>
+    <addOperation body="@Operation totalValueInStock[monitor=true,delToClassAllowed=false]():Auxiliary::MonetaryValue&#10;  self.identityValueInStock().add(self.bulkValueInStock())&#10;end" class="Root::Challenge23::WarehouseManager" level="0" monitored="true" name="totalValueInStock" package="Root::Challenge23" paramNames="" paramTypes="" type="Root::Auxiliary::MonetaryValue"/>
+    <addOperation body="@Operation valueInStock[monitor=true,delToClassAllowed=false]():Auxiliary::MonetaryValue&#10;  let sum = null&#10;  in self.allInstances()-&gt;collect(i |&#10;       sum := i.standardPrice.mul(i.allInstances().size()));&#10;     sum&#10;  end&#10;end" class="Root::Challenge23::IdentityProduct" level="2" monitored="true" name="valueInStock" package="Root::Challenge23" paramNames="" paramTypes="" type="Root::Auxiliary::MonetaryValue"/>
+    <addOperation body="@Operation valueInStock[monitor=true,delToClassAllowed=false]():Auxiliary::MonetaryValue&#10;  let sum = null&#10;  in self.allInstances()-&gt;collect(i |&#10;       sum := i.standardPrice.mul(i.getInStock()));&#10;     sum&#10;  end&#10;end" class="Root::Challenge23::BulkProduct" level="2" monitored="true" name="valueInStock" package="Root::Challenge23" paramNames="" paramTypes="" type="Root::Auxiliary::MonetaryValue"/>
+    <addConstraint body="if self.reducedPrice = null&#10;   then true&#10;   else self.reducedPrice.getAmount() &lt; self.of().standardPrice.getAmountIn(self.reducedPrice.currency)&#10;   end " class="Root::Challenge23::IdentityProduct" constName="reducedPriceSmaller" instLevel="0" package="Root::Challenge23" reason="&quot;reducedPrice must be less than standardPrice&quot;"/>
+    <addConstraint body="not self.getRecProducts()-&gt;includes(self)" class="Root::Challenge23::Product" constName="noCyclicRecs" instLevel="1" package="Root::Challenge23" reason="&quot;A product must not recommend itself.&quot;"/>
+    <addConstraint body="self.allInstances().size() = 0" class="Root::Challenge23::BulkProduct" constName="noInstances" instLevel="1" package="Root::Challenge23" reason="&quot;This class must not have instances.&quot;"/>
+    <addConstraint body="self.getRecProducts()-&gt;forAll(p1 |&#10;     self.of().getRecommendableProducts()-&gt;exists(p2 |&#10;     p1.isKindOf(p2)))" class="Root::Challenge23::Product" constName="properRecommendation" instLevel="1" package="Root::Challenge23" reason="&quot;Dies entspricht nicht den Anforderungen&quot;"/>
+    <addConstraint body="self.reducedPrice = null orelse self.reducedPrice.currency.abbreviation = self.of().of().currency.abbreviation" class="Root::Challenge23::Product" constName="currencyMatch0" instLevel="0" package="Root::Challenge23" reason="self.name + &quot;'s price must be in &quot; + self.of().of().currency.abbreviation"/>
+    <addConstraint body="self.standardPrice &lt;&gt; null andthen self.standardPrice.currency.abbreviation = self.of().currency.abbreviation" class="Root::Challenge23::Product" constName="currencyMatch1" instLevel="1" package="Root::Challenge23" reason="self.name + &quot;'s price must be in &quot; + self.of().currency.abbreviation"/>
+    <changeSlotValue class="Root::Challenge23::Battery" package="Root::Challenge23" slotName="currency" valueToBeParsed="Auxiliary::Currency(&quot;$&quot;, &quot;NZD&quot;, 1.0)"/>
+    <changeSlotValue class="Root::Challenge23::Battery" package="Root::Challenge23" slotName="dangerous" valueToBeParsed="true"/>
+    <changeSlotValue class="Root::Challenge23::Battery" package="Root::Challenge23" slotName="introduced" valueToBeParsed="null"/>
+    <changeSlotValue class="Root::Challenge23::Battery" package="Root::Challenge23" slotName="reducedTax" valueToBeParsed="false"/>
+    <changeSlotValue class="Root::Challenge23::Book" package="Root::Challenge23" slotName="currency" valueToBeParsed="Auxiliary::Currency(&quot;EUR&quot;, &quot;EUR&quot;, 1.0)"/>
+    <changeSlotValue class="Root::Challenge23::Book" package="Root::Challenge23" slotName="introduced" valueToBeParsed="Auxiliary::Date::createDate(2021, 5, 12)"/>
+    <changeSlotValue class="Root::Challenge23::Book" package="Root::Challenge23" slotName="reducedTax" valueToBeParsed="true"/>
+    <changeSlotValue class="Root::Challenge23::DVD" package="Root::Challenge23" slotName="currency" valueToBeParsed="Auxiliary::Currency(&quot;$&quot;, &quot;USD&quot;, 1.0)"/>
+    <changeSlotValue class="Root::Challenge23::DVD" package="Root::Challenge23" slotName="introduced" valueToBeParsed="Auxiliary::Date::createDate(2004, 3, 2)"/>
+    <changeSlotValue class="Root::Challenge23::DVD" package="Root::Challenge23" slotName="reducedTax" valueToBeParsed="false"/>
+    <changeSlotValue class="Root::Challenge23::DVD_Player" package="Root::Challenge23" slotName="currency" valueToBeParsed="Auxiliary::Currency(&quot;$&quot;, &quot;USD&quot;, 1.0)"/>
+    <changeSlotValue class="Root::Challenge23::DVD_Player" package="Root::Challenge23" slotName="introduced" valueToBeParsed="Auxiliary::Date::createDate(2005, 4, 3)"/>
+    <changeSlotValue class="Root::Challenge23::DVD_Player" package="Root::Challenge23" slotName="reducedTax" valueToBeParsed="false"/>
+    <changeSlotValue class="Root::Challenge23::HardCover" package="Root::Challenge23" slotName="copyType" valueToBeParsed="Root::Challenge23::CopyType::hard"/>
+    <changeSlotValue class="Root::Challenge23::HardCover" package="Root::Challenge23" slotName="pages" valueToBeParsed="238"/>
+    <changeSlotValue class="Root::Challenge23::HardCover" package="Root::Challenge23" slotName="standardPrice" valueToBeParsed="Auxiliary::MonetaryValue(9.99, Auxiliary::Currency(&quot;EUR&quot;, &quot;EUR&quot;, 1.0))"/>
+    <changeSlotValue class="Root::Challenge23::Mate0815" package="Root::Challenge23" slotName="standardPrice" valueToBeParsed="Auxiliary::MonetaryValue(599.15, Auxiliary::Currency(&quot;SEK&quot;, &quot;SEK&quot;, 0.08868))"/>
+    <changeSlotValue class="Root::Challenge23::Matey" package="Root::Challenge23" slotName="standardPrice" valueToBeParsed="Auxiliary::MonetaryValue(17.95, Auxiliary::Currency(&quot;SEK&quot;, &quot;SEK&quot;, 0.08868))"/>
+    <changeSlotValue class="Root::Challenge23::McEwan_Amsterdam" package="Root::Challenge23" slotName="edition" valueToBeParsed="1"/>
+    <changeSlotValue class="Root::Challenge23::McEwan_Amsterdam" package="Root::Challenge23" slotName="firstPublished" valueToBeParsed="Auxiliary::Date::createDate(2002, 5, 1)"/>
+    <changeSlotValue class="Root::Challenge23::McEwan_Amsterdam" package="Root::Challenge23" slotName="title" valueToBeParsed="[65,109,115,116,101,114,100,97,109].asString()"/>
+    <changeSlotValue class="Root::Challenge23::MobilePhone" package="Root::Challenge23" slotName="currency" valueToBeParsed="Auxiliary::Currency(&quot;Kr&quot;, &quot;SEK&quot;, 0.08894818)"/>
+    <changeSlotValue class="Root::Challenge23::MobilePhone" package="Root::Challenge23" slotName="introduced" valueToBeParsed="Auxiliary::Date::createDate(2006, 5, 4)"/>
+    <changeSlotValue class="Root::Challenge23::MobilePhone" package="Root::Challenge23" slotName="reducedTax" valueToBeParsed="false"/>
+    <changeSlotValue class="Root::Challenge23::MobilePhoneCase" package="Root::Challenge23" slotName="currency" valueToBeParsed="Auxiliary::Currency(&quot;Kr&quot;, &quot;SEK&quot;, 0.08894818)"/>
+    <changeSlotValue class="Root::Challenge23::MobilePhoneCase" package="Root::Challenge23" slotName="introduced" valueToBeParsed="Auxiliary::Date::createDate(2007, 6, 5)"/>
+    <changeSlotValue class="Root::Challenge23::MobilePhoneCase" package="Root::Challenge23" slotName="reducedTax" valueToBeParsed="false"/>
+    <changeSlotValue class="Root::Challenge23::ProPower100" package="Root::Challenge23" slotName="bundle" valueToBeParsed="4"/>
+    <changeSlotValue class="Root::Challenge23::ProPower100" package="Root::Challenge23" slotName="inStock" valueToBeParsed="120"/>
+    <changeSlotValue class="Root::Challenge23::ProPower100" package="Root::Challenge23" slotName="size" valueToBeParsed="Root::Challenge23::BattSize::AA"/>
+    <changeSlotValue class="Root::Challenge23::ProPower100" package="Root::Challenge23" slotName="standardPrice" valueToBeParsed="Auxiliary::MonetaryValue(1.5, Auxiliary::Currency(&quot;NZD&quot;, &quot;NZD&quot;, 0.5737893))"/>
+    <changeSlotValue class="Root::Challenge23::ProPower100" package="Root::Challenge23" slotName="voltage" valueToBeParsed="1.5"/>
+    <changeSlotValue class="Root::Challenge23::SpO1" package="Root::Challenge23" slotName="id" valueToBeParsed="[115,111,56,50,57,53].asString()"/>
+    <changeSlotValue class="Root::Challenge23::SpO1" package="Root::Challenge23" slotName="reducedPrice" valueToBeParsed="null"/>
+    <changeSlotValue class="Root::Challenge23::SpOd" package="Root::Challenge23" slotName="length" valueToBeParsed="120"/>
+    <changeSlotValue class="Root::Challenge23::SpOd" package="Root::Challenge23" slotName="produced" valueToBeParsed="Auxiliary::Date::createDate(2001, 5, 1)"/>
+    <changeSlotValue class="Root::Challenge23::SpOd" package="Root::Challenge23" slotName="title" valueToBeParsed="[83,112,97,99,101,32,79,100,121,115,115,101,121].asString()"/>
+    <changeSlotValue class="Root::Challenge23::SpaceOdyssee" package="Root::Challenge23" slotName="capacity" valueToBeParsed="0"/>
+    <changeSlotValue class="Root::Challenge23::SpaceOdyssee" package="Root::Challenge23" slotName="protected" valueToBeParsed="false"/>
+    <changeSlotValue class="Root::Challenge23::SpaceOdyssee" package="Root::Challenge23" slotName="resolution" valueToBeParsed="0"/>
+    <changeSlotValue class="Root::Challenge23::SpaceOdyssee" package="Root::Challenge23" slotName="standardPrice" valueToBeParsed="Auxiliary::MonetaryValue(19.95, Auxiliary::Currency(&quot;USD&quot;, &quot;USD&quot;, 0.9190332))"/>
+    <changeSlotValue class="Root::Challenge23::a3_Author" package="Root::Challenge23" slotName="firstName" valueToBeParsed="[73,97,110].asString()"/>
+    <changeSlotValue class="Root::Challenge23::a3_Author" package="Root::Challenge23" slotName="lastName" valueToBeParsed="[77,99,69,119,97,110].asString()"/>
+    <changeSlotValue class="Root::Challenge23::dVD_3001" package="Root::Challenge23" slotName="id" valueToBeParsed="[115,52,57,51].asString()"/>
+    <changeSlotValue class="Root::Challenge23::dVD_3001" package="Root::Challenge23" slotName="reducedPrice" valueToBeParsed="null"/>
+    <changeSlotValue class="Root::Challenge23::haChi779" package="Root::Challenge23" slotName="hdmi" valueToBeParsed="false"/>
+    <changeSlotValue class="Root::Challenge23::haChi779" package="Root::Challenge23" slotName="mobile" valueToBeParsed="false"/>
+    <changeSlotValue class="Root::Challenge23::haChi779" package="Root::Challenge23" slotName="resolution" valueToBeParsed="0"/>
+    <changeSlotValue class="Root::Challenge23::haChi779" package="Root::Challenge23" slotName="standardPrice" valueToBeParsed="Auxiliary::MonetaryValue(99.99, Auxiliary::Currency(&quot;USD&quot;, &quot;USD&quot;, 0.9190332))"/>
+    <changeSlotValue class="Root::Challenge23::haChi779" package="Root::Challenge23" slotName="upscaling" valueToBeParsed="false"/>
+    <changeSlotValue class="Root::Challenge23::hardCover1" package="Root::Challenge23" slotName="id" valueToBeParsed="[75,56,57,51].asString()"/>
+    <changeSlotValue class="Root::Challenge23::hardCover1" package="Root::Challenge23" slotName="reducedPrice" valueToBeParsed="Auxiliary::MonetaryValue(8.99, Auxiliary::Currency(&quot;EUR&quot;, &quot;EUR&quot;, 1.0))"/>
+    <changeSlotValue class="Root::Challenge23::hardCover1" package="Root::Challenge23" slotName="soldOn" valueToBeParsed="Auxiliary::Date::createDate(2023, 5, 17)"/>
+    <changeSlotValue class="Root::Challenge23::mat1" package="Root::Challenge23" slotName="id" valueToBeParsed="[109,97,116,52,52,56,56,50].asString()"/>
+    <changeSlotValue class="Root::Challenge23::mat1" package="Root::Challenge23" slotName="reducedPrice" valueToBeParsed="null"/>
+    <changeSlotValue class="Root::Challenge23::mate08151" package="Root::Challenge23" slotName="id" valueToBeParsed="[77,90,50,48,48].asString()"/>
+    <changeSlotValue class="Root::Challenge23::mate08151" package="Root::Challenge23" slotName="reducedPrice" valueToBeParsed="null"/>
+    <addAssociation accessSourceFromTargetName="book" accessTargetFromSourceName="monograph" classSource="Root::Challenge23::Book" classTarget="Root::Challenge23::Monograph" fwName="represents" instLevelSource="1" instLevelTarget="0" isSymmetric="false" isTransitive="false" multSourceToTarget="Seq{1,1,true,false}" multTargetToSource="Seq{1,-1,false,false}" package="Root::Challenge23" reverseName="-1" sourceVisibleFromTarget="false" targetVisibleFromSource="true"/>
+    <addAssociation accessSourceFromTargetName="dVD" accessTargetFromSourceName="movie" classSource="Root::Challenge23::DVD" classTarget="Root::Challenge23::Movie" fwName="hasContent" instLevelSource="1" instLevelTarget="0" isSymmetric="false" isTransitive="false" multSourceToTarget="Seq{0,1,true,false}" multTargetToSource="Seq{0,-1,false,false}" package="Root::Challenge23" reverseName="-1" sourceVisibleFromTarget="false" targetVisibleFromSource="true"/>
+    <addAssociation accessSourceFromTargetName="monograph" accessTargetFromSourceName="author" classSource="Root::Challenge23::Monograph" classTarget="Root::Challenge23::Author" fwName="writtenBy" instLevelSource="0" instLevelTarget="0" isSymmetric="false" isTransitive="false" multSourceToTarget="Seq{1,-1,false,false}" multTargetToSource="Seq{0,1,true,false}" package="Root::Challenge23" reverseName="-1" sourceVisibleFromTarget="false" targetVisibleFromSource="true"/>
+    <addAssociation accessSourceFromTargetName="p4" accessTargetFromSourceName="recommendableProduct" classSource="Root::Challenge23::Product" classTarget="Root::Challenge23::Product" fwName="mayRecommend" instLevelSource="2" instLevelTarget="2" isSymmetric="false" isTransitive="false" multSourceToTarget="Seq{0,-1,false,false}" multTargetToSource="Seq{0,-1,false,false}" package="Root::Challenge23" reverseName="-1" sourceVisibleFromTarget="false" targetVisibleFromSource="true"/>
+    <addAssociation accessSourceFromTargetName="product" accessTargetFromSourceName="recProduct" classSource="Root::Challenge23::Product" classTarget="Root::Challenge23::Product" fwName="recommends" instLevelSource="1" instLevelTarget="1" isSymmetric="false" isTransitive="false" multSourceToTarget="Seq{0,-1,false,false}" multTargetToSource="Seq{0,-1,false,false}" package="Root::Challenge23" reverseName="-1" sourceVisibleFromTarget="false" targetVisibleFromSource="true"/>
+    <addLink classSource="Root::Challenge23::DVD" classTarget="Root::Challenge23::DVD_Player" name="mayRecommend" package="Root::Challenge23"/>
+    <addLink classSource="Root::Challenge23::HardCover" classTarget="Root::Challenge23::McEwan_Amsterdam" name="represents" package="Root::Challenge23"/>
+    <addLink classSource="Root::Challenge23::McEwan_Amsterdam" classTarget="Root::Challenge23::a3_Author" name="writtenBy" package="Root::Challenge23"/>
+    <addLink classSource="Root::Challenge23::SpaceOdyssee" classTarget="Root::Challenge23::SpOd" name="hasContent" package="Root::Challenge23"/>
+    <addLink classSource="Root::Challenge23::SpaceOdyssee" classTarget="Root::Challenge23::haChi779" name="recommends" package="Root::Challenge23"/>
+  </Logs>
+</XModeler>

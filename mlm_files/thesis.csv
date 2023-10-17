@@ -1,0 +1,3 @@
+,pages,student,title,year,maxPages<=60,maxPages<=100
+BachelorThesis,True,True,True,True,True,False
+MasterThesis,True,True,True,True,False,True

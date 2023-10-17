@@ -1,0 +1,5 @@
+,pages,title,year,from,to,author,editor
+Book,True,True,True,False,False,False,False
+Article,True,True,False,True,True,False,False
+Monograph,True,True,True,False,False,True,False
+Proceedings,True,True,True,False,False,False,True

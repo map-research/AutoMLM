@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<XModeler>
+    
+  <Version>3</Version>
+    
+  <Categories/>
+    
+  <Projects>
+    <Project name="Root::promotion"/>
+  </Projects>
+    
+  <Diagrams>
+    <Diagram label="promotion" package_path="Root::promotion">
+      <Categories/>
+      <Owners/>
+      <Objects>
+        <Object hidden="false" ref="Root::promotion::Footbal" x="407" y="212"/>
+        <Object hidden="false" ref="Root::promotion::Basketball" x="79" y="213"/>
+      </Objects>
+      <Edges/>
+      <Labels/>
+      <Preferences/>
+      <View name="Main View" tx="0.0" ty="0.0" xx="1.0"/>
+      <DiagramDisplayProperties SHOWCONCRETESYNTAX="true" SHOWCONSTRAINTREPORTS="true" SHOWCONSTRAINTS="true" SHOWDERIVEDATTRIBUTES="true" SHOWDERIVEDOPERATIONS="true" SHOWGETTERSANDSETTERS="false" SHOWISSUETABLEVISIBLE="false" SHOWMETACLASSNAME="false" SHOWOPERATIONS="true" SHOWOPERATIONVALUES="true" SHOWSLOTS="true"/>
+    </Diagram>
+  </Diagrams>
+    
+  <Logs>
+    <addMetaClass abstract="false" level="1" name="Footbal" package="Root::promotion" parents=""/>
+    <addMetaClass abstract="false" level="1" name="Basketball" package="Root::promotion" parents=""/>
+    <addAttribute class="Root::promotion::Basketball" level="0" multiplicity="Seq{1,1,true,false}" name="isOutdoor" package="Root::promotion" type="Root::XCore::Boolean"/>
+    <addAttribute class="Root::promotion::Basketball" level="0" multiplicity="Seq{1,1,true,false}" name="material" package="Root::promotion" type="Root::XCore::String"/>
+    <addAttribute class="Root::promotion::Basketball" level="0" multiplicity="Seq{1,1,true,false}" name="minPrice" package="Root::promotion" type="Root::XCore::Float"/>
+    <addAttribute class="Root::promotion::Basketball" level="0" multiplicity="Seq{1,1,true,false}" name="size" package="Root::promotion" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::promotion::Footbal" level="0" multiplicity="Seq{1,1,true,false}" name="minimumPrice" package="Root::promotion" type="Root::XCore::Float"/>
+    <addAttribute class="Root::promotion::Footbal" level="0" multiplicity="Seq{1,1,true,false}" name="proportions" package="Root::promotion" type="Root::XCore::String"/>
+    <addAttribute class="Root::promotion::Footbal" level="0" multiplicity="Seq{1,1,true,false}" name="size" package="Root::promotion" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::promotion::Footbal" level="0" multiplicity="Seq{1,1,true,false}" name="substance" package="Root::promotion" type="Root::XCore::String"/>
+    <changeSlotValue class="Root::promotion::Basketball" package="Root::promotion" slotName="lastUpdated" valueToBeParsed="null"/>
+    <changeSlotValue class="Root::promotion::Footbal" package="Root::promotion" slotName="lastUpdated" valueToBeParsed="null"/>
+  </Logs>
+  
+</XModeler>
