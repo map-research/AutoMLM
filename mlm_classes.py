@@ -1,6 +1,7 @@
 from typing import List
 
 
+# This file specifies all classes within an MLM.
 class MlmAttr:
     def __init__(self, attr_name: str, attr_type: str, inst_level):
         self.attr_name = attr_name
@@ -38,7 +39,7 @@ class MlmObject:
         #    attr_str  += ""
         print(f"[L{self.level}-OBJECT] {self.name} [of {self.super_object.name}]")
         print(*self.attr_list, sep="\n")
-        print(*self.slot_list, sep="\n")
+        # print(*self.slot_list, sep="\n")
         return ""
 
     def set_super_object(self, new_super_object):

@@ -24,13 +24,13 @@ class GuiMain(ctk.CTk):
     def create_widgets(self):
 
         # fonts and paddings
-        font_header:str = "Roboto"
-        font_body:str = "Roboto"
+        font_header: str = "Roboto"
+        font_body: str = "Roboto"
 
         padx_s = "10"
         padx_l = "20"
 
-        #pady
+        # pady
 
         # Titel, der oben im Programm steht
         title_label = ctk.CTkLabel(self, text="MLM Automatic Construction", font=(font_header, 40, "bold"))
@@ -43,14 +43,16 @@ class GuiMain(ctk.CTk):
         pad_label = ctk.CTkLabel(self, text="", font=(font_header, 5))
         pad_label.pack(anchor="w", pady=10)
 
-        # Drop-Down-Menü für Cases MUSS MIT RICHTIGEN CASES GEFÜLLT WERDEN
-        # Zunächst Methode, die nach Auswahl im Dropdown-Menü aufgerufen wird und Infolabel (s.u.) über Case aktualisiert
+        # Dropdown-Menü für Cases MUSS MIT RICHTIGEN CASES GEFÜLLT WERDEN
+        # zunächst Methode, die nach Auswahl im Dropdown-Menü aufgerufen wird und Infolabel (s.u.)
+        # über Case aktualisiert
         def combobox_callback(choice):
             if choice == "Generalization":
                 update_info_label(choice + ": This case covers the investigation of generalization potentials, which"
                                            " might not involve the introduction of new levels")
             if choice == "Classification":
-                update_info_label(choice + ": This case covers classification examples, where a new level must be introduced")
+                update_info_label(choice + ": This case covers classification examples, where a new level "
+                                           "must be introduced")
 
         self.case_dropdown = ctk.StringVar(self)
         self.combobox_case_dropdown = ctk.CTkComboBox(self, values=["Generalization", "Classification"], command=combobox_callback,
@@ -96,7 +98,7 @@ class GuiMain(ctk.CTk):
         execute_button = ctk.CTkButton(self, text="Execute", font=("Calibri", 18, "bold"), command=self.execution)
         execute_button.pack(side="bottom", padx=10, pady=10)
 
-        # Erstellung eines Result-Label
+        # Erstellung eines Result-Labels
         self.result_label = ctk.CTkLabel(self, text="")
         self.result_label.pack()
 
@@ -105,11 +107,11 @@ class GuiMain(ctk.CTk):
         file_path = filedialog.askopenfilename(filetypes=[("XML files", "*.xml")])
         self.file_path.set(file_path)
 
-    # Methode zur Ausführung des ausgewählten Case, Automatisierungstechnik und XML-Datei
+    # Methode zur Ausführung des ausgewählten Cases, Automatisierungstechnik und XML-Datei
     def execution(self):
         if self.file_path.get():
-            perform_promotion_process(self.file_path.get())
-            # print(mlm)
+            perform_promotion_process(self.file_path.get(), self.combobox_automation_technology_dropdown.get(),
+                                      self.combobox_case_dropdown.get())
         else:
             print("NO FILE PROVIDED")
 

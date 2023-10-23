@@ -6,7 +6,7 @@ The aim of the thesis is to investigate the potentials of different automation t
 Multi-level modeling (MLM) is a novel conceptual modeling paradigm where users can specify arbitrary classication levels and defer instantiation of class properties, among others.
 My research considers four promising automation techniques that are tested against a number of so-called "cases."
 A case represents a category of model snippets that highlight a particular promotion task.
-Each case faces different challenges that should be adressed by the respective automation technique.
+Each case faces different challenges that should be addressed by the respective automation technique.
 
 The following automation techniques will be considered:
 - Formal Concept Analysis
