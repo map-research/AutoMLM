@@ -25,8 +25,9 @@ class MlmDoc:
             print(f"\nFile '{source_location}' was not found!")
         except:
             print(f"\nFile '{source_location}' is no XML document")
-
-        assert document.documentElement.tagName == "XModeler", "File is no Multi-Level Model!"
+    
+        # convertet to comment, xmodeler does now not include this tag 
+        #assert document.documentElement.tagName == "XModeler", "File is no Multi-Level Model!"
 
         return document
 
