@@ -26,7 +26,7 @@ class MlmDoc:
         except:
             print(f"\nFile '{source_location}' is no XML document")
     
-        # convertet to comment, xmodeler does now not include this tag 
+        # converted to comment, xmodeler doesn't include this tag anymore
         #assert document.documentElement.tagName == "XModeler", "File is no Multi-Level Model!"
 
         return document
