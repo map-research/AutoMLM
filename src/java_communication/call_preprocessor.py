@@ -7,6 +7,7 @@ This module offers the implementation of the functions called by Java. Reference
 import sys
 import message_manager
 from mlm_doc_parser import *
+from xml.dom.minidom import parse
 
 # performs the promotion process when called from java
 def perform_promotion_process_from_java(messageId):
@@ -14,4 +15,10 @@ def perform_promotion_process_from_java(messageId):
     path = arg[0]
     mlm = MlmDoc(path)
     message_manager.postResponse(messageId,mlm)
+    return
+
+def import_XML(messageId):
+
+    path = "C:\\Users\\fhend\\Documents\\GitHub_Repos\\MosaicFX\\AutoMLM\\src\\Java_communication\\dummy.xml"
+    message_manager.postResponse(messageId, path)
     return
