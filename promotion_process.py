@@ -18,9 +18,12 @@ def perform_promotion_process(file_path: str, automation_technique, case):
         fca.show_concept_lattice()
         fca.get_new_mlm_objects()
 
+    else:
+        print("WRONG AUTOMATION TECHNIQUE SELECTED")
+
 # mlm = MlmDoc("mlm_files/gen_example.xml")
 # mlm = MlmDoc.input()
 # print(mlm)
 
 
-# perform_promotion_process("mlm_files/warehouse_enhanced.xml", "Formal Concept Analysis", "n")
+# perform_promotion_process("mlm_files/gen_example.xml", "Formal Concept Analysis", "n")

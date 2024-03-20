@@ -55,7 +55,10 @@ class GuiMain(ctk.CTk):
                                            "must be introduced")
 
         self.case_dropdown = ctk.StringVar(self)
-        self.combobox_case_dropdown = ctk.CTkComboBox(self, values=["Generalization", "Classification"], command=combobox_callback,
+        self.combobox_case_dropdown = ctk.CTkComboBox(self, values=["G-1", "G-2", "G-3",
+                                                                    "C-1", "C-2", "C-3", "C-4", "C-5", "C-6", "C-7",
+                                                                    "I-1", "I-2", "I-3", "I-4", "I-5", "I-6",
+                                                                    "U-1", "U-2", "U-3"], command=combobox_callback,
                                                       button_color="gray")
         self.combobox_case_dropdown.set("Select case...")
         self.combobox_case_dropdown.pack(anchor="w", padx="20")
@@ -75,15 +78,18 @@ class GuiMain(ctk.CTk):
 
         # Dropdown Menü über Automatisierungstechnik
         self.automation_technology_dropdown = ctk.StringVar(self)
-        self.combobox_automation_technology_dropdown = ctk.CTkComboBox(self, values=["Formal Concept Analaysis",
-                                                                                     "Clustering"],
+        self.combobox_automation_technology_dropdown = ctk.CTkComboBox(self, values=["Formal Concept Analysis",
+                                                                                     "Lexical Analysis",
+                                                                                     "Clustering Algorithms",
+                                                                                     "Classification Algorithms",
+                                                                                     "Large Language Models"],
                                                                        button_color="gray", width=250)
         self.combobox_automation_technology_dropdown.set("Select automation technology...")
         self.combobox_automation_technology_dropdown.pack(anchor="w", padx="20")
 
         # 2) Upload Input Model
-        upload_label = ctk.CTkLabel(self, text="Upload Input Model", font=("Calibri", 28, "bold"))
-        upload_label.pack(anchor="w")  # bestimmt, dass das Label mittig platziert wird
+        upload_label = ctk.CTkLabel(self, text="Upload Input Model", font=(font_header, 28, "bold"))
+        upload_label.pack(anchor="w", padx="20", pady="40")  # bestimmt, dass das Label mittig platziert wird
 
         # Dateiauswahl-Button für Model Upload
         self.file_path = ctk.StringVar(self)
