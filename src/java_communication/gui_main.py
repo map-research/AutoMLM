@@ -145,7 +145,7 @@ class GuiMain(ctk.CTk):
             new_file_path = os.path.join(file_dir, new_file_name)
 
             # Speichere den XML-Inhalt in die neue Datei
-            # with open(new_file_path, "w") as file:
+            #with open(new_file_path, "w") as file:
             #    file.write(xml_content)
 
             self.result_label.configure(text=f"XML file saved under:\n{new_file_path}")

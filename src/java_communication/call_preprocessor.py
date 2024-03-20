@@ -6,6 +6,7 @@ This module offers the implementation of the functions called by Java. Reference
 
 import sys
 import message_manager
+from mlm_doc_parser import *
 
 def process_string(messageId):
     """
@@ -15,6 +16,14 @@ def process_string(messageId):
     string = arg[0]
     string += ' from Python'
     message_manager.postResponse(messageId,string)
+    return
+
+def perform_promotion_process_from_java(messageId):
+    print('func is called')
+    arg = message_manager.readMessageContent(messageId)
+    path = arg[0]
+    mlm = MlmDoc(path)
+    message_manager.postResponse(messageId,mlm)
     return
 
 def simulate_lost_file(messageId):
