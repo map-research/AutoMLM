@@ -13,7 +13,7 @@ class MlmDoc:
         self.xml_document = self._parse_xml(file_path)
         # self.mlm_objects = [MlmObject]
         if self.xml_document is not None:
-            assert self.xml_document.documentElement.tagName == "XModeler", "File is no Multi-Level Model!"
+            #assert self.xml_document.documentElement.tagName == "XModeler", "File is no Multi-Level Model!"
             self.mlm_objects = self.retrieve_all_mlm_objects()
 
     @classmethod

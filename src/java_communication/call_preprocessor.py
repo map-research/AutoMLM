@@ -22,7 +22,9 @@ def process_string(messageId):
 def perform_promotion_process_from_java(messageId):
     print('func is called')
     arg = message_manager.readMessageContent(messageId)
+    # arg[0] is path of XML/MLM document
     path = arg[0]
+    print(path)
     mlm = MlmDoc(path)
     message_manager.postResponse(messageId,mlm)
     return
@@ -30,7 +32,7 @@ def perform_promotion_process_from_java(messageId):
 
 def import_XML(messageId):
 
-    path = "C:\\Users\\fhend\\Documents\\GitHub_Repos\\MosaicFX\\AutoMLM\\src\\Java_communication\\dummy.xml"
+    path = "C:\Programme\XModeler-AutoMLM-v1\XModeler\AutoMLM\src\java_communication\dummy.xml"
     message_manager.postResponse(messageId, path)
     return
   
