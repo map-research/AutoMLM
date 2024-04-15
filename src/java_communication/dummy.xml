@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<XModeler>
+    
+  <Version>3</Version>
+    
+  <Categories/>
+    
+  <Projects>
+    <Project name="Root::gen"/>
+  </Projects>
+    
+  <Diagrams>
+    <Diagram label="gen" package_path="Root::gen">
+      <Categories/>
+      <Owners/>
+      <Objects>
+        <Object hidden="false" ref="Root::gen::Monograph" x="769" y="295"/>
+        <Object hidden="false" ref="Root::gen::Article" x="444" y="302"/>
+        <Object hidden="false" ref="Root::gen::Book" x="282" y="309"/>
+        <Object hidden="false" ref="Root::gen::Proceedings" x="597" y="295"/>
+      </Objects>
+      <Edges/>
+      <Labels/>
+      <Preferences/>
+      <View name="Main View" tx="0.0" ty="0.0" xx="1.0"/>
+      <DiagramDisplayProperties SHOWCONCRETESYNTAX="true" SHOWCONSTRAINTREPORTS="true" SHOWCONSTRAINTS="true" SHOWDERIVEDATTRIBUTES="true" SHOWDERIVEDOPERATIONS="true" SHOWGETTERSANDSETTERS="false" SHOWISSUETABLEVISIBLE="false" SHOWMETACLASSNAME="false" SHOWOPERATIONS="true" SHOWOPERATIONVALUES="true" SHOWSLOTS="true"/>
+    </Diagram>
+  </Diagrams>
+    
+  <Logs>
+    <addMetaClass abstract="false" level="1" name="Proceedings" package="Root::gen" parents=""/>
+    <addMetaClass abstract="false" level="1" name="Monograph" package="Root::gen" parents=""/>
+    <addMetaClass abstract="false" level="1" name="Article" package="Root::gen" parents=""/>
+    <addMetaClass abstract="false" level="1" name="Book" package="Root::gen" parents=""/>
+    <addAttribute class="Root::gen::Article" level="0" multiplicity="Seq{1,1,true,false}" name="from" package="Root::gen" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::gen::Article" level="0" multiplicity="Seq{1,1,true,false}" name="pages" package="Root::gen" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::gen::Article" level="0" multiplicity="Seq{1,1,true,false}" name="title" package="Root::gen" type="Root::XCore::String"/>
+    <addAttribute class="Root::gen::Article" level="0" multiplicity="Seq{1,1,true,false}" name="to" package="Root::gen" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::gen::Book" level="0" multiplicity="Seq{1,1,true,false}" name="pages" package="Root::gen" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::gen::Book" level="0" multiplicity="Seq{1,1,true,false}" name="title" package="Root::gen" type="Root::XCore::String"/>
+    <addAttribute class="Root::gen::Book" level="0" multiplicity="Seq{1,1,true,false}" name="year" package="Root::gen" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::gen::Monograph" level="0" multiplicity="Seq{1,1,true,false}" name="author" package="Root::gen" type="Root::XCore::String"/>
+    <addAttribute class="Root::gen::Monograph" level="0" multiplicity="Seq{1,1,true,false}" name="pages" package="Root::gen" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::gen::Monograph" level="0" multiplicity="Seq{1,1,true,false}" name="title" package="Root::gen" type="Root::XCore::String"/>
+    <addAttribute class="Root::gen::Monograph" level="0" multiplicity="Seq{1,1,true,false}" name="year" package="Root::gen" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::gen::Proceedings" level="0" multiplicity="Seq{1,1,true,false}" name="editor" package="Root::gen" type="Root::XCore::String"/>
+    <addAttribute class="Root::gen::Proceedings" level="0" multiplicity="Seq{1,1,true,false}" name="pages" package="Root::gen" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::gen::Proceedings" level="0" multiplicity="Seq{1,1,true,false}" name="title" package="Root::gen" type="Root::XCore::String"/>
+    <addAttribute class="Root::gen::Proceedings" level="0" multiplicity="Seq{1,1,true,false}" name="year" package="Root::gen" type="Root::XCore::Integer"/>
+    <changeSlotValue class="Root::gen::Article" package="Root::gen" slotName="lastUpdated" valueToBeParsed="null"/>
+    <changeSlotValue class="Root::gen::Book" package="Root::gen" slotName="lastUpdated" valueToBeParsed="null"/>
+    <changeSlotValue class="Root::gen::Monograph" package="Root::gen" slotName="lastUpdated" valueToBeParsed="null"/>
+    <changeSlotValue class="Root::gen::Proceedings" package="Root::gen" slotName="lastUpdated" valueToBeParsed="null"/>
+  </Logs>
+  
+</XModeler>

@@ -32,4 +32,7 @@ if __name__ == "__main__":
     elif function_name =="perform_promotion_process_from_java":
         call_preprocessor.perform_promotion_process_from_java(sys.argv[2])
 
+    elif function_name =="import_XML":
+        call_preprocessor.import_XML(sys.argv[2])
+
     else: raise AttributeError("Called Python function unkown!")

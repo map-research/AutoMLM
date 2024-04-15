@@ -7,6 +7,7 @@ This module offers the implementation of the functions called by Java. Reference
 import sys
 import message_manager
 from mlm_doc_parser import *
+from xml.dom.minidom import parse
 
 def process_string(messageId):
     """
@@ -26,6 +27,13 @@ def perform_promotion_process_from_java(messageId):
     message_manager.postResponse(messageId,mlm)
     return
 
+
+def import_XML(messageId):
+
+    path = "C:\\Users\\fhend\\Documents\\GitHub_Repos\\MosaicFX\\AutoMLM\\src\\Java_communication\\dummy.xml"
+    message_manager.postResponse(messageId, path)
+    return
+  
 def simulate_lost_file(messageId):
     """
         Defined for testing purposes. Simulates the loss of a message from Java
@@ -44,4 +52,3 @@ def illegal_arguments(messageId):
         print('wrong input')
         raise ValueError("Input args do not match expected args")
     return
-
