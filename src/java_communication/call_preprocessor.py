@@ -32,7 +32,7 @@ def perform_promotion_process_from_java(messageId):
 
 def import_XML(messageId):
 
-    path = "C:\Programme\XModeler-AutoMLM-v1\XModeler\AutoMLM\src\java_communication\dummy.xml"
+    path = "C:\\Users\\fhend\\Documents\\GitHub_Repos\\MosaicFX\\AutoMLM\\src\\java_communication\\dummy.xml"
     message_manager.postResponse(messageId, path)
     return
   
