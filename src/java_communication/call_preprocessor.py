@@ -19,19 +19,25 @@ def process_string(messageId):
     message_manager.postResponse(messageId,string)
     return
 
+
 def perform_promotion_process_from_java(messageId):
+    """
+    Receives a messageId from Java and performs MLM promotion
+    """
     print('func is called')
     arg = message_manager.readMessageContent(messageId)
     # arg[0] is path of XML/MLM document
     path = arg[0]
-    print(path)
+    # print(path)
     mlm = MlmDoc(path)
     message_manager.postResponse(messageId,mlm)
     return
 
 
 def import_XML(messageId):
-
+    """
+    transmitted path is send to Java and opened as Multi-Level Model
+    """
     path = "C:\Programme\XModeler-AutoMLM-v1\XModeler\AutoMLM\src\java_communication\dummy.xml"
     message_manager.postResponse(messageId, path)
     return

@@ -24,27 +24,27 @@ class MlmSlot:
 
 class MlmObject:
     def __init__(self, full_name: str, name: str, level: int, attr_list: List[MlmAttr], slot_list: List[MlmSlot],
-                 super_object):
+                 class_of_object):
         self.full_name = full_name
         self.name = name
         self.level = level
         self.attr_list = attr_list
         self.slot_list = slot_list
-        self.super_object = super_object
+        self.class_of_object = class_of_object
 
     def __repr__(self):
         # class_str = f"[CLASS] {self.name}"
         # attr_str = ""
         # for attr in self.attr_list:
         #    attr_str  += ""
-        print(f"[L{self.level}-OBJECT] {self.name} [of {self.super_object.name}]")
+        print(f"[L{self.level}-OBJECT] {self.name} [of {self.class_of_object.name}]")
         print(*self.attr_list, sep="\n")
-        # print(*self.slot_list, sep="\n")
+        print(*self.slot_list, sep="\n")
         return ""
 
-    def set_super_object(self, new_super_object):
-        self.super_object = new_super_object
-        self.level = int(new_super_object.level) - 1
+    def set_class_of_object(self, new_class_of_object):
+        self.class_of_object = new_class_of_object
+        self.level = int(new_class_of_object.level) - 1
 
     def _get_meta_class(self):
         return self("MetaClass", "MetaClass", 99, [], [], object())

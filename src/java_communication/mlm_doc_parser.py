@@ -5,15 +5,15 @@ metaClass = MlmObject("MetaClass", "MetaClass", 99, [], [], object())
 instanceDummy = MlmObject("Dummy", "Dummy", 555, [], [], object())
 
 
-# The class MlmDoc serves to represent complete MLM models as provided by a xml file.
-# Therefore, it receives path of the file as an input (parameter "input_source") and parses the file
+# The class MlmDoc serves to represent complete MLM models as provided by an xml file.
+# Therefore, it receives a path of the file as an input (parameter "input_source") and parses the file
 # All elements of the MLM are then instances of the classes defined in "mlm_classes.py"
 class MlmDoc:
     def __init__(self, file_path):
         self.xml_document = self._parse_xml(file_path)
         # self.mlm_objects = [MlmObject]
         if self.xml_document is not None:
-            #assert self.xml_document.documentElement.tagName == "XModeler", "File is no Multi-Level Model!"
+            # assert self.xml_document.documentElement.tagName == "XModeler", "File is no Multi-Level Model!"
             self.mlm_objects = self.retrieve_all_mlm_objects()
 
     @classmethod
@@ -34,10 +34,17 @@ class MlmDoc:
         return document
 
     def retrieve_all_mlm_objects(self) -> List[MlmObject]:
+        """
+        This operation retrieves all MLM objects/classes. First all highest-level classes are retrieved via the
+        function `_retrieve_all_mlm_metaclass_objects.` This is important since they have a separate XML tag.
+        Afterward, the remaining MLM objects are retrieved.
+
+        IMPORTANT: Are Parents of top meta classes identified as such?
+        """
         mlm_objects = self._retrieve_metaclass_objects()
         for instance_object in self._retrieve_instance_objects():
-            instance_object.set_super_object(self._get_parent_mlm_object(instance_object.super_object.full_name,
-                                                                        mlm_objects))
+            instance_object.set_class_of_object(self._get_parent_mlm_object(instance_object.class_of_object.full_name,
+                                                                            mlm_objects))
             mlm_objects.append(instance_object)
         return mlm_objects
 
@@ -46,9 +53,10 @@ class MlmDoc:
         for object_element in self.xml_document.getElementsByTagName("addMetaClass"):
             mlm_object_long = object_element.getAttribute("package") + "::" + object_element.getAttribute("name")
             mlm_object = MlmObject(mlm_object_long, object_element.getAttribute("name"),
-                                   object_element.getAttribute("level"),
+                                   int(object_element.getAttribute("level")),
                                    self.retrieve_attributes_for_mlm_object(mlm_object_long),
-                                   self.retrieve_slots_for_mlm_object(mlm_object_long),  # impossible
+                                   self.retrieve_slots_for_mlm_object(mlm_object_long),
+                                   # retrieval of slots is impossible here. No meta class can have slots
                                    metaClass)
             mlm_objects.append(mlm_object)
 
@@ -65,6 +73,7 @@ class MlmDoc:
             mlm_objects.append(mlm_object)
 
         return mlm_objects
+
 
     def _get_parent_mlm_object(self, full_object_name: str, mlm_instance_objects: List[MlmObject]) -> MlmObject:
         for object_elem in mlm_instance_objects:
@@ -87,6 +96,10 @@ class MlmDoc:
                 mlm_slot = MlmSlot(MlmAttr("test", "test::test::test", 3), slot_elem.getAttribute("valueToBeParsed"))
                 mlm_slot_list.append(mlm_slot)
         return mlm_slot_list
+
+
+    def _retrieve_attribute_for_slot(self) -> MlmAttr:
+
 
     def __repr__(self):
         print(*self.mlm_objects, sep="----------------------------------------------\n")
