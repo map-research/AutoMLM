@@ -2,8 +2,7 @@ from enum import EnumMeta
 from xml.dom.minidom import parse
 from mlm_helper_classes import *
 
-metaClass = MlmObject("MetaClass", "MetaClass", 99, None)
-instanceDummy = MlmObject("Dummy", "Dummy", 555, None)
+metaClass = MlmObject("MetaClass", "MetaClass", "99", None, "false")
 
 
 # Helper function to parse XML files
@@ -51,6 +50,7 @@ class MultilevelModel:
 
     def extract_mlm_from_xml(self):
         self.mlm_objects = self.retrieve_all_mlm_objects()
+        self._set_generalizations()
         self.enums = self.retrieve_all_enums()
         self.retrieve_all_attributes()
         self.retrieve_all_slots()
@@ -77,7 +77,8 @@ class MultilevelModel:
         for object_element in self.parsed_xml.getElementsByTagName("addMetaClass"):
             mlm_object_long = object_element.getAttribute("package") + "::" + object_element.getAttribute("name")
             mlm_object = MlmObject(mlm_object_long, object_element.getAttribute("name"),
-                                   int(object_element.getAttribute("level")), metaClass)
+                                   object_element.getAttribute("level"), metaClass,
+                                   object_element.getAttribute("abstract"))
             mlm_objects.append(mlm_object)
 
         return mlm_objects
@@ -88,7 +89,8 @@ class MultilevelModel:
             mlm_object_long = object_element.getAttribute("package") + "::" + object_element.getAttribute("name")
             mlm_object = MlmObject(mlm_object_long, object_element.getAttribute("name"), 99,
                                    MlmObject(object_element.getAttribute("of"),
-                                             "", 99, None))
+                                             "", 99, None, "false"),
+                                   object_element.getAttribute("abstract"))
             mlm_objects.append(mlm_object)
 
         return mlm_objects
@@ -97,6 +99,12 @@ class MultilevelModel:
         for object_elem in mlm_instance_objects:
             if object_elem.full_name == full_object_name:
                 return object_elem
+
+    def _set_generalizations(self):
+        for parent_element in self.parsed_xml.getElementsByTagName("changeParent"):
+            child_class: MlmObject = self.get_mlm_object_by_fullname(parent_element.getAttribute("class"))
+            for parent_class_name in parent_element.getAttribute("new").split(","):
+                child_class.add_parent_class(self.get_mlm_object_by_fullname(parent_class_name))
 
     def retrieve_all_enums(self):
         enums_tmp: List[EnumType] = []
@@ -178,6 +186,13 @@ class MultilevelModel:
                 if link_element.getAttribute("classTarget") == mlm_object.full_name:
                     new_link.set_target_object(mlm_object)
             self.links.append(new_link)
+
+
+    def get_mlm_object_by_fullname(self, full_name: str) -> MlmObject:
+        for mlm_object in self.mlm_objects:
+            if mlm_object.full_name == full_name:
+                return mlm_object
+        raise Exception(f"No matching MLM object ({full_name}) found!")
 
     def __repr__(self):
         print(*self.enums, sep="\n---\n")
