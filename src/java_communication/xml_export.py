@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-import mlm_classes
+import mlm_helper_classes
 import datetime
 
 # TODO add associations
@@ -85,8 +85,8 @@ def main():
     slot = mlm_classes.MlmSlot(attr,convertStringToXModeler('test'))
     slot3 = mlm_classes.MlmSlot(attr, convertStringToXModeler('pierreIstDoof'))
 
-    attr1 = mlm_classes.MlmAttr('alter', 'Root::XCore::Integer', 0)
-    slot1 = mlm_classes.MlmSlot(attr1, '1')
+    attr1 = mlm_helper_classes.MlmAttr('alter', 'Root::XCore::Integer', 0)
+    slot1 = mlm_helper_classes.MlmSlot(attr1, '1')
 
     attr2 = mlm_classes.MlmAttr('dautm', 'Root::Auxiliary::Date',0)
     slot2 = mlm_classes.MlmSlot(attr2, convertDateToXmodeler(datetime.datetime(2020,5,17)))

@@ -1,10 +1,10 @@
-from mlm_doc_parser import *
+from mlm_class import *
 from fca_promotion import *
 
 
 # this function is executed when the "execute" button is hit
 def perform_promotion_process(file_path: str, automation_technique, case):
-    mlm = MlmDoc(file_path)
+    mlm = MultilevelModel(file_path)
     print(mlm)
 
     if automation_technique == "Formal Concept Analysis":

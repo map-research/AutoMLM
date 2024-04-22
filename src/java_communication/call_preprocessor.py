@@ -6,7 +6,7 @@ This module offers the implementation of the functions called by Java. Reference
 
 import sys
 import message_manager
-from mlm_doc_parser import *
+from mlm_class import *
 from xml.dom.minidom import parse
 
 def process_string(messageId):
@@ -29,7 +29,7 @@ def perform_promotion_process_from_java(messageId):
     # arg[0] is path of XML/MLM document
     path = arg[0]
     # print(path)
-    mlm = MlmDoc(path)
+    mlm = MultilevelModel(path)
     message_manager.postResponse(messageId,mlm)
     return
 
