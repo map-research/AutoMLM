@@ -3,16 +3,11 @@ import mlm_helper_classes
 import datetime
 
 # TODO implement export functions into mlm_class.py
-# TODO add associations
 # TODO add implementation into GUI -> automatically open this newly created file ...
 # TODO add layout functionn (possibly layouter, java)
-# TODO add variable name of project
 
 
 def preamble(project_name):
-
-    # TODO change to var
-    project_name = 'Root::Model'
 
     root = ET.Element('XModelerPackage', path=project_name, version='4')
 
@@ -20,7 +15,6 @@ def preamble(project_name):
     model = ET.SubElement(root, 'Model', name=project_name)
     
     diagrams = ET.SubElement(root, 'Diagrams')
-     # TODO change to var
     diagram = ET.SubElement(diagrams, 'Diagram', name='Model')
 
     instances = ET.SubElement(diagram, 'Instances')
@@ -36,9 +30,9 @@ def writeXML(root: ET.Element):
     tree = ET.ElementTree(root)
     tree.write('test.xml')
 
-def addClass(mlmObject : mlm_helper_classes.MlmObject, root):
-    # TODO get project name
-    projectName = 'Root::Model'
+def exportClass(mlmObject : mlm_helper_classes.MlmObject, root):
+
+    projectName = root.attrib['path']
 
     diagrams = root.find('Diagrams')
     diagram = diagrams.find('Diagram')
@@ -73,10 +67,8 @@ def addClass(mlmObject : mlm_helper_classes.MlmObject, root):
         operation.set('class', projectName+"::"+mlmObject.name)
 
 def exportAssociation(root, mlmAssoc: mlm_helper_classes.MlmAssociation):
-    # TODO get project name
-    projectName = 'Root::Model'
+    projectName = root.attrib['path']
     model = root.find('Model') 
-    
     # transform of cardinalities needed
     multSourceToTarget = 'Seq{' + str(mlmAssoc.target_multiplicity.min_card) +',' + str(mlmAssoc.target_multiplicity.max_card) + ',true,false}'
     multTargetToSource = 'Seq{' + str(mlmAssoc.source_multiplicity.min_card) +',' + str(mlmAssoc.source_multiplicity.max_card) + ',false,false}'
@@ -90,6 +82,7 @@ def exportAssociation(root, mlmAssoc: mlm_helper_classes.MlmAssociation):
     return root
 
 # parser for string values
+# TODO anderen converter auch bauen
 def convertStringToXModeler(stringInput):
     list = []
     for char in stringInput:
@@ -98,11 +91,19 @@ def convertStringToXModeler(stringInput):
     out = str(list) + '.asString()'
     return out
 
+def convertXModelerToString(words: list):
+    string = ''
+    for val in words:
+        if val == None:
+            pass
+        else:
+            string+=chr(val)
+    return string
+
 # parser for datetime values
 def convertDateToXmodeler(dateInput: datetime):
     out = 'Auxiliary::Date::createDate(' + str(dateInput.year) + ',' + str(dateInput.month) + ',' + str(dateInput.day) +')'
     return out
-
 
 def exportEnum(root, enumType: mlm_helper_classes.EnumType):
     model = root.find('Model')
@@ -110,24 +111,21 @@ def exportEnum(root, enumType: mlm_helper_classes.EnumType):
     for value in enumType.enum_values:
         addEnumValue = ET.SubElement(model, 'addEnumerationValue', enum_name=enumType.enum_name, enum_value_name=str(value))
 
-
 def main():
-
-    projectName = 'Root::Model::'
-    root = preamble(' ')
+    xml = preamble('Root::Modell')
+    projectName = xml.attrib['path']
 
     enum = mlm_helper_classes.EnumType('Personenanmen')
     enum.add_enum_value('Peter')
     enum.add_enum_value('Hans')
 
-    cl1 = mlm_helper_classes.MlmObject(projectName+'Monograph', 'Monograph', 1, None)
-    cl2 = mlm_helper_classes.MlmObject(projectName+'Author','Author',1,None)
-    obj1 = mlm_helper_classes.MlmObject(projectName+'mono1', 'mono1',0,cl1)
+    cl1 = mlm_helper_classes.MlmObject(projectName+"::"+'Monograph', 'Monograph', 1, None)
+    cl2 = mlm_helper_classes.MlmObject(projectName+"::"+'Author','Author',1,None)
+    obj1 = mlm_helper_classes.MlmObject(projectName+"::"+'mono1', 'mono1',0,cl1)
 
     attr = mlm_helper_classes.MlmAttr('alter', 'Root::XCore::Integer', 0)
     cons1 = mlm_helper_classes.MlmConstraint('constraint1', 0)
     op1 = mlm_helper_classes.MlmOperation('operation',0,'Float')
-
     
     cl1.add_attr(attr)
     cl1.add_constraint(cons1)
@@ -139,20 +137,12 @@ def main():
     assoc1.set_source_multiplicity(0,1)
     assoc1.set_target_multiplicity(0,1)
 
-    addClass(cl1,root)
-    addClass(cl2, root)
-    addClass(obj1, root)
-    exportAssociation(root, assoc1)
-    exportEnum(root,enum)
+    cl1.export(xml)
+    cl2.export(xml)
+    assoc1.export(xml)
 
-
-
-
-    #addClass(obj3, root)
-    #addClass(obj1, root)
-    #addClass(obj2,root)
-    ##exportAssociation(root, assoc1)
-    writeXML(root)
+    writeXML(xml)
+    
 
 if __name__ == "__main__":
     main()
