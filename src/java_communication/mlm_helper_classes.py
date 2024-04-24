@@ -141,7 +141,7 @@ class Cardinality:
 
 
 class MlmAssociation:
-    def __init__(self, name, source_inst_level: int, target_inst_level: int):
+    def __init__(self, name: str, source_inst_level: int, target_inst_level: int):
         self.name = name
         self.source_inst_level = source_inst_level
         self.target_inst_level = target_inst_level
