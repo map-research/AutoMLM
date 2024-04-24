@@ -11,9 +11,9 @@ from mlm_class import *
 # print(mlm)
 # print(mlm_complex)
 
-warehouseMLM = MultilevelModel("C:\\Programme"
-                               "\\XModeler-AutoMLM-v1\\XModeler\\AutoMLM\\mlm_files\\warehouse_enhanced.xml")
 
 # examMgmt = MultilevelModel("C:\\Programme\\XModeler-AutoMLM-v1\\XModeler\\AutoMLM\\mlm_files\\examMgmt.xml")
 
-print(warehouseMLM)
+gen_abstract = MultilevelModel("C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\gen_abstract.xml")
+
+print(gen_abstract)

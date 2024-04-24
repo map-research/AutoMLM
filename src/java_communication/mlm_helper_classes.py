@@ -97,22 +97,26 @@ class MlmConstraint:
 
 
 class MlmObject:
-    def __init__(self, full_name: str, name: str, level: int, class_of_object):
+    def __init__(self, full_name: str, name: str, level: str, class_of_object, is_abstract: str):
         self.full_name = full_name
         self.name = name
-        self.level = level
+        self.level: int = int(level)
         self.attr_list = []
         self.slot_list = []
         self.operations_list = []
         self.constraints_list = []
         self.class_of_object = class_of_object
+        self.is_abstract: bool = True if is_abstract == "true" else False
+        self.parent_classes = []
 
     def __repr__(self):
         # class_str = f"[CLASS] {self.name}"
         # attr_str = ""
         # for attr in self.attr_list:
         #    attr_str  += ""
+        print("ABSTRACT CLASS") if self.is_abstract else None
         print(f"[L{self.level}-OBJECT] {self.name} [of {self.class_of_object.name}]")
+        print(f"HAS {len(self.parent_classes)} PARENTS") if self.parent_classes else None
         print(*self.attr_list, sep="\n")
         print(*self.slot_list, sep="\n")
         print(*self.operations_list, sep="\n")
@@ -148,9 +152,9 @@ class MlmObject:
         model = root.find('Model')
         
         if self.class_of_object == None:
-            metaClass = ET.SubElement(model, 'addMetaClass', abstract='false', level=str(self.level), maxLevel=str(self.level), name=self.name, package=projectName, singleton='false')
+            metaClass = ET.SubElement(model, 'addMetaClass', abstract=self.is_abstract, level=str(self.level), maxLevel=str(self.level), name=self.name, package=projectName, singleton='false')
         else:
-            instance = ET.SubElement(model, 'addInstance', abstract='false', level=str(self.level), maxLevel=str(self.level), name=self.name, of=self.class_of_object.full_name, package=projectName, singleton='false')
+            instance = ET.SubElement(model, 'addInstance', abstract=self.is_abstract, level=str(self.level), maxLevel=str(self.level), name=self.name, of=self.class_of_object.full_name, package=projectName, singleton='false')
 
         for attr in self.attr_list:
             attribute = ET.SubElement(model, 'addAttribute',level=str(attr.inst_level), multiplicity='Seq{1,1,true,false}',name=attr.attr_name, package=projectName, type=attr.attr_type )
@@ -171,6 +175,14 @@ class MlmObject:
                                     level=str(operation.inst_level), monitored='false', name=operation.operation_name, package=projectName, paramNames='', paramTypes='', type=operation.return_type)
             operation.set('class', projectName+"::"+self.name)
 
+    def set_is_abstract(self, is_abstract: bool):
+        self.is_abstract = is_abstract
+
+    def add_parent_class(self, parent_class):
+        self.parent_classes.append(parent_class)
+
+    def is_specialization(self) -> bool:
+        return not self.parent_classes
 
 
 class Cardinality:

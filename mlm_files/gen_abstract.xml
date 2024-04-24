@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XModelerPackage path="Root::abstract" version="4">
+    <Imports/>
+    <Model name="Root::abstract">
+        <addMetaClass abstract="false" level="2" maxLevel="2" name="BulkProduct" package="Root::abstract" singleton="false"/>
+        <addMetaClass abstract="false" level="2" maxLevel="2" name="Bulk" package="Root::abstract" singleton="false"/>
+        <addMetaClass abstract="false" level="2" maxLevel="2" name="IdentityProduct" package="Root::abstract" singleton="false"/>
+        <addMetaClass abstract="true" level="2" maxLevel="2" name="Product" package="Root::abstract" singleton="false"/>
+        <changeParent class="Root::abstract::BulkProduct" new="Root::abstract::Product,Root::abstract::Bulk" old="" package="Root::abstract"/>
+        <changeParent class="Root::abstract::IdentityProduct" new="Root::abstract::Product" old="" package="Root::abstract"/>
+        <addAttribute class="Root::abstract::Bulk" level="1" multiplicity="Seq{1,1,true,false}" name="bulkID" package="Root::abstract" type="Root::XCore::Integer"/>
+    </Model>
+    <Diagrams>
+        <Diagram name="abstract">
+            <Instances>
+                <Instance hidden="false" path="Root::abstract::Bulk" xCoordinate="106" yCoordinate="103"/>
+                <Instance hidden="false" path="Root::abstract::BulkProduct" xCoordinate="177" yCoordinate="440"/>
+                <Instance hidden="false" path="Root::abstract::Product" xCoordinate="369" yCoordinate="113"/>
+                <Instance hidden="false" path="Root::abstract::IdentityProduct" xCoordinate="479" yCoordinate="363"/>
+            </Instances>
+            <Edges>
+                <Edge path="InheritanceMapping: Root::abstract::BulkProduct/Root::abstract::Bulk" sourcePort="NORTH" targetPort="SOUTH" type="Inheritance">
+                    <IntermediatePoints>
+                        <IntermediatePoint xCoordinate="237.0531" yCoordinate="243.77637"/>
+                        <IntermediatePoint xCoordinate="196.57967" yCoordinate="243.77637"/>
+                    </IntermediatePoints>
+                    <Labels/>
+                </Edge>
+                <Edge path="InheritanceMapping: Root::abstract::IdentityProduct/Root::abstract::Product" sourcePort="NORTH" targetPort="SOUTH" type="Inheritance">
+                    <IntermediatePoints>
+                        <IntermediatePoint xCoordinate="569.29395" yCoordinate="303.77637"/>
+                        <IntermediatePoint xCoordinate="489.39194" yCoordinate="303.77637"/>
+                    </IntermediatePoints>
+                    <Labels/>
+                </Edge>
+                <Edge path="InheritanceMapping: Root::abstract::BulkProduct/Root::abstract::Product" sourcePort="NORTH" targetPort="SOUTH" type="Inheritance">
+                    <IntermediatePoints>
+                        <IntermediatePoint xCoordinate="297.24908" yCoordinate="247.27637"/>
+                        <IntermediatePoint xCoordinate="429.19595" yCoordinate="247.27637"/>
+                    </IntermediatePoints>
+                    <Labels/>
+                </Edge>
+            </Edges>
+            <DiagramDisplayProperties>
+                <SLOTS>true</SLOTS>
+                <CONCRETESYNTAX>true</CONCRETESYNTAX>
+                <METACLASSNAME>false</METACLASSNAME>
+                <ISSUETABLE>false</ISSUETABLE>
+                <OPERATIONS>true</OPERATIONS>
+                <DERIVEDATTRIBUTES>true</DERIVEDATTRIBUTES>
+                <CONSTRAINTS>true</CONSTRAINTS>
+                <CONSTRAINTREPORTS>true</CONSTRAINTREPORTS>
+                <DERIVEDOPERATIONS>true</DERIVEDOPERATIONS>
+                <OPERATIONVALUES>true</OPERATIONVALUES>
+                <GETTERSANDSETTERS>true</GETTERSANDSETTERS>
+            </DiagramDisplayProperties>
+            <Views>
+                <View name="Main View" tx="0.0" ty="0.0" xx="1.0"/>
+            </Views>
+        </Diagram>
+    </Diagrams>
+</XModelerPackage>
