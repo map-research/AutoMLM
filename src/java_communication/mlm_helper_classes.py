@@ -152,9 +152,9 @@ class MlmObject:
         model = root.find('Model')
         
         if self.class_of_object == None:
-            metaClass = ET.SubElement(model, 'addMetaClass', abstract=self.is_abstract, level=str(self.level), maxLevel=str(self.level), name=self.name, package=projectName, singleton='false')
+            metaClass = ET.SubElement(model, 'addMetaClass', abstract='false', level=str(self.level), maxLevel=str(self.level), name=self.name, package=projectName, singleton='false')
         else:
-            instance = ET.SubElement(model, 'addInstance', abstract=self.is_abstract, level=str(self.level), maxLevel=str(self.level), name=self.name, of=self.class_of_object.full_name, package=projectName, singleton='false')
+            instance = ET.SubElement(model, 'addInstance', abstract='false', level=str(self.level), maxLevel=str(self.level), name=self.name, of=self.class_of_object.full_name, package=projectName, singleton='false')
 
         for attr in self.attr_list:
             attribute = ET.SubElement(model, 'addAttribute',level=str(attr.inst_level), multiplicity='Seq{1,1,true,false}',name=attr.attr_name, package=projectName, type=attr.attr_type )
@@ -237,6 +237,7 @@ class MlmAssociation:
         projectName = root.attrib['path']
         model = root.find('Model') 
         # transform of cardinalities needed
+        # todo think about unbounded assocs, true and false may need to be switched
         multSourceToTarget = 'Seq{' + str(self.target_multiplicity.min_card) +',' + str(self.target_multiplicity.max_card) + ',true,false}'
         multTargetToSource = 'Seq{' + str(self.source_multiplicity.min_card) +',' + str(self.source_multiplicity.max_card) + ',false,false}'
 
