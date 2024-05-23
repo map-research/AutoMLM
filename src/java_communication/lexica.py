@@ -11,7 +11,7 @@ from enum import Enum
 # TODO Discuss other similiarites methods and whether they are appropiate and which we don want to use
 
 class WordTpyes_Wordnet(Enum):
-    ALL = 0
+    ALL = 0 # alle Worttypen
     NOUN = wn.NOUN
     ADJ = wn.ADJ
     VERB = wn.VERB
@@ -57,8 +57,8 @@ def getLemmasBySynset_wordnet(syn) -> set:
 
 
 # returns hypernyms as set of lemmas
-def getHyperonyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> set:
-    setHyperonyms = set()
+def getHypernyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> set:
+    sethypernyms = set()
     if type == WordTpyes_Wordnet.ALL:
         synsets = wn.synsets(term)
     else:
@@ -67,12 +67,12 @@ def getHyperonyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.A
     for syn in synsets:
         for hyp in syn.hypernyms():
             for lemma in wn.synset(hyp.name()).lemmas():
-                setHyperonyms.add(lemma.name())
-    return setHyperonyms
+                sethypernyms.add(lemma.name())
+    return sethypernyms
 
 
 # get hyponyms as a set of lemmas
-def getHyponyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> set:
+def getLemmaOfHyponyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> set:
     setHyponyms = set()
     if type == WordTpyes_Wordnet.ALL:
         synsets = wn.synsets(term)
@@ -87,7 +87,7 @@ def getHyponyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL
 
 
 # get the lemma of the root hypernym
-def getRootHyperonyms_wordnet(term: str, type: WordTpyes_Wordnet.ALL) -> set:
+def getLemmaOfRoothypernyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> set:
     setRootHypernyms = set()
     if type == WordTpyes_Wordnet.ALL:
         synsets = wn.synsets(term)
@@ -102,7 +102,7 @@ def getRootHyperonyms_wordnet(term: str, type: WordTpyes_Wordnet.ALL) -> set:
 
 
 # returns synsets of the lowest common hypernym, curently all synsets of a word a used
-def getLowestCommonHyperonym_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, type2: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> set:
+def getLowestCommonhypernym_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, type2: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> set:
     # TODO suche ist zwishen zwei Synsets, da wir aber nur zwei Suchbegriffe haben müssen wir überlegen, 
     # ob wir zwischen Allen Synsets eines Begriffes suchen sollten, oder wie man hier am besten vorgehen kann
     commonHypernym = set()
@@ -150,9 +150,8 @@ def getPertainyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.A
     else:
         return None
     
-
-# returns similarity based on the shortest hypernym path for every pair of synsets
-def getSimilarity_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, type2: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> list:
+# returns Leacock-Chodorow similarity based on the shortest based on the shortest path that connects the senses (as above) and the maximum depth of the taxonomy
+def getLeaChoSimilarity_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, type2: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> list:
     similarites = []
     if type1 == WordTpyes_Wordnet.ALL:
         synsets1 = wn.synsets(term1)
@@ -166,10 +165,37 @@ def getSimilarity_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=WordT
 
     for syn1 in synsets1:
         for syn2 in synsets2:
+            #similarites.append(str(syn1) + " " + str(syn2) + " " + str(round(wn.path_similarity(syn1, syn2),2)))
+            try:
+                similarites.append(round(wn.lch_similarity(syn1, syn2),2))
+            except:
+                # error occurs when different types are compared, for the moment just skip
+                pass
+    # sort list descending
+    similarites.sort(reverse=True)
+    return similarites
+
+# returns similarity based on the shortest hypernym path for every pair of synsets
+def getPathSimilarity_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, type2: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> list:
+    similarites = []
+    if type1 == WordTpyes_Wordnet.ALL:
+        synsets1 = wn.synsets(term1)
+    else:
+        synsets1 = wn.synsets(term1, type1.value)
+
+    if type2 == WordTpyes_Wordnet.ALL:
+        synsets2 = wn.synsets(term2)
+    else:
+        synsets2 = wn.synsets(term2, type2.value)
+
+    for syn1 in synsets1:
+        for syn2 in synsets2:
+            #similarites.append(str(syn1) + " " + str(syn2) + " " + str(round(wn.path_similarity(syn1, syn2),2)))
             similarites.append(round(wn.path_similarity(syn1, syn2),2))
     # sort list descending
     similarites.sort(reverse=True)
     return similarites
+
 
 # return a boolean of whether two terms are synonyms of each other
 def areSynonyms_wordnet(term1: str, term2: str) -> bool:
@@ -179,13 +205,80 @@ def areSynonyms_wordnet(term1: str, term2: str) -> bool:
     return term2 in syns1
 
 
+# returns the owner of a synset as a string
+def getOwnerOfSynset_wordnet(syn: nltk.corpus.reader.wordnet.Synset) -> str:
+    return syn.name().split(".")[0]
+
+
+# returns whether the owner of the synset is the term
+def defIsSynsetOwnerTerm_wordnet(term: str, syn: nltk.corpus.reader.wordnet.Synset) -> bool:
+    a = getOwnerOfSynset_wordnet(syn)
+    return a.lower()==term.lower()
+
+
+# analyse the rank of a synset, based on the hypernym structure  as multiple paths are possible, all values are returned
+def getDepthSynset_wordnet(syn: nltk.corpus.reader.wordnet.Synset,index,depth,ranks=[]):
+
+    # depth is bigger
+    depth = depth+1
+
+    # if ranks is empty create a new one; only for initinal use Required
+    if len(ranks)==0:
+        ranks.append(0)
+
+    # if more than one path we need another index
+    if len(ranks) < index+1:
+        ranks.append(depth)
+    else:
+        ranks[index] = depth
+    
+    # if end of hyps is reached, end 
+    if len(syn.hypernyms()) == 0:
+        return depth, ranks
+    else:
+        # if we need to go multiple paths, we need to save the current path
+        if len(syn.hypernyms()) > 1:
+            d = depth
+
+        # go through all hypernyms, enumerator needed for identification of numbers
+        for enumerator in enumerate(syn.hypernyms()):
+            # if we are not in the first path we need to switch to the next index and the saved depth
+            if enumerator[0] > 0:
+                index +=1
+                depth = d
+            
+            # save depth and ranks
+            depth, ranks = (getDepthSynset_wordnet(syn.hypernyms()[enumerator[0]],index,depth)[enumerator[0]]), ranks
+        return depth, ranks
+    
+
+# returns the depth of a synset only - can return an integer or a list of integer if more paths are possible
+def getDepthFromSynset_wordnet(syn: nltk.corpus.reader.wordnet.Synset,index=0,depth=0,ranks=[]):
+    a = getDepthSynset_wordnet(syn,index,depth,ranks)
+    return a[0]
+
+
+def check_wordnet():
+    try:
+        nltk.find('corpora/wordnet')
+    except LookupError:
+        nltk.download('wordnet')
 
 def main():
-    #print(getSimilarity_wordnet('length', 'duration', WordTpyes_Wordnet.NOUN, WordTpyes_Wordnet.NOUN))
-    print(getHyperonyms_wordnet('written'))
+    #print(getLemmas_wordnet('length'))
+    #print(getLemmas_wordnet('duration'))
+    #print(getSimilarity_wordnet('oral', 'written'))
+    #print(getSimilarity_wordnet('len'))
+    #print(getPertainyms_wordnet('vocal'))
+    #print(gethypernyms_wordnet('building'))
+    #print(getSimilarity_wordnet('leads','works'))
+    #print(getLemmas_wordnet('employee'))
+    #print(getOwnerOfSynset_wordnet('course'))
+    #print(getLowestCommonhypernym_wordnet('clerk','bartender'))
 
 
+    print(getDepthFromSynset_wordnet(wn.synsets('dog')[0]))
 
 if __name__ =="__main__":
-    # nltk.download('wordnet')
+    #check_wordnet()
     main()
