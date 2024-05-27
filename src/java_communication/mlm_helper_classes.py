@@ -142,7 +142,6 @@ class MlmObject:
 
     def export(self, root):
         projectName = root.attrib['path']
-
         diagrams = root.find('Diagrams')
         diagram = diagrams.find('Diagram')
         instances = diagram.find('Instances')
@@ -151,10 +150,14 @@ class MlmObject:
 
         model = root.find('Model')
         
-        if self.class_of_object == None:
+
+
+        if self.class_of_object == None or self.class_of_object.name == 'MetaClass':
             metaClass = ET.SubElement(model, 'addMetaClass', abstract='false', level=str(self.level), maxLevel=str(self.level), name=self.name, package=projectName, singleton='false')
         else:
-            instance = ET.SubElement(model, 'addInstance', abstract='false', level=str(self.level), maxLevel=str(self.level), name=self.name, of=self.class_of_object.full_name, package=projectName, singleton='false')
+            # adapt ofname to new projectName
+            ofName = projectName + "::" + self.class_of_object.full_name.split("::")[2]
+            instance = ET.SubElement(model, 'addInstance', abstract='false', level=str(self.level), maxLevel=str(self.level), name=self.name, of=ofName, package=projectName, singleton='false')
 
         for attr in self.attr_list:
             attribute = ET.SubElement(model, 'addAttribute',level=str(attr.inst_level), multiplicity='Seq{1,1,true,false}',name=attr.attr_name, package=projectName, type=attr.attr_type )
@@ -214,18 +217,22 @@ class MlmAssociation:
         self.target_class = target_class
 
     def set_source_multiplicity(self, min_card: int, max_card: int):
+        # FH java, XMF saves "hasUpperLimit" -> is_unbounded muss genau andersherum sein daher änderung if und else teil
         if max_card == -1:
-            self.source_multiplicity = Cardinality(min_card, max_card, is_unbounded=True)
+             self.source_multiplicity = Cardinality(min_card, max_card)
             # IMPORTANT: DOES NOT WORK IF CONTINGENT ASSOCIATIONS ARE PRESENT
         else:
-            self.source_multiplicity = Cardinality(min_card, max_card)
+            self.source_multiplicity = Cardinality(min_card, max_card, is_unbounded=True)
+           
 
     def set_target_multiplicity(self, min_card: int, max_card: int):
+        # FH java, XMF saves "hasUpperLimit" -> is_unbounded muss genau andersherum sein daher änderung if und else teil
         if max_card == -1:
-            self.target_multiplicity = Cardinality(min_card, max_card, is_unbounded=True)
+            self.target_multiplicity = Cardinality(min_card, max_card)
             # IMPORTANT: DOES NOT WORK IF CONTINGENT ASSOCIATIONS ARE PRESENT
         else:
-            self.target_multiplicity = Cardinality(min_card, max_card)
+            self.target_multiplicity = Cardinality(min_card, max_card, is_unbounded=True)
+            
 
     def __repr__(self):
         return (f"[ASSOCIATION {self.name}] From {self.source_class.name} (at L{self.source_inst_level})"
@@ -236,20 +243,25 @@ class MlmAssociation:
     def export(self, root: ET.Element):
         projectName = root.attrib['path']
         model = root.find('Model') 
-        # transform of cardinalities needed
-        # TODO think about unbounded assocs, true and false may need to be switched !!!
-        multSourceToTarget = 'Seq{' + str(self.target_multiplicity.min_card) +',' + str(self.target_multiplicity.max_card) + ',true,false}'
-        multTargetToSource = 'Seq{' + str(self.source_multiplicity.min_card) +',' + str(self.source_multiplicity.max_card) + ',false,false}'
+       
+        # transform of cardinalities
+        multSourceToTarget = 'Seq{' + str(self.target_multiplicity.min_card) + ',' + str(self.target_multiplicity.max_card) + ',' + str(self.target_multiplicity.is_unbounded).lower() + ',false}'
 
+        multTargetToSource = 'Seq{' + str(self.source_multiplicity.min_card) +',' + str(self.source_multiplicity.max_card) + ','+ str(self.source_multiplicity.is_unbounded).lower() + ',false}'
+
+        # adapt class names to new projectname
+        classSourceName = projectName + "::"  + self.source_class.name
+        targetSourceName = projectName + "::"  + self.target_class.name
+    
+        # associations use always the class name as an access name at the moment, this leads to a problem when more than one association exists between the same two classes, as the access name is no longer unique
+        # TODO think about fix
         addAssoc = ET.SubElement(model, 'addAssociation',accessSourceFromTargetName=self.source_class.name.lower(), 
-                                accessTargetFromSourceName=self.target_class.name.lower(), classSource=self.source_class.full_name, 
-                                classTarget=self.target_class.full_name, fwName=self.name, instLevelSource=str(self.source_inst_level), 
-                                instLevelTarget=str(self.target_inst_level), multSourceToTarget=multSourceToTarget, 
-                                multTargetToSource=multTargetToSource, package=projectName,reverseName='-1', sourceVisibleFromTarget='false', 
-                                targetVisibleFromSource='true')
+                                accessTargetFromSourceName=self.target_class.name.lower(), associationType='Root::Associations::DefaultAssociation',                          classSource=classSourceName, classTarget=targetSourceName, fwName=self.name, instLevelSource=str(self.source_inst_level), 
+                                instLevelTarget=str(self.target_inst_level), multSourceToTarget=multSourceToTarget, multTargetToSource=multTargetToSource, 
+                                package=projectName,reverseName='-1', sourceVisibleFromTarget='false', targetVisibleFromSource='true')
         return root
 
-
+    
 class MlmLink:
     def __init__(self, name: str):
         self.name = name
