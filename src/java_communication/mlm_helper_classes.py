@@ -237,7 +237,7 @@ class MlmAssociation:
         projectName = root.attrib['path']
         model = root.find('Model') 
         # transform of cardinalities needed
-        # todo think about unbounded assocs, true and false may need to be switched
+        # TODO think about unbounded assocs, true and false may need to be switched !!!
         multSourceToTarget = 'Seq{' + str(self.target_multiplicity.min_card) +',' + str(self.target_multiplicity.max_card) + ',true,false}'
         multTargetToSource = 'Seq{' + str(self.source_multiplicity.min_card) +',' + str(self.source_multiplicity.max_card) + ',false,false}'
 
@@ -255,6 +255,12 @@ class MlmLink:
         self.name = name
         self.source_object: MlmObject = None
         self.target_object: MlmObject = None
+
+    def export(self, root):
+        projectName = root.attrib['path']
+        model = root.find('Model') 
+        addLink = ET.SubElement(model, 'addLink', classSource=self.source_object.full_name, classTarget=self.target_object.full_name, name=self.name, package=projectName)
+        return root
 
     def set_source_object(self, source_object: MlmObject):
         self.source_object = source_object
