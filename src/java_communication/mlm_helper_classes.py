@@ -1,5 +1,5 @@
 from typing import List
-
+import xml.etree.ElementTree as ET
 
 # This file specifies all classes within an MLM.
 
@@ -18,6 +18,14 @@ class EnumType:
         for enum_value in self.enum_values:
             enum_print += f"{enum_value}, "
         return enum_print[:-2]
+    
+    def export(self, root: ET.Element):
+        model = root.find('Model')
+        addEnum = ET.SubElement(model, 'addEnumeration', name=self.enum_name)
+        for value in self.enum_values:
+            addEnumValue = ET.SubElement(model, 'addEnumerationValue', enum_name=self.enum_name, enum_value_name=str(value))
+        return root
+
 
 
 class MlmAttr:
@@ -114,6 +122,7 @@ class MlmObject:
         print(*self.operations_list, sep="\n")
         print(*self.constraints_list, sep="\n")
         return ""
+    
 
     def set_class_of_object(self, new_class_of_object):
         self.class_of_object = new_class_of_object
@@ -130,6 +139,41 @@ class MlmObject:
 
     def add_constraint(self, constraint: MlmConstraint):
         self.constraints_list.append(constraint)
+
+    def export(self, root):
+        projectName = root.attrib['path']
+
+        diagrams = root.find('Diagrams')
+        diagram = diagrams.find('Diagram')
+        instances = diagram.find('Instances')
+        # TODO good placement
+        instance = ET.SubElement(instances, 'Instance', hidden='false', path=projectName+"::"+self.name, xCoordinate='0', yCoordinate='0')
+
+        model = root.find('Model')
+        
+        if self.class_of_object == None:
+            metaClass = ET.SubElement(model, 'addMetaClass', abstract='false', level=str(self.level), maxLevel=str(self.level), name=self.name, package=projectName, singleton='false')
+        else:
+            instance = ET.SubElement(model, 'addInstance', abstract='false', level=str(self.level), maxLevel=str(self.level), name=self.name, of=self.class_of_object.full_name, package=projectName, singleton='false')
+
+        for attr in self.attr_list:
+            attribute = ET.SubElement(model, 'addAttribute',level=str(attr.inst_level), multiplicity='Seq{1,1,true,false}',name=attr.attr_name, package=projectName, type=attr.attr_type )
+            # this attr has to be set separetly because of the keyword class and cannot be used in the prior operation
+            attribute.set('class', projectName+"::"+self.name)
+
+        for slot in self.slot_list:
+            slot = ET.SubElement(model, 'changeSlotValue', package = projectName, slotName = slot.attribute.attr_name ,valueToBeParsed=slot.value)
+            # this attr has to be set separetly because of the keyword class and cannot be used in the prior operation
+            slot.set('class', projectName+self.name)           
+
+        for constraint in self.constraints_list:
+            constraint = ET.SubElement(model, 'addConstraint', body='true', constName=constraint.constraint_name, instLevel=str(constraint.inst_level), package=projectName, reason='"This constraint fails"')
+            constraint.set('class', projectName+"::"+self.name)
+
+        for operation in self.operations_list:
+            operation = ET.SubElement(model, 'addOperation', body='@Operation '+operation.operation_name+' [monitor=false,delToClassAllowed=false]():XCore::'+operation.return_type+' null end', 
+                                    level=str(operation.inst_level), monitored='false', name=operation.operation_name, package=projectName, paramNames='', paramTypes='', type=operation.return_type)
+            operation.set('class', projectName+"::"+self.name)
 
     def set_is_abstract(self, is_abstract: bool):
         self.is_abstract = is_abstract
@@ -154,7 +198,7 @@ class Cardinality:
 
 
 class MlmAssociation:
-    def __init__(self, name, source_inst_level: int, target_inst_level: int):
+    def __init__(self, name: str, source_inst_level: int, target_inst_level: int):
         self.name = name
         self.source_inst_level = source_inst_level
         self.target_inst_level = target_inst_level
@@ -188,6 +232,22 @@ class MlmAssociation:
                 f" to {self.target_class.name} (at L{self.target_inst_level})")
                 # f"\n {self.source_multiplicity} {self.source_class.name}"
                 # f" {self.name} {self.target_class.name}")
+    
+    def export(self, root: ET.Element):
+        projectName = root.attrib['path']
+        model = root.find('Model') 
+        # transform of cardinalities needed
+        # todo think about unbounded assocs, true and false may need to be switched
+        multSourceToTarget = 'Seq{' + str(self.target_multiplicity.min_card) +',' + str(self.target_multiplicity.max_card) + ',true,false}'
+        multTargetToSource = 'Seq{' + str(self.source_multiplicity.min_card) +',' + str(self.source_multiplicity.max_card) + ',false,false}'
+
+        addAssoc = ET.SubElement(model, 'addAssociation',accessSourceFromTargetName=self.source_class.name.lower(), 
+                                accessTargetFromSourceName=self.target_class.name.lower(), classSource=self.source_class.full_name, 
+                                classTarget=self.target_class.full_name, fwName=self.name, instLevelSource=str(self.source_inst_level), 
+                                instLevelTarget=str(self.target_inst_level), multSourceToTarget=multSourceToTarget, 
+                                multTargetToSource=multTargetToSource, package=projectName,reverseName='-1', sourceVisibleFromTarget='false', 
+                                targetVisibleFromSource='true')
+        return root
 
 
 class MlmLink:
