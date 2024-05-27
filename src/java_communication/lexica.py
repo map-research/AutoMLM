@@ -35,12 +35,15 @@ def getSynonyms_wordnet(term: str) -> set:
 
 
 # returns the lemmas as string set
-def getLemmas_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> set:
+def getLemmas_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, onlyOwnersOfSynset: bool = True) -> set:
     setLemmas = set()
     if type == WordTpyes_Wordnet.ALL:
         synsets = wn.synsets(term)
     else:
         synsets = wn.synsets(term, type.value)
+
+    if onlyOwnersOfSynset:
+        synsets = list(filter(lambda x: isSynsetOwnerTerm_wordnet(term, x), synsets))
 
     for syn in synsets:
         for lemma in wn.synset(syn.name()).lemmas():
@@ -57,12 +60,15 @@ def getLemmasBySynset_wordnet(syn) -> set:
 
 
 # returns hypernyms as set of lemmas
-def getHypernyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> set:
+def getHypernyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, onlyOwnersOfSynset: bool = True) -> set:
     sethypernyms = set()
     if type == WordTpyes_Wordnet.ALL:
         synsets = wn.synsets(term)
     else:
         synsets = wn.synsets(term, type.value)
+
+    if onlyOwnersOfSynset:
+        synsets = list(filter(lambda x: isSynsetOwnerTerm_wordnet(term, x), synsets))
 
     for syn in synsets:
         for hyp in syn.hypernyms():
@@ -72,12 +78,15 @@ def getHypernyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.AL
 
 
 # get hyponyms as a set of lemmas
-def getLemmaOfHyponyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> set:
+def getLemmaOfHyponyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, onlyOwnersOfSynset: bool = True) -> set:
     setHyponyms = set()
     if type == WordTpyes_Wordnet.ALL:
         synsets = wn.synsets(term)
     else:
         synsets = wn.synsets(term, type.value)
+
+    if onlyOwnersOfSynset:
+        synsets = list(filter(lambda x: isSynsetOwnerTerm_wordnet(term, x), synsets))
 
     for syn in synsets:
         for hyp in syn.hyponyms():
@@ -87,12 +96,15 @@ def getLemmaOfHyponyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Word
 
 
 # get the lemma of the root hypernym
-def getLemmaOfRoothypernyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> set:
+def getLemmaOfRoothypernyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, onlyOwnersOfSynset: bool = True) -> set:
     setRootHypernyms = set()
     if type == WordTpyes_Wordnet.ALL:
         synsets = wn.synsets(term)
     else:
         synsets = wn.synsets(term, type.value)
+
+    if onlyOwnersOfSynset:
+        synsets = list(filter(lambda x: isSynsetOwnerTerm_wordnet(term, x), synsets))
 
     for syn in synsets:
         for hyp in syn.root_hypernyms():
@@ -101,11 +113,9 @@ def getLemmaOfRoothypernyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes
     return setRootHypernyms
 
 
-# returns synsets of the lowest common hypernym, curently all synsets of a word a used
-def getLowestCommonhypernym_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, type2: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> set:
-    # TODO suche ist zwishen zwei Synsets, da wir aber nur zwei Suchbegriffe haben müssen wir überlegen, 
-    # ob wir zwischen Allen Synsets eines Begriffes suchen sollten, oder wie man hier am besten vorgehen kann
-    commonHypernym = set()
+# returns lemmas of the lowest common hypernym and its depth
+def getLowestCommonhypernym_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, type2: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, onlyOwnersOfSynset: bool = True) :
+    commonHypernym = [set(),]
     if type1 == WordTpyes_Wordnet.ALL:
         synsets1 = wn.synsets(term1)
     else:
@@ -116,11 +126,25 @@ def getLowestCommonhypernym_wordnet(term1: str, term2: str, type1: WordTpyes_Wor
     else:
         synsets2 = wn.synsets(term2, type2.value)
 
+    if onlyOwnersOfSynset:
+        synsets1 = list(filter(lambda x: isSynsetOwnerTerm_wordnet(term1, x), synsets1))
+        synsets2 = list(filter(lambda x: isSynsetOwnerTerm_wordnet(term2, x), synsets2))
+
+    high = 0
+
     for syn1 in synsets1:
         for syn2 in synsets2:
             for common in wn.synset(syn1.name()).lowest_common_hypernyms(wn.synset(syn2.name())):
-                for lemma in getLemmasBySynset_wordnet(common):
-                    commonHypernym.add(lemma)
+                    # find highest common synonym
+                    n = getDepthFromSynset_wordnet(common)
+                    if n >= high:
+                        highestSyn = common
+                        high = n
+
+    # add lemmas of highest common synonym            
+    for lemma in getLemmasBySynset_wordnet(highestSyn):
+        commonHypernym[0].add(lemma)
+    commonHypernym.append(n)
 
     return commonHypernym
 
@@ -131,13 +155,16 @@ def getAntonyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL
 
 
 # returns a set of lemmas pertainyms (belongs-to, relationships) of the term
-def getPertainyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> set:
+def getPertainyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, onlyOwnersOfSynset: bool = True) -> set:
     #lemma.pertainyms()
     setPertainyms = set()
     if type == WordTpyes_Wordnet.ALL:
         synsets = wn.synsets(term)
     else:
         synsets = wn.synsets(term, type.value)
+
+    if onlyOwnersOfSynset:
+        synsets = list(filter(lambda x: isSynsetOwnerTerm_wordnet(term, x), synsets))
 
     for syn in synsets:
         for lemma in wn.synset(syn.name()).lemmas():
@@ -151,7 +178,7 @@ def getPertainyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.A
         return None
     
 # returns Leacock-Chodorow similarity based on the shortest based on the shortest path that connects the senses (as above) and the maximum depth of the taxonomy
-def getLeaChoSimilarity_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, type2: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> list:
+def getLeaChoSimilarity_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, type2: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, onlyOwnersOfSynset:bool = True) -> list:
     similarites = []
     if type1 == WordTpyes_Wordnet.ALL:
         synsets1 = wn.synsets(term1)
@@ -162,6 +189,10 @@ def getLeaChoSimilarity_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet
         synsets2 = wn.synsets(term2)
     else:
         synsets2 = wn.synsets(term2, type2.value)
+
+    if onlyOwnersOfSynset:
+        synsets1 = list(filter(lambda x: isSynsetOwnerTerm_wordnet(term1, x), synsets1))
+        synsets2 = list(filter(lambda x: isSynsetOwnerTerm_wordnet(term2, x), synsets2))
 
     for syn1 in synsets1:
         for syn2 in synsets2:
@@ -176,7 +207,7 @@ def getLeaChoSimilarity_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet
     return similarites
 
 # returns similarity based on the shortest hypernym path for every pair of synsets
-def getPathSimilarity_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, type2: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> list:
+def getPathSimilarity_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, type2: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, onlyOwnersOfSynset: bool=True) -> list:
     similarites = []
     if type1 == WordTpyes_Wordnet.ALL:
         synsets1 = wn.synsets(term1)
@@ -187,6 +218,11 @@ def getPathSimilarity_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=W
         synsets2 = wn.synsets(term2)
     else:
         synsets2 = wn.synsets(term2, type2.value)
+
+    if onlyOwnersOfSynset:
+        synsets1 = list(filter(lambda x: isSynsetOwnerTerm_wordnet(term1, x), synsets1))
+        synsets2 = list(filter(lambda x: isSynsetOwnerTerm_wordnet(term2, x), synsets2))
+
 
     for syn1 in synsets1:
         for syn2 in synsets2:
@@ -211,7 +247,7 @@ def getOwnerOfSynset_wordnet(syn: nltk.corpus.reader.wordnet.Synset) -> str:
 
 
 # returns whether the owner of the synset is the term
-def defIsSynsetOwnerTerm_wordnet(term: str, syn: nltk.corpus.reader.wordnet.Synset) -> bool:
+def isSynsetOwnerTerm_wordnet(term: str, syn: nltk.corpus.reader.wordnet.Synset) -> bool:
     a = getOwnerOfSynset_wordnet(syn)
     return a.lower()==term.lower()
 
@@ -254,8 +290,17 @@ def getDepthSynset_wordnet(syn: nltk.corpus.reader.wordnet.Synset,index,depth,ra
 
 # returns the depth of a synset only - can return an integer or a list of integer if more paths are possible
 def getDepthFromSynset_wordnet(syn: nltk.corpus.reader.wordnet.Synset,index=0,depth=0,ranks=[]):
-    a = getDepthSynset_wordnet(syn,index,depth,ranks)
-    return a[0]
+    ranks = getDepthSynset_wordnet(syn,index,depth,ranks)
+
+    # returns the rank, dependent if it is an integer, or a list; if it is a list, only the deepest rank is returned 
+    if type(ranks[0]) == int:
+        return ranks[0]
+    else: 
+        high = 0
+        for a in ranks[0]:
+            if a > high:
+                a = high
+        return a
 
 
 def check_wordnet():
@@ -277,7 +322,9 @@ def main():
     #print(getLowestCommonhypernym_wordnet('clerk','bartender'))
 
 
-    print(getDepthFromSynset_wordnet(wn.synsets('dog')[0]))
+    print(getLowestCommonhypernym_wordnet('settler','waitress'))
+          
+
 
 if __name__ =="__main__":
     #check_wordnet()
