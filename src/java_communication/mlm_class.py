@@ -27,7 +27,7 @@ class MultilevelModel:
             self._parse_xml(xml_file_path)
         
 
-    def export_xml(self, filepath : str = 'export.xml', project_name='Root::Export'):
+    def export_xml(self, filepath : str = 'export_test.xml', project_name='Root::Export'):
         # create the root
         root = export_xml.preamble(project_name)
         # export all objects
