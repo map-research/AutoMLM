@@ -5,11 +5,6 @@ from nltk.corpus import wordnet as wn
 from enum import Enum
 
 
-# TODO Discusss whether all types is a suitable standard decision, maybe Noun is more appropiate
-# TODO Discuss getLowestCommonHypernym_wordnet -> generelle diskussion wie vorgehen mit der verbindung von synsets zu wörtern
-# TODO Discuss getAntonyms_wordnet
-# TODO Discuss other similiarites methods and whether they are appropiate and which we don want to use
-
 class WordTpyes_Wordnet(Enum):
     ALL = 0 # alle Worttypen
     NOUN = wn.NOUN
@@ -25,6 +20,7 @@ def convertSysnsetToNames_wordnet(syns: set):
 
 
 # returns synonyms as set
+# returns all synsets for one lexeme / term instead of for one lemma
 def getSynonyms_wordnet(term: str) -> set:
     listSynonyms = wn.synonyms(term)
     setSynonyms = set()
@@ -322,8 +318,11 @@ def main():
     #print(getLowestCommonhypernym_wordnet('clerk','bartender'))
 
 
-    print(getLowestCommonhypernym_wordnet('settler','waitress'))
-          
+    #print(getLowestCommonhypernym_wordnet('Cat','Dog'))
+
+
+    #print(wn.synset("person.n.02").lemmas())   
+    print(getSynonyms_wordnet('Product'))
 
 
 if __name__ =="__main__":
