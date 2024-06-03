@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XModelerPackage path="Root::Demo" version="4" xModelerVersion="">
+    <Imports/>
+    <Model name="Root::Demo">
+        <addMetaClass abstract="false" level="2" maxLevel="2" name="DemoDiagramClassB" package="Root::Demo" singleton="false"/>
+        <addMetaClass abstract="false" level="2" maxLevel="2" name="DemoDiagramClassA" package="Root::Demo" singleton="false"/>
+    </Model>
+    <Diagrams>
+        <Diagram name="diagram1">
+            <Instances>
+                <Instance hidden="false" path="Root::Demo::DemoDiagramClassA" xCoordinate="317" yCoordinate="216"/>
+                <Instance hidden="false" path="Root::Demo::DemoDiagramClassB" xCoordinate="380" yCoordinate="418"/>
+            </Instances>
+            <Edges/>
+            <DiagramDisplayProperties>
+                <SLOTS>true</SLOTS>
+                <CONCRETESYNTAX>true</CONCRETESYNTAX>
+                <METACLASSNAME>false</METACLASSNAME>
+                <ISSUETABLE>false</ISSUETABLE>
+                <OPERATIONS>true</OPERATIONS>
+                <DERIVEDATTRIBUTES>true</DERIVEDATTRIBUTES>
+                <CONSTRAINTS>true</CONSTRAINTS>
+                <CONSTRAINTREPORTS>true</CONSTRAINTREPORTS>
+                <DERIVEDOPERATIONS>true</DERIVEDOPERATIONS>
+                <OPERATIONVALUES>true</OPERATIONVALUES>
+                <GETTERSANDSETTERS>true</GETTERSANDSETTERS>
+            </DiagramDisplayProperties>
+            <Notes/>
+            <Views>
+                <View name="Main View" tx="0.0" ty="0.0" xx="1.0"/>
+            </Views>
+        </Diagram>
+    </Diagrams>
+</XModelerPackage>

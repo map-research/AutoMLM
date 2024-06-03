@@ -4,20 +4,11 @@ This module offers the implementation of the functions called by Java. Reference
  corresponding message id to the file system so that the response can be read by Java.
 """
 
-import sys
+#import sys
 import message_manager
 from mlm_class import *
-from xml.dom.minidom import parse
-
-def process_string(messageId):
-    """
-    Reads a string from Java adds "from Python" and returns it
-    """
-    arg = message_manager.readMessageContent(messageId)
-    string = arg[0]
-    string += ' from Python'
-    message_manager.postResponse(messageId,string)
-    return
+#from xml.dom.minidom import parse
+import xml.etree.ElementTree as ET
 
 
 def perform_promotion_process_from_java(messageId):
@@ -28,7 +19,6 @@ def perform_promotion_process_from_java(messageId):
     arg = message_manager.readMessageContent(messageId)
     # arg[0] is path of XML/MLM document
     path = arg[0]
-    # print(path)
     mlm = MultilevelModel(path)
     message_manager.postResponse(messageId,mlm)
     return
@@ -60,3 +50,65 @@ def illegal_arguments(messageId):
         print('wrong input')
         raise ValueError("Input args do not match expected args")
     return
+
+def getProjectName(messageId):
+    # get project name  of path
+    args = message_manager.readMessageContent(messageId)
+    path = args[0]
+
+    # parse xml
+    tree = ET.parse(path)
+    root = tree.getroot()
+
+    # get project name
+    model = root.find('Model')
+    projectName = model.attrib['name']
+    projectName = projectName.split('::')[1]
+
+    # return project name
+    message_manager.postResponse(messageId, projectName)
+    return
+
+def getDiagramName(messageId):
+    # get project name  of path
+    args = message_manager.readMessageContent(messageId)
+    path = args[0]
+
+    # parse xml
+    tree = ET.parse(path)
+    root = tree.getroot()
+
+    # get diagram name
+    diagrams = root.find('Diagrams')
+    diagram = diagrams.find('Diagram')
+    diagramName = diagram.attrib['name']
+
+    message_manager.postResponse(messageId, diagramName)
+    return
+
+def process_string(messageId):
+    """
+    Reads a string from Java adds "from Python" and returns it
+    """
+    arg = message_manager.readMessageContent(messageId)
+    string = arg[0]
+    string += ' from Python'
+    message_manager.postResponse(messageId,string)
+    return
+
+def promoteDiagram(messageId):
+
+    arg = message_manager.readMessageContent(messageId)
+    path = arg[1]
+    category = arg[0]
+
+    # TODO based on the diagram and the category the promotion process can happen
+    # at the moment only the path of a dummy diagram is returned
+
+    pathNew = 'AutoMLM\\mlm_files\\deepModel.xml'
+
+    message_manager.postResponse(messageId,pathNew)
+    return
+
+
+
