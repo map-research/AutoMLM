@@ -2,6 +2,9 @@ from enum import EnumMeta
 from xml.dom.minidom import parse
 from mlm_helper_classes import *
 
+# maybe the import name is confusing
+import xml_export as export_xml
+
 metaClass = MlmObject("MetaClass", "MetaClass", "99", None, "false")
 
 
@@ -22,6 +25,31 @@ class MultilevelModel:
         self.parsed_xml = None
         if xml_file_path != "":
             self._parse_xml(xml_file_path)
+        
+
+    def export_xml(self, filepath : str = 'export_test.xml', project_name='Root::Export'):
+        # create the root
+        root = export_xml.preamble(project_name)
+        # export all objects
+        for object in self.mlm_objects:
+            object.export(root)
+
+        for enum in self.enums:
+           enum.export(root)
+        
+        for assoc in self.associations:
+           assoc.export(root)
+
+        for link in self.links:
+           link.export(root)
+
+        # xml is written and saved
+        root = export_xml.writeXML(root, filepath)
+        print('New XML created at ' + filepath)
+
+        # root is returned in case it is needed ?!
+        return root
+
 
     def _parse_xml(self, doc_file_path: str):
         document = None

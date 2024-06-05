@@ -26,9 +26,9 @@ def preamble(project_name):
     
     return root
 
-def writeXML(root: ET.Element):
+def writeXML(root: ET.Element, filepath: str):
     tree = ET.ElementTree(root)
-    tree.write('test.xml')
+    tree.write(filepath)
 
 def exportClass(mlmObject : mlm_helper_classes.MlmObject, root):
 
