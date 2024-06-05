@@ -56,6 +56,8 @@ def getProjectName(messageId):
     args = message_manager.readMessageContent(messageId)
     path = args[0]
 
+    # works only for models version 4
+
     # parse xml
     tree = ET.parse(path)
     root = tree.getroot()
@@ -73,6 +75,8 @@ def getDiagramName(messageId):
     # get project name  of path
     args = message_manager.readMessageContent(messageId)
     path = args[0]
+
+    # works for models version 4
 
     # parse xml
     tree = ET.parse(path)
@@ -109,6 +113,3 @@ def promoteDiagram(messageId):
 
     message_manager.postResponse(messageId,pathNew)
     return
-
-
-
