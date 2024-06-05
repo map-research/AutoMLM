@@ -103,8 +103,8 @@ def process_string(messageId):
 def promoteDiagram(messageId):
 
     arg = message_manager.readMessageContent(messageId)
-    path = arg[1]
-    category = arg[0]
+    input_file_path = arg[1]
+    promotion_category = arg[0]
 
     # TODO based on the diagram and the category the promotion process can happen
     # at the moment only the path of a dummy diagram is returned
