@@ -38,5 +38,14 @@ if __name__ == "__main__":
     elif function_name == "import_XML":
         call_preprocessor.import_XML(sys.argv[2])
 
+    elif function_name == 'getProjectName':
+        call_preprocessor.getProjectName(sys.argv[2])
+
+    elif function_name == 'getDiagramName':
+        call_preprocessor.getDiagramName(sys.argv[2])
+
+    elif function_name == 'promoteDiagram':
+        call_preprocessor.promoteDiagram(sys.argv[2])
+
     else:
         raise AttributeError("Called Python function unknown!")
