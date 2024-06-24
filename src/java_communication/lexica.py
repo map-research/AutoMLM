@@ -4,7 +4,6 @@ import nltk
 from nltk.corpus import wordnet as wn
 from enum import Enum
 
-
 class WordTpyes_Wordnet(Enum):
     ALL = 0 # alle Worttypen
     NOUN = wn.NOUN
@@ -109,6 +108,7 @@ def getLemmaOfRoothypernyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes
     return setRootHypernyms
 
 
+"""
 # returns lemmas of the lowest common hypernym and its depth
 def getLowestCommonhypernym_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, type2: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, onlyOwnersOfSynset: bool = True) :
     commonHypernym = [set(),]
@@ -132,7 +132,7 @@ def getLowestCommonhypernym_wordnet(term1: str, term2: str, type1: WordTpyes_Wor
         for syn2 in synsets2:
             for common in wn.synset(syn1.name()).lowest_common_hypernyms(wn.synset(syn2.name())):
                     # find highest common synonym
-                    n = getDepthFromSynset_wordnet(common)
+                    n = getDepthLemma_wordnet(common)
                     if n >= high:
                         highestSyn = common
                         high = n
@@ -143,7 +143,15 @@ def getLowestCommonhypernym_wordnet(term1: str, term2: str, type1: WordTpyes_Wor
     commonHypernym.append(n)
 
     return commonHypernym
+"""
 
+
+def getLowestCommonHypernym_wordnet(lemma1 : str, lemma2: str):
+    l1 = wn.synset(lemma1)
+    l2 = wn.synset(lemma2)
+
+    commonHypernym = l1.lowest_common_hypernyms(l2)
+    return commonHypernym[0]
 
 # get antonyms of term as set of lemmas
 def getAntonyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL) -> set:
@@ -173,6 +181,7 @@ def getPertainyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.A
     else:
         return None
     
+
 # returns Leacock-Chodorow similarity based on the shortest based on the shortest path that connects the senses (as above) and the maximum depth of the taxonomy
 def getLeaChoSimilarity_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, type2: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, onlyOwnersOfSynset:bool = True) -> list:
     similarites = []
@@ -248,6 +257,15 @@ def isSynsetOwnerTerm_wordnet(term: str, syn: nltk.corpus.reader.wordnet.Synset)
     return a.lower()==term.lower()
 
 
+def getDepthLemma_wordnet(lemma : str, fake_root : bool = True) -> int:
+    l1 = wn.synset('Cat.n.01')
+    path = l1._shortest_hypernym_paths(True)
+    depth = max(path.values())
+    return depth
+
+
+"""
+probably no longer needed as the better and real function was discovered
 # analyse the rank of a synset, based on the hypernym structure  as multiple paths are possible, all values are returned
 def getDepthSynset_wordnet(syn: nltk.corpus.reader.wordnet.Synset,index,depth,ranks=[]):
 
@@ -297,13 +315,24 @@ def getDepthFromSynset_wordnet(syn: nltk.corpus.reader.wordnet.Synset,index=0,de
             if a > high:
                 a = high
         return a
-
+"""
 
 def check_wordnet():
     try:
         nltk.find('corpora/wordnet')
     except LookupError:
         nltk.download('wordnet')
+
+def getDistance_wordnet(lemma1 : str, lemma2 : str):
+
+    l1 = wn.synset(lemma1)
+    l2 = wn.synset(lemma2)
+
+    return l1.shortest_path_distance(l2)
+
+
+
+
 
 def main():
     #print(getLemmas_wordnet('length'))
@@ -315,14 +344,24 @@ def main():
     #print(getSimilarity_wordnet('leads','works'))
     #print(getLemmas_wordnet('employee'))
     #print(getOwnerOfSynset_wordnet('course'))
-    #print(getLowestCommonhypernym_wordnet('clerk','bartender'))
+    
 
 
     #print(getLowestCommonhypernym_wordnet('Cat','Dog'))
 
 
     #print(wn.synset("person.n.02").lemmas())   
-    print(getSynonyms_wordnet('Product'))
+    #print(getSynonyms_wordnet('Product'))
+
+    #a = wn.synset("Building.n.02").hypernyms()
+    #a = getDistance_wordnet('Dog.n.01','Cat.n.01')
+    #path = l1._shortest_hypernym_paths(True)
+    #print(path)
+
+
+    comm = getLowestCommonHypernym_wordnet('clerk.n.01','bartender.n.01')
+    print(comm)
+    print(getDepthLemma_wordnet(comm.name()))
 
 
 if __name__ =="__main__":
