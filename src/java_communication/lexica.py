@@ -3,6 +3,59 @@
 import nltk
 from nltk.corpus import wordnet as wn
 from enum import Enum
+import babelnet as bn
+from babelnet.language import Language
+from babelnet import BabelSynsetID
+
+#BABEL_KEY = '690ab7a1-5808-495f-a1a7-600d59748948'
+#BABEL_URL =  'https://babelnet.io/v9/service'
+
+
+"""
+from babelnet.resources import WordNetSynsetID
+
+# Gets the BabelSynsets corresponding to an input WordNet offset.
+by = bn.get_synset(WordNetSynsetID('wn:06879521n'))
+"""
+
+# returns the lemmas as of a lexeme as a set
+def getLemmas_babelnet(lexeme: str):
+    setLemmas = set()
+    senses = bn.get_senses(lexeme, from_langs=[Language.EN])
+    
+    for sense in senses:
+        setLemmas.add(sense.full_lemma)
+
+    return setLemmas
+
+
+def getSynonyms_babelnet(lexeme: str):
+    setSynonyms = set()
+
+    # synonyme sind teil eines synsents 
+
+
+
+
+
+
+
+
+def main():
+    print(getLemmas_babelnet('Employee'))
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class WordTpyes_Wordnet(Enum):
@@ -304,26 +357,6 @@ def check_wordnet():
         nltk.find('corpora/wordnet')
     except LookupError:
         nltk.download('wordnet')
-
-def main():
-    #print(getLemmas_wordnet('length'))
-    #print(getLemmas_wordnet('duration'))
-    #print(getSimilarity_wordnet('oral', 'written'))
-    #print(getSimilarity_wordnet('len'))
-    #print(getPertainyms_wordnet('vocal'))
-    #print(gethypernyms_wordnet('building'))
-    #print(getSimilarity_wordnet('leads','works'))
-    #print(getLemmas_wordnet('employee'))
-    #print(getOwnerOfSynset_wordnet('course'))
-    #print(getLowestCommonhypernym_wordnet('clerk','bartender'))
-
-
-    #print(getLowestCommonhypernym_wordnet('Cat','Dog'))
-
-
-    #print(wn.synset("person.n.02").lemmas())   
-    print(getSynonyms_wordnet('Product'))
-
 
 if __name__ =="__main__":
     #check_wordnet()
