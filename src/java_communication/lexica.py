@@ -1,25 +1,30 @@
 # this class bundles all the functions needed to communicate with the different lexicons and their apis
-
 import nltk
 from nltk.corpus import wordnet as wn
-from enum import Enum
 
+from enum import Enum
 import requests as re
+
+from wikidata.client import Client as wikidata_client
+
 
 try:
     import babelnet as bn
-    from babelnet.language import Language
-    from babelnet.resources import BabelSynsetID
-    from babelnet.pos import POS
-    from babelnet.data.source import BabelSenseSource
-    from babelnet.data.relation import BabelPointer
+    from babelnet.language import Language              # Language in which babelnet shall search
+    from babelnet.resources import BabelSynsetID        # sometimes the id of a synset is required
+    from babelnet.pos import POS                        # descriptor whether a noun, verb or other is searched for
+    from babelnet.data.source import BabelSenseSource   # allows for restricting sources, where babelnet searches
+    from babelnet.data.relation import BabelPointer     # specifies different types fof relations between synsets
 except:
-    ## Do nothing, the import of babelnet fails if the requests limit has been reached ...
+    # Do nothing, the import of babelnet fails if the requests limit has been reached ...
+    # in this case we cannot use babelnet anymore. However, since it still tries to import it,
+    # it will fail and lead to a faulty state. Best Case just to ignore this, for now.
+    # Maybe think about a more sophisticated solution later. 
     pass
 
 
 
-# API Key for merriam webster dict
+# API Key for merriam webster dict, should not be here but somewhere safe
 API_KEY_MERRIAM = '7d510159-8e29-49a0-b42c-cb4167cbfcd9'
 
 class WordTpyes_Wordnet(Enum):
@@ -190,6 +195,7 @@ def getPertainyms_wordnet(term: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.A
     else:
         return None
     
+
 # returns Leacock-Chodorow similarity based on the shortest based on the shortest path that connects the senses (as above) and the maximum depth of the taxonomy
 def getLeaChoSimilarity_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, type2: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, onlyOwnersOfSynset:bool = True) -> list:
     similarites = []
@@ -218,6 +224,7 @@ def getLeaChoSimilarity_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet
     # sort list descending
     similarites.sort(reverse=True)
     return similarites
+
 
 # returns similarity based on the shortest hypernym path for every pair of synsets
 def getPathSimilarity_wordnet(term1: str, term2: str, type1: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, type2: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL, onlyOwnersOfSynset: bool=True) -> list:
@@ -322,6 +329,7 @@ def check_wordnet():
     except LookupError:
         nltk.download('wordnet')
 
+
 # gets hypernyms of a word in babelnet
 def getHypernyms_babelnet_word(word: str):
     # TODO abklären ob alle Quellen benutzt werden sollen oder nur manche?
@@ -344,6 +352,7 @@ def getHypernyms_babelnet_word(word: str):
 
     return hypernyms
 
+
 # gets hypernyms of a synset in babelnet
 def getHypernyms_babelnet(synset):
     hypernyms = []
@@ -357,9 +366,11 @@ def getHypernyms_babelnet(synset):
 
     return hypernyms
 
+
 # gets all synsets from babelnet
 def getSynsets_babelnet(word: str):
     return bn.get_synsets(word, from_langs=[Language.EN])
+
 
 # get all synsets of word
 def getSense_babelnet(word: str):
@@ -375,6 +386,7 @@ def getSense_babelnet(word: str):
         a.append(by.main_sense(language=Language.EN))
     
     return a
+
 
 # returns the common entries of two lists
 def list_intersection(l1: list, l2: list) -> list:
@@ -407,6 +419,7 @@ def compareHypernmys_babelnet(synset1, synset2):
 
     return list_of_common_hyps
 
+
 ## TODO find out what BabelPointer.SEMANTICALLY_RELATED is and what other BabelPointer exists and how we can use them, e.g. Synonyms(BabelPointer.SEMANTICALLY_RELATED):
 """
  s1 = bn.get_synset(BabelSynsetID('bn:14292888n'))
@@ -438,6 +451,7 @@ def getRelatedWords_merriam(word: str) -> set:
 
     return setRelatedWords
 
+
 # returns synonyms of merriam webster
 def getSynonyms_merriam(word: str) -> set:
     URL_merriam = f'https://www.dictionaryapi.com/api/v3/references/thesaurus/json/{word}?key={API_KEY_MERRIAM}'
@@ -463,6 +477,7 @@ def getSynonyms_merriam(word: str) -> set:
                 setSynonyms.add(synonym)
     
     return setSynonyms
+
 
 # returns a number of word stems based on merriam webster dictionary
 def getStem_merriam(word: str) -> set:
@@ -495,6 +510,9 @@ def getCorrections_merriam(word: str):
         corrections = data
     return corrections
 
+
+# higher usability for merriam webster, finds synonmys. if the word is mispelled, the first correction
+# suggestion will be used
 def getSynonymsCorrected_merriam(word: str):
     synonyms = getSynonyms_merriam(word)
     if (len(synonyms))==0:
@@ -504,31 +522,105 @@ def getSynonymsCorrected_merriam(word: str):
     return synonyms
 
 
+# returns a wikidata page
+def getWikidataPage(word: str):
 
+    params = {
+        'action': 'wbsearchentities',
+        'format': 'json',
+        'search': word,
+        'language': 'en'
+    }
 
-def main():
+    url = 'https://www.wikidata.org/w/api.php'
+    data = re.get(url, params=params)
 
-    word = 'foodo'
-    a = getSynonymsCorrected_merriam(word)
+    data = data.json()
     
+    # we always take the first results at the moment, as this is the most likely one to be correct (?)
+    id = data['search'][0]['id']
 
-
-    print(a)
-
-  
-
+    client = wikidata_client()
+    entity = client.get(id)
     
-    
-    
+    return entity
 
 
-    
-           
-    
-    
-    
+# returns the name of a wikidata page
+def getWikidataNameofPage(entity):
+    return entity.attributes['labels']['en']['value']
 
 
-if __name__ =="__main__":
-    #check_wordnet()
-    main()
+# generic function to return the entities of a entity under consideration a specific property
+def getWikidataPropertyValues(entity, property):
+    a = []
+
+    try:
+        instances = entity.attributes['claims'][property]
+    except:
+        return []
+    
+    for instance in instances:
+        id = instance['mainsnak']['datavalue']['value']['id']
+        entity = getWikidataPage(id)
+        a.append(entity)
+    return a
+
+
+# returns the entities of the wikidata page with the property "Instances of"
+def getIsInstancesOfEntity_wikidata(entity):
+    return getWikidataPropertyValues(entity, property='P31')
+
+
+# returns the entities of the wikidata page with the property "Subclass of"
+def getIsSubclassOfEntity_wikidata(entity):
+    return getWikidataPropertyValues(entity, property='P279')
+
+
+# returns the entities of the wikidata page with the property "opposite of" (Antonyms)
+def getOppositeOfEntity_wikidata(entity):
+    return getWikidataPropertyValues(entity, 'P461')
+
+
+# returns the entities of the wikidata page with the property "Is Said to Be the same" (synonyms but sometimes disputed)
+def getIsSaidToBeTheSameAs_wikidata(entity):
+    return getWikidataPropertyValues(entity, 'P460')
+
+
+# returns the entities of the wikidata page with the property "Meta Sub Class of"
+def getIsMetaSubClassOf_wikidata(entity):
+    return getWikidataPropertyValues(entity, 'P2445')
+
+
+# returns the entities of the wikidata page with the property "Meta Class For"
+def getIsMetaClassFor_wikidata(entity):
+    return getWikidataPropertyValues(entity, 'P8225')
+
+
+# returns the entities of the wikidata page with the property "is Part of"
+def getIsPartOf_wikidata(entity):
+    return getWikidataPropertyValues(entity, 'P361')
+
+
+# returns the entities of the wikidata page with the property "has Part"
+def hasParts_wikidata(entity):
+    return getWikidataPropertyValues(entity, 'P527')
+
+
+# prints all properties and their "name"
+def getAllPropertyDescriptors(entity):
+    client = wikidata_client()
+    properties = entity.attributes['claims']
+
+    for property in properties:
+        print(property, getWikidataNameofPage(client.get(property)))
+
+
+if __name__ == "__main__":
+   
+    parts = getIsPartOf_wikidata(getWikidataPage('Room'))
+    for part in parts:
+        print(getWikidataNameofPage(part))
+
+
+
