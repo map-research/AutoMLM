@@ -4,6 +4,23 @@ import nltk
 from nltk.corpus import wordnet as wn
 from enum import Enum
 
+import requests as re
+
+try:
+    import babelnet as bn
+    from babelnet.language import Language
+    from babelnet.resources import BabelSynsetID
+    from babelnet.pos import POS
+    from babelnet.data.source import BabelSenseSource
+    from babelnet.data.relation import BabelPointer
+except:
+    ## Do nothing, the import of babelnet fails if the requests limit has been reached ...
+    pass
+
+
+
+# API Key for merriam webster dict
+API_KEY_MERRIAM = '7d510159-8e29-49a0-b42c-cb4167cbfcd9'
 
 class WordTpyes_Wordnet(Enum):
     ALL = 0 # alle Worttypen
@@ -305,24 +322,211 @@ def check_wordnet():
     except LookupError:
         nltk.download('wordnet')
 
+# gets hypernyms of a word in babelnet
+def getHypernyms_babelnet_word(word: str):
+    # TODO abklären ob alle Quellen benutzt werden sollen oder nur manche?
+    hypernyms = []
+    synsets = bn.get_synsets(word, from_langs=[Language.EN])#, sources=[BabelSenseSource.WIKIDATA])
+    
+    if len(synsets) == 0:
+        # kein lexeme vorhanden
+        return hypernyms
+
+    for synset in synsets:
+        # ANY_HYPERNYM sucht in allen Quellen nach passenden Hypernymen
+        for edge in synset.outgoing_edges(BabelPointer.ANY_HYPERNYM):
+            # synset das hypernym ist
+            by = bn.get_synset(edge.id_target)
+            # main sense / meaning for this synset
+            main_sense = by.main_sense(language=Language.EN)
+            
+            hypernyms.append(main_sense)
+
+    return hypernyms
+
+# gets hypernyms of a synset in babelnet
+def getHypernyms_babelnet(synset):
+    hypernyms = []
+    for edge in synset.outgoing_edges(BabelPointer.ANY_HYPERNYM):
+        # synset das hypernym ist
+        by = bn.get_synset(edge.id_target)
+        # main sense / meaning for this synset
+        main_sense = by.main_sense(language=Language.EN)
+        
+        hypernyms.append(main_sense)    
+
+    return hypernyms
+
+# gets all synsets from babelnet
+def getSynsets_babelnet(word: str):
+    return bn.get_synsets(word, from_langs=[Language.EN])
+
+# get all synsets of word
+def getSense_babelnet(word: str):
+    
+    synsets = bn.get_synsets(word, from_langs=[Language.EN])
+    # if no synsets exists, no senses will exist either
+    if len(synsets) == 0:
+        return []
+    
+    a = []
+    # get all the main senses for every synset
+    for by in synsets:
+        a.append(by.main_sense(language=Language.EN))
+    
+    return a
+
+# returns the common entries of two lists
+def list_intersection(l1: list, l2: list) -> list:
+    l3 = [value for value in l1 if value in l2]
+    return l3
+
+
+# compare hypernyms from babelnet based on words
+def compareHypernyms_babelnet_word(w1: str, w2: str) -> set:
+
+    # get the hypernyms 
+    l1 = getHypernyms_babelnet_word(w1)
+    l2 = getHypernyms_babelnet_word(w2)
+
+    # find common hypernyms and remove duplicates
+    list_of_common_hyps = list_intersection(l1, l2)
+    list_of_common_hyps = list(dict.fromkeys(list_of_common_hyps))
+
+    return list_of_common_hyps
+
+
+# compare hypernyms from babelnet based on babelnet synsets
+def compareHypernmys_babelnet(synset1, synset2):
+
+    l1 = getHypernyms_babelnet(synset1)
+    l2 = getHypernyms_babelnet(synset2)
+
+    list_of_common_hyps = list_intersection(l1, l2)
+    list_of_common_hyps = list(dict.fromkeys(list_of_common_hyps))
+
+    return list_of_common_hyps
+
+## TODO find out what BabelPointer.SEMANTICALLY_RELATED is and what other BabelPointer exists and how we can use them, e.g. Synonyms(BabelPointer.SEMANTICALLY_RELATED):
+"""
+ s1 = bn.get_synset(BabelSynsetID('bn:14292888n'))
+
+    for edge in s1.outgoing_edges(BabelPointer.SEMANTICALLY_RELATED):
+        by = bn.get_synset(edge.id_target)
+        main_sense = by.main_sense(language=Language.EN)
+        print(main_sense)
+"""
+
+
+# returns related words of merriam webster
+def getRelatedWords_merriam(word: str) -> set:
+    URL_merriam = f'https://www.dictionaryapi.com/api/v3/references/thesaurus/json/{word}?key={API_KEY_MERRIAM}'
+    setRelatedWords = set()
+    
+    response = re.get(URL_merriam)
+
+    if response.status_code==200:   
+        data = response.json()
+        try:
+            relatedWordList = data[0]['def'][0]['sseq'][0][0][1]['rel_list']
+            for wordList in relatedWordList:
+                for word in wordList:
+                    setRelatedWords.add(word.get('wd'))
+        except:
+            # there are no related words for this sense
+            return setRelatedWords
+
+    return setRelatedWords
+
+# returns synonyms of merriam webster
+def getSynonyms_merriam(word: str) -> set:
+    URL_merriam = f'https://www.dictionaryapi.com/api/v3/references/thesaurus/json/{word}?key={API_KEY_MERRIAM}'
+    setSynonyms = set()
+
+    response = re.get(URL_merriam)
+    if response.status_code==200:
+        data = response.json()
+
+        # it is possible that the answer is positive but the word is a spelling mistake
+        # in that case the response is differently formatted, therefore, an empty list is 
+        # returned, this can be improved by using the getCorrections_merriam functions to 
+        # identify the correct spelling of the word
+        try:
+            # extracts the synonyms of the different senses
+            synonymsSenses = data[0]['meta']['syns']
+        except:
+            synonymsSenses = []
+
+        for sense in synonymsSenses:
+            # get the synonyms of every sense
+            for synonym in sense:
+                setSynonyms.add(synonym)
+    
+    return setSynonyms
+
+# returns a number of word stems based on merriam webster dictionary
+def getStem_merriam(word: str) -> set:
+    URL_merriam = f'https://www.dictionaryapi.com/api/v3/references/thesaurus/json/{word}?key={API_KEY_MERRIAM}'
+    setStems = set()
+
+    response = re.get(URL_merriam)
+
+    if response.status_code==200:
+        data = response.json()
+
+        # extracts the synonyms of the different senses
+        stems = data[0]['meta']['stems']
+
+        for stem in stems:
+            setStems.add(stem)
+        
+    return stems
+
+
+# if a word is mispelled, merriam webster offers different options to correct the word
+def getCorrections_merriam(word: str):
+    URL_merriam = f'https://www.dictionaryapi.com/api/v3/references/thesaurus/json/{word}?key={API_KEY_MERRIAM}'
+    response = re.get(URL_merriam)
+    corrections = []
+
+    # the list is sorted from most likely to less likely options
+    if response.status_code==200:
+        data = response.json()
+        corrections = data
+    return corrections
+
+def getSynonymsCorrected_merriam(word: str):
+    synonyms = getSynonyms_merriam(word)
+    if (len(synonyms))==0:
+        corrections = getCorrections_merriam(word)
+        synonyms = getSynonyms_merriam(corrections[0])
+
+    return synonyms
+
+
+
+
 def main():
-    #print(getLemmas_wordnet('length'))
-    #print(getLemmas_wordnet('duration'))
-    #print(getSimilarity_wordnet('oral', 'written'))
-    #print(getSimilarity_wordnet('len'))
-    #print(getPertainyms_wordnet('vocal'))
-    #print(gethypernyms_wordnet('building'))
-    #print(getSimilarity_wordnet('leads','works'))
-    #print(getLemmas_wordnet('employee'))
-    #print(getOwnerOfSynset_wordnet('course'))
-    #print(getLowestCommonhypernym_wordnet('clerk','bartender'))
+
+    word = 'foodo'
+    a = getSynonymsCorrected_merriam(word)
+    
 
 
-    #print(getLowestCommonhypernym_wordnet('Cat','Dog'))
+    print(a)
+
+  
+
+    
+    
+    
 
 
-    #print(wn.synset("person.n.02").lemmas())   
-    print(getSynonyms_wordnet('Product'))
+    
+           
+    
+    
+    
 
 
 if __name__ =="__main__":
