@@ -25,7 +25,6 @@ class MultilevelModel:
         self.parsed_xml = None
         if xml_file_path != "":
             self._parse_xml(xml_file_path)
-        
 
     def export_xml(self, filepath : str = 'export_test.xml', project_name='Root::Export'):
         # create the root
@@ -49,7 +48,6 @@ class MultilevelModel:
 
         # root is returned in case it is needed ?!
         return root
-
 
     def _parse_xml(self, doc_file_path: str):
         document = None
@@ -215,7 +213,6 @@ class MultilevelModel:
                     new_link.set_target_object(mlm_object)
             self.links.append(new_link)
 
-
     def get_mlm_object_by_fullname(self, full_name: str) -> MlmObject:
         for mlm_object in self.mlm_objects:
             if mlm_object.full_name == full_name:
@@ -231,3 +228,5 @@ class MultilevelModel:
         print("\n--------------------------------------------------------------\n")
         print(*self.links, sep="\n---\n")
         return ""
+
+    

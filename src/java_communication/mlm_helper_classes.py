@@ -1,6 +1,10 @@
 from typing import List
 import xml.etree.ElementTree as ET
 
+from numpy import source
+
+from lexicographicAnalysis import LexicalAnalysisHelper, LexicalSources
+
 # This file specifies all classes within an MLM.
 
 
@@ -27,7 +31,6 @@ class EnumType:
         return root
 
 
-
 class MlmAttr:
     def __init__(self, attr_name: str, attr_type: str, inst_level: int,
                  uses_enum: bool = False, uses_domain_specific_type: bool = False):
@@ -49,6 +52,57 @@ class MlmAttr:
     def __repr__(self):
         return f"[ATTR-{self.inst_level}] {self.attr_name}:{self.attr_type_short}"
 
+    def isCompundLabel(label: str) -> bool:
+        # attribute labels need only one uppercase char to be considered a compound label
+        for char in label:
+            if char.isupper():
+                return True
+            
+        return False
+        
+    # TODO
+    def _reduceLexemeSet(self, listLexemes: list, threshold: int) -> list:
+        return listLexemes
+    
+    def automaticSemanticMatching(self) -> list:
+        # TODO move to other position, comes from java
+        threshold_numberOfLexemes = 3
+
+        # extract label from class name
+        label = self.attr_name
+        # look up lexemes
+        lexemes = LexicalAnalysisHelper.lookForLexeme(label)
+
+        if len(lexemes) > 0:
+            lexemes = self._semanticMatchingLabel(lexemes)
+            return lexemes
+        else:
+            # check for compound label and repeat steps
+            if self.isCompundLabel(label):
+                label = LexicalAnalysisHelper.identifyHeadOfCompund(label)
+                lexemes = LexicalAnalysisHelper.lookForLexeme(label)
+                lexemes = self._semanticMatchingLabel(lexemes)
+                return lexemes
+            else:
+                # TODO what to do? no lexeme has been found
+                return []
+            
+    def _semanticMatchingLabel(self, lexemes: list) -> list:
+        # TODO move to other position, comes from java
+        threshold_numberOfLexemes = 3
+        # check if lexeme is found
+        if len(lexemes) > 0:
+            # check if number of lexemes are beyond threshold
+            if len(lexemes) > threshold_numberOfLexemes:
+                lexemes = self._reduceLexemeSet(lexemes, threshold_numberOfLexemes)
+                return lexemes
+            else:
+                # suitable lexemes foound
+                return lexemes
+        else:
+            # TODO not enough suitable lexemes found
+            return []
+            
 
 class MlmSlot:
     def __init__(self, slot_name: str, value: str):
@@ -108,6 +162,7 @@ class MlmObject:
         self.class_of_object = class_of_object
         self.is_abstract: bool = True if is_abstract == "true" else False
         self.parent_classes = []
+        self.lexemes = []
 
     def __repr__(self):
         # class_str = f"[CLASS] {self.name}"
@@ -187,7 +242,65 @@ class MlmObject:
     def is_specialization(self) -> bool:
         return not self.parent_classes
 
+    def _semanticMatchingLabel(self, lexemes: list) -> list:
+        # TODO move to other position, comes from java
+        threshold_numberOfLexemes = 3
+        # check if lexeme is found
+        
+        if len(lexemes) > 0:
+            # check if number of lexemes are beyond threshold
+            if len(lexemes) > threshold_numberOfLexemes:
+                lexemes = self._reduceLexemeSet(lexemes, threshold_numberOfLexemes)
+                return lexemes
+            else:
+                # suitable lexemes foound
+                return lexemes
+        else:
+            # TODO not enough suitable lexemes found
+            return []
+        
+    def isCompundLabel(input: str) -> bool:
+        upper = sum(1 for char in input if char.isupper())
+        if upper > 1:
+            return True
+        else:
+            return False
 
+    # TODO
+    def _reduceLexemeSet(self, listLexemes: list, threshold: int) -> list:
+        newList = []
+        for lex in listLexemes:
+            if lex[1] == LexicalSources.WIKIDATA:
+                newList.append(lex)
+                
+        return newList
+        
+        #return listLexemes[0:threshold]
+
+    def automaticSemanticMatching(self) -> list:
+        # extract label from class name
+        label = self.name
+        # look up lexemes
+        lexemes = LexicalAnalysisHelper.lookForLexeme(label)
+        
+
+        if len(lexemes) > 0:
+            lexemes = self._semanticMatchingLabel(lexemes)
+            self.lexemes = lexemes
+            return lexemes
+        else:
+            # check for compound label and repeat steps
+            if self.isCompundLabel(label):
+                label = LexicalAnalysisHelper.identifyHeadOfCompund(label)
+                lexemes = LexicalAnalysisHelper.lookForLexeme(label)
+                lexemes = self._semanticMatchingLabel(lexemes)
+                self.lexemes = lexemes
+                return lexemes
+            else:
+                # TODO what to do? no lexeme has been found
+                return []
+            
+    
 class Cardinality:
     def __init__(self, min_card: int, max_card: int, is_unbounded: bool = False) -> None:
         self.min_card = min_card
