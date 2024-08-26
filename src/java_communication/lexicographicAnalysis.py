@@ -2,10 +2,10 @@
 from datetime import datetime
 from enum import Enum
 import requests as re
-from spacy.tokenizer import Tokenizer
-from nltk.corpus import wordnet as wn
 
+from nltk.corpus import wordnet as wn
 from wikidata.client import Client as wikidata_client
+import spacy
 
 try:
         import babelnet as bn
@@ -28,6 +28,7 @@ class LexicalSources(Enum):
     MERRIAMWEBSTER = 'MERRIAMWEBSTER'
     CONCEPTNET = 'CONCEPTNET'
     
+
 # bundles the functions for ALL lexial sources
 class LexicalAnalysisHelper():
     
@@ -149,7 +150,7 @@ class LexicalAnalysisHelper():
                             pass
 
                     if lexA[1] == LexicalSources.WIKIDATA:
-                        hyps = LexicalAnalysisHelperWikidata.compareHypernyms()
+                        hyps = LexicalAnalysisHelperWikidata.compareHypernyms(LexicalAnalysisHelperWikidata(), lexA[0], lexB[0])
                         for h in hyps:
                             commonHypernyms.append(h)
 
@@ -173,10 +174,48 @@ class LexicalAnalysisHelper():
         
         return setHypernyms
 
+    # returns a suited data type of two given data types, returns None if no type fits
+    def getCompabilityOfTypes(self, dataTypeA: str, dataTypeB: str) -> str:
+        # if they are the same it fits
+        if dataTypeA==dataTypeB:
+            return dataTypeA
+        
+        # dont match
+        if (dataTypeA == 'Boolean' and dataTypeB == 'Integer') or (dataTypeA == 'Integer' and dataTypeB == 'Boolean'):
+            return None
 
+        # dont match
+        if (dataTypeA == 'Boolean' and dataTypeB == 'Float') or (dataTypeA == 'Float' and dataTypeB == 'Boolean'):
+            return None
+        
+        # dont match
+        if (dataTypeA == 'Boolean' and dataTypeB == 'Date') or (dataTypeA == 'Date' and dataTypeB == 'Boolean'):
+            return None
 
+        # dont match
+        if (dataTypeA == 'Integer' and dataTypeB == 'Date') or (dataTypeA == 'Date' and dataTypeB == 'Integer'):
+            return None
+        
+        # dont match
+        if (dataTypeA == 'Float' and dataTypeB == 'Date') or (dataTypeA == 'Date' and dataTypeB == 'Float'):
+            return None
 
+        # float and integer merge to float
+        if (dataTypeA == 'Float' and dataTypeB == 'Integer') or (dataTypeB == 'Float' and dataTypeA == 'Integer'):
+            return 'Float'
+        
+        # as the most "basic" type, string can always be used
+        # attention!!! the XModeler itself does not do an automatical conversion
+        if dataTypeA == 'String' or dataTypeB == 'String':
+            return 'String'
 
+    # similiarity of two labels, currently between 0 and 1, we want to change to a different one
+    def getSimilarityOfLabels(self, labelA, labelB) -> float:
+
+        nlp = spacy.load('en_core_web_md')
+        tokenA = nlp(labelA)
+        tokenB = nlp(labelB)
+        return tokenA.similarity(tokenB)
 
 
 
@@ -192,7 +231,6 @@ class LexicalAnalysisHelperWordnet():
             lexemeList.append((syn, LexicalSources.WORDNET))
         
         return lexemeList
-
 
 
 # bundles the functions for babelnet
@@ -230,6 +268,7 @@ class LexicalAnalysisHelperBabelnet():
             hypernyms.append(main_sense)    
 
         return hypernyms
+
 # bundles the functions for wikidata
 class LexicalAnalysisHelperWikidata():
 
@@ -300,7 +339,7 @@ class LexicalAnalysisHelperWikidata():
 
     # returns the entities of the wikidata page with the property "Subclass of"
     def getIsSubclassOfEntity(self, entity):
-        return self._getPropertyValues(entity, property='P279')
+        return self._getPropertyValues(entity=entity, property='P279')
 
     # returns the name of a wikidata page
     def getNameofEntity(self, entity):
@@ -312,17 +351,18 @@ class LexicalAnalysisHelperWikidata():
 
     def compareHypernyms(self, entityA, entityB) -> list:
 
-        setHypernyms = []
+        listHypernyms = []
 
-        subclassesA = self.getIsSubclassOfEntity(entityA)
-        subclassesB = self.getIsSubclassOfEntity(entityB)
+        subclassesA = self.getIsSubclassOfEntity(entity=entityA)
+        subclassesB = self.getIsSubclassOfEntity(entity=entityB)
 
         for subA in subclassesA:
             for subB in subclassesB:
                 if self.getIDOfEntity(subA) == self.getIDOfEntity(subB):
                     hypernym = (subA, LexicalSources.WIKIDATA)
-                    setHypernyms.append(hypernym)
+                    listHypernyms.append(hypernym)
 
+        return listHypernyms
 
 
 # bundles the functions for merriam webster
@@ -358,6 +398,7 @@ class LexicalAnalysisHelperMerriamWebster():
             except:
                 return False
         return False
+
 
 # bundles the functions for concept net
 class LexicalAnalysisHelperConceptNet():

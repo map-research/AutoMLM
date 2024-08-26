@@ -268,12 +268,15 @@ class MlmObject:
 
     # TODO
     def _reduceLexemeSet(self, listLexemes: list, threshold: int) -> list:
+
+        # for testing purposes, only wikidata is used at the moment
+
         newList = []
         for lex in listLexemes:
             if lex[1] == LexicalSources.WIKIDATA:
                 newList.append(lex)
                 
-        return newList
+        return newList[0:2]
         
         #return listLexemes[0:threshold]
 
