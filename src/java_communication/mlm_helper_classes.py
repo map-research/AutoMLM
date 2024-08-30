@@ -269,14 +269,14 @@ class MlmObject:
     # TODO
     def _reduceLexemeSet(self, listLexemes: list, threshold: int) -> list:
 
-        # for testing purposes, only wikidata is used at the moment
+        # for testing purposes, only wordnet is used at the moment
 
         newList = []
         for lex in listLexemes:
-            if lex[1] == LexicalSources.WIKIDATA:
+            if lex[1] == LexicalSources.WORDNET:
                 newList.append(lex)
                 
-        return newList[0:2]
+        return newList
         
         #return listLexemes[0:threshold]
 

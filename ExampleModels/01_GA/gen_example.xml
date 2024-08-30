@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<XModeler>
+    
+  <Version>3</Version>
+    
+  <Categories/>
+    
+  <Projects>
+    <Project name="Root::gen_example"/>
+  </Projects>
+    
+  <Diagrams>
+    <Diagram label="gen_example" package_path="Root::gen_example">
+      <Categories/>
+      <Owners/>
+      <Objects>
+        <Object hidden="false" ref="Root::gen_example::Monograph" x="769" y="295"/>
+        <Object hidden="false" ref="Root::gen_example::Article" x="444" y="302"/>
+        <Object hidden="false" ref="Root::gen_example::Book" x="282" y="309"/>
+        <Object hidden="false" ref="Root::gen_example::Proceedings" x="597" y="295"/>
+      </Objects>
+      <Edges/>
+      <Labels/>
+      <Preferences/>
+      <View name="Main View" tx="0.0" ty="0.0" xx="1.0"/>
+      <DiagramDisplayProperties SHOWCONCRETESYNTAX="true" SHOWCONSTRAINTREPORTS="true" SHOWCONSTRAINTS="true" SHOWDERIVEDATTRIBUTES="true" SHOWDERIVEDOPERATIONS="true" SHOWGETTERSANDSETTERS="false" SHOWISSUETABLEVISIBLE="false" SHOWMETACLASSNAME="false" SHOWOPERATIONS="true" SHOWOPERATIONVALUES="true" SHOWSLOTS="true"/>
+    </Diagram>
+  </Diagrams>
+    
+  <Logs>
+    <addMetaClass abstract="false" level="1" name="Proceedings" package="Root::gen_example" parents=""/>
+    <addMetaClass abstract="false" level="1" name="Monograph" package="Root::gen_example" parents=""/>
+    <addMetaClass abstract="false" level="1" name="Article" package="Root::gen_example" parents=""/>
+    <addMetaClass abstract="false" level="1" name="Book" package="Root::gen_example" parents=""/>
+    <addAttribute class="Root::gen_example::Article" level="0" multiplicity="Seq{1,1,true,false}" name="from" package="Root::gen_example" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::gen_example::Article" level="0" multiplicity="Seq{1,1,true,false}" name="pages" package="Root::gen_example" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::gen_example::Article" level="0" multiplicity="Seq{1,1,true,false}" name="title" package="Root::gen_example" type="Root::XCore::String"/>
+    <addAttribute class="Root::gen_example::Article" level="0" multiplicity="Seq{1,1,true,false}" name="to" package="Root::gen_example" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::gen_example::Book" level="0" multiplicity="Seq{1,1,true,false}" name="pages" package="Root::gen_example" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::gen_example::Book" level="0" multiplicity="Seq{1,1,true,false}" name="title" package="Root::gen_example" type="Root::XCore::String"/>
+    <addAttribute class="Root::gen_example::Book" level="0" multiplicity="Seq{1,1,true,false}" name="year" package="Root::gen_example" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::gen_example::Monograph" level="0" multiplicity="Seq{1,1,true,false}" name="author" package="Root::gen_example" type="Root::XCore::String"/>
+    <addAttribute class="Root::gen_example::Monograph" level="0" multiplicity="Seq{1,1,true,false}" name="pages" package="Root::gen_example" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::gen_example::Monograph" level="0" multiplicity="Seq{1,1,true,false}" name="title" package="Root::gen_example" type="Root::XCore::String"/>
+    <addAttribute class="Root::gen_example::Monograph" level="0" multiplicity="Seq{1,1,true,false}" name="year" package="Root::gen_example" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::gen_example::Proceedings" level="0" multiplicity="Seq{1,1,true,false}" name="editor" package="Root::gen_example" type="Root::XCore::String"/>
+    <addAttribute class="Root::gen_example::Proceedings" level="0" multiplicity="Seq{1,1,true,false}" name="pages" package="Root::gen_example" type="Root::XCore::Integer"/>
+    <addAttribute class="Root::gen_example::Proceedings" level="0" multiplicity="Seq{1,1,true,false}" name="title" package="Root::gen_example" type="Root::XCore::String"/>
+    <addAttribute class="Root::gen_example::Proceedings" level="0" multiplicity="Seq{1,1,true,false}" name="year" package="Root::gen_example" type="Root::XCore::Integer"/>
+    <changeSlotValue class="Root::gen_example::Article" package="Root::gen_example" slotName="lastUpdated" valueToBeParsed="null"/>
+    <changeSlotValue class="Root::gen_example::Book" package="Root::gen_example" slotName="lastUpdated" valueToBeParsed="null"/>
+    <changeSlotValue class="Root::gen_example::Monograph" package="Root::gen_example" slotName="lastUpdated" valueToBeParsed="null"/>
+    <changeSlotValue class="Root::gen_example::Proceedings" package="Root::gen_example" slotName="lastUpdated" valueToBeParsed="null"/>
+  </Logs>
+  
+</XModeler>

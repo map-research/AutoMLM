@@ -2,6 +2,12 @@
 from datetime import datetime
 from enum import Enum
 import requests as re
+try:
+    import babelnet as bn
+except:
+    # error occurs if babelnet api limit is reached
+    pass
+
 
 from nltk.corpus import wordnet as wn
 from wikidata.client import Client as wikidata_client
@@ -31,6 +37,15 @@ class LexicalSources(Enum):
 
 # bundles the functions for ALL lexial sources
 class LexicalAnalysisHelper():
+
+    def performAnalysis_GA():
+        pass
+
+
+
+        
+
+
     
     def list_intersection(l1: list, l2: list) -> list:
         l3 = [value for value in l1 if value in l2]
@@ -115,6 +130,31 @@ class LexicalAnalysisHelper():
             elif element[1] == LexicalSources.CONCEPTNET:
                 pass
 
+    # TODO
+    # reduce the number of hypernyms
+    def _reduceSetOfHypernyms(self, hypernyms):
+        max_depth_wordnet = -1
+        for h in hypernyms:
+             if h[1] == LexicalSources.WORDNET:
+                 ## atm return of the lowest level noun
+                 s = h[0]
+                 if s.max_depth() > max_depth_wordnet and s.pos() == 'n':
+                    hyp_wordnet = h
+                    max_depth_wordnet = s.max_depth()
+
+             if h[1] == LexicalSources.BABELNET:
+                 pass
+             if h[1] == LexicalSources.WIKIDATA:
+                 pass
+             if h[1] == LexicalSources.MERRIAMWEBSTER:
+                pass
+             if h[1] == LexicalSources.CONCEPTNET:
+                pass
+             
+        hypernymsCleaned = []
+        hypernymsCleaned.append(hyp_wordnet)
+        return hypernymsCleaned    
+
     def getCommonHypernyms(self, objectA, objectB) -> list:
         commonHypernyms = []
         setHypernyms = set()
@@ -141,7 +181,6 @@ class LexicalAnalysisHelper():
                     if lexA[1] == LexicalSources.BABELNET:
                         try:
                             hyp = LexicalAnalysisHelperBabelnet.compareHypernmys(LexicalAnalysisHelperBabelnet, lexA[0], lexB[0])
-
                             for h in hyp:
                                 hypernym = (h, LexicalSources.BABELNET)
                                 commonHypernyms.append(h)
@@ -248,6 +287,10 @@ class LexicalAnalysisHelperBabelnet():
 
         l1 = self._getHypernyms(synset1)
         l2 = self._getHypernyms(synset2)
+
+        print("")
+        print(l1)
+        print(l2)
 
         list_of_common_hyps = LexicalAnalysisHelper.list_intersection(l1, l2)
         list_of_common_hyps = list(dict.fromkeys(list_of_common_hyps))

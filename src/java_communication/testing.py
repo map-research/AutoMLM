@@ -27,10 +27,6 @@ gen_example = MultilevelModel("C:\\Users\\fhend\\Documents\\GitHub_Repos\\Mosaic
 
 helper = LexicalAnalysisHelper()
 
-sim = helper.getSimilarityOfLabels("Fence", "Tom climbed a jam")
-
-
-print(sim)
 
 
 
@@ -48,14 +44,13 @@ print(sim)
 
 
 
-"""
+
 objs = gen_example.mlm_objects
 
 for o in objs:
     o.automaticSemanticMatching()
 
 
-print(datetime.now())
 for o1 in objs:
     for o2 in objs:
         if o1 is o2:
@@ -63,10 +58,12 @@ for o1 in objs:
 
         #print(o1.name)
         #print(o2.name)
-        print(datetime.now())
+        #print(datetime.now())
         c = helper.getCommonHypernyms(o1, o2)
-        print(f'{o1.name} and {o2.name}:\t{c}')
-        """
+        c = helper._reduceSetOfHypernyms(c)
+        cstr = f'{o1.name} and {o2.name}'
+        print(cstr.ljust(50,' '), [a[0] for a in c])
+        
 
 
 
