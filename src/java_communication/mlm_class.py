@@ -25,6 +25,9 @@ class MultilevelModel:
         self.parsed_xml = None
         if xml_file_path != "":
             self._parse_xml(xml_file_path)
+        # automatic matching
+        for o in self.mlm_objects:
+            o.automaticSemanticMatching()
 
     def export_xml(self, filepath : str = 'export_test.xml', project_name='Root::Export'):
         # create the root

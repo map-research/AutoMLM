@@ -4,7 +4,7 @@ testing.py used to test AutoMLM scenarios such as XML parsing and writing
 
 from datetime import datetime
 from mlm_class import *
-from lexicographicAnalysis import LexicalAnalysisHelper
+from java_communication.lexical_analysis_helper import LexicalAnalysisHelper
 from nltk.corpus import wordnet as wn
 
 #mlm_simple = MlmDoc("C:\\Programme\\XModeler-AutoMLM-v1\\XModeler\\AutoMLM\\mlm_files\\gen_example.xml")
@@ -17,7 +17,7 @@ from nltk.corpus import wordnet as wn
 
 # examMgmt = MultilevelModel("C:\\Programme\\XModeler-AutoMLM-v1\\XModeler\\AutoMLM\\mlm_files\\examMgmt.xml")
 
-
+"""
 print(datetime.now())
 
 gen_example = MultilevelModel("C:\\Users\\fhend\\Documents\\GitHub_Repos\\MosaicFX\\AutoMLM\\mlm_files\\gen_example.xml")
@@ -68,3 +68,12 @@ for o1 in objs:
 
 
 print(datetime.now())
+"""
+
+
+
+
+
+
+
+

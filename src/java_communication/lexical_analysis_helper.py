@@ -2,6 +2,9 @@
 from datetime import datetime
 from enum import Enum
 import requests as re
+
+
+
 try:
     import babelnet as bn
 except:
@@ -22,6 +25,7 @@ try:
         from babelnet.data.relation import BabelPointer     # specifies different types fof relations between synsets
 except:
     # Do nothing, the import of babelnet fails if the requests limit has been reached in this case we cannot use babelnet anymore. However, since it still tries to import it, it will fail and lead to a faulty state. Best Case just to ignore this, for now. Maybe think about a more sophisticated solution later. 
+    print('Babelnet has a limit of 1.000 Requests per day. This limit has been reached')
     pass
 
 API_KEY_MERRIAM = '7d510159-8e29-49a0-b42c-cb4167cbfcd9'
@@ -38,8 +42,22 @@ class LexicalSources(Enum):
 # bundles the functions for ALL lexial sources
 class LexicalAnalysisHelper():
 
-    def performAnalysis_GA():
-        pass
+    def performAnalysis_GA(self, model, arg):
+
+        
+
+        
+        """
+        #print(o1.name)
+        #print(o2.name)
+        #print(datetime.now())
+        c = self.getCommonHypernyms(o1, o2)
+        c = self._reduceSetOfHypernyms(c)
+        cstr = f'{o1.name} and {o2.name}'
+        print(cstr.ljust(50,' '), [a[0] for a in c])
+        """
+
+        return ''
 
 
 
@@ -51,7 +69,7 @@ class LexicalAnalysisHelper():
         l3 = [value for value in l1 if value in l2]
         return l3
 
-    def lookForLexeme(input: str) -> list:
+    def lookForLexeme(self, input: str) -> list:
         lexemeList = []
         listWordnet = LexicalAnalysisHelperWordnet.lookForLexeme(input)
         listWikidata = LexicalAnalysisHelperWikidata.lookForLexeme(input)
@@ -134,6 +152,9 @@ class LexicalAnalysisHelper():
     # reduce the number of hypernyms
     def _reduceSetOfHypernyms(self, hypernyms):
         max_depth_wordnet = -1
+        hyp_wordnet = ''
+        hypernymsCleaned = []
+
         for h in hypernyms:
              if h[1] == LexicalSources.WORDNET:
                  ## atm return of the lowest level noun
@@ -145,19 +166,19 @@ class LexicalAnalysisHelper():
              if h[1] == LexicalSources.BABELNET:
                  pass
              if h[1] == LexicalSources.WIKIDATA:
-                 pass
+                 hypernymsCleaned.append(h)
              if h[1] == LexicalSources.MERRIAMWEBSTER:
                 pass
              if h[1] == LexicalSources.CONCEPTNET:
                 pass
              
         hypernymsCleaned = []
-        hypernymsCleaned.append(hyp_wordnet)
+        if hyp_wordnet != '':
+            hypernymsCleaned.append(hyp_wordnet)
         return hypernymsCleaned    
 
     def getCommonHypernyms(self, objectA, objectB) -> list:
         commonHypernyms = []
-        setHypernyms = set()
 
         lexemesA = objectA.lexemes
         lexemesB = objectB.lexemes
@@ -189,6 +210,7 @@ class LexicalAnalysisHelper():
                             pass
 
                     if lexA[1] == LexicalSources.WIKIDATA:
+
                         hyps = LexicalAnalysisHelperWikidata.compareHypernyms(LexicalAnalysisHelperWikidata(), lexA[0], lexB[0])
                         for h in hyps:
                             commonHypernyms.append(h)
@@ -205,13 +227,11 @@ class LexicalAnalysisHelper():
                     # if source is not the same, no hypernyms can be found (??)
                     pass
             
-        # delete duplicates
-        setHypernyms = set()
-        for ele in commonHypernyms:
-            setHypernyms.add(ele)
+        # TODO delete duplicates
+        return commonHypernyms
+    
 
-        
-        return setHypernyms
+
 
     # returns a suited data type of two given data types, returns None if no type fits
     def getCompabilityOfTypes(self, dataTypeA: str, dataTypeB: str) -> str:
@@ -287,10 +307,6 @@ class LexicalAnalysisHelperBabelnet():
 
         l1 = self._getHypernyms(synset1)
         l2 = self._getHypernyms(synset2)
-
-        print("")
-        print(l1)
-        print(l2)
 
         list_of_common_hyps = LexicalAnalysisHelper.list_intersection(l1, l2)
         list_of_common_hyps = list(dict.fromkeys(list_of_common_hyps))
@@ -393,6 +409,7 @@ class LexicalAnalysisHelperWikidata():
         return entity.attributes['title']
 
     def compareHypernyms(self, entityA, entityB) -> list:
+
 
         listHypernyms = []
 

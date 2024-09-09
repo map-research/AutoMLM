@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 
 from numpy import source
 
-from lexicographicAnalysis import LexicalAnalysisHelper, LexicalSources
+from lexical_analysis_helper import LexicalAnalysisHelper, LexicalSources
 
 # This file specifies all classes within an MLM.
 
@@ -67,11 +67,12 @@ class MlmAttr:
     def automaticSemanticMatching(self) -> list:
         # TODO move to other position, comes from java
         threshold_numberOfLexemes = 3
+        helper = LexicalAnalysisHelper()
 
         # extract label from class name
         label = self.attr_name
         # look up lexemes
-        lexemes = LexicalAnalysisHelper.lookForLexeme(label)
+        lexemes = helper.lookForLexeme(label)
 
         if len(lexemes) > 0:
             lexemes = self._semanticMatchingLabel(lexemes)
@@ -79,8 +80,8 @@ class MlmAttr:
         else:
             # check for compound label and repeat steps
             if self.isCompundLabel(label):
-                label = LexicalAnalysisHelper.identifyHeadOfCompund(label)
-                lexemes = LexicalAnalysisHelper.lookForLexeme(label)
+                label = helper.identifyHeadOfCompund(label)
+                lexemes = helper.lookForLexeme(label)
                 lexemes = self._semanticMatchingLabel(lexemes)
                 return lexemes
             else:
@@ -232,6 +233,11 @@ class MlmObject:
             operation = ET.SubElement(model, 'addOperation', body='@Operation '+operation.operation_name+' [monitor=false,delToClassAllowed=false]():XCore::'+operation.return_type+' null end', 
                                     level=str(operation.inst_level), monitored='false', name=operation.operation_name, package=projectName, paramNames='', paramTypes='', type=operation.return_type)
             operation.set('class', projectName+"::"+self.name)
+        
+        for parent in self.parent_classes:
+            parent = ET.SubElement(model, 'changeParent', new=projectName+"::"+parent.name, old="", package=projectName)
+            parent.set('class', projectName+"::"+self.name)
+                                   
 
     def set_is_abstract(self, is_abstract: bool):
         self.is_abstract = is_abstract
@@ -273,10 +279,10 @@ class MlmObject:
 
         newList = []
         for lex in listLexemes:
-            if lex[1] == LexicalSources.WORDNET:
+            if lex[1] == LexicalSources.WIKIDATA:
                 newList.append(lex)
                 
-        return newList
+        return newList[0:5]
         
         #return listLexemes[0:threshold]
 
@@ -284,7 +290,8 @@ class MlmObject:
         # extract label from class name
         label = self.name
         # look up lexemes
-        lexemes = LexicalAnalysisHelper.lookForLexeme(label)
+        helper = LexicalAnalysisHelper()
+        lexemes = helper.lookForLexeme(label)
         
 
         if len(lexemes) > 0:
@@ -294,8 +301,8 @@ class MlmObject:
         else:
             # check for compound label and repeat steps
             if self.isCompundLabel(label):
-                label = LexicalAnalysisHelper.identifyHeadOfCompund(label)
-                lexemes = LexicalAnalysisHelper.lookForLexeme(label)
+                label = helper.identifyHeadOfCompund(label)
+                lexemes = helper.lookForLexeme(label)
                 lexemes = self._semanticMatchingLabel(lexemes)
                 self.lexemes = lexemes
                 return lexemes
