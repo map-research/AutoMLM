@@ -16,10 +16,10 @@ class LexicalAnalysis:
 
         self.model = model
         self.promotionCategory = promotionCategory
-        self.maxWordSenses = maxWordSenses 
-        self.depthTopLevel =  depthTopLevel
-        self.acceptingValueSim = acceptingValueSim
-        self.rejectingValueSim = rejectingValueSim
+        self.maxWordSenses = int(maxWordSenses) 
+        self.depthTopLevel =  int(depthTopLevel)
+        self.acceptingValueSim = float(acceptingValueSim)
+        self.rejectingValueSim = float(rejectingValueSim)
         self.helper = LexicalAnalysisHelper()
 
 
@@ -34,7 +34,7 @@ class LexicalAnalysis:
         # create new model
         # random id generation to allow for multiple openings of the "same" diagram
 
-        acceptingValueSim = 0.50
+        acceptingValueSim = self.acceptingValueSim
 
         id = randint(0,5000)
         modelName = 'Root::Modell' + str(id)
@@ -85,31 +85,37 @@ class LexicalAnalysis:
         # TODO do a sensible approach when to generalize
         if True:
 
-            # TODO find suitable name based on the hypernyms
             class_name = "Class_A"
-            
-
             parentCl = MlmObject(projectName+"::"+class_name, class_name, 1, None, False)
+
+
+            genCand.sort(key=lambda x: x.sim, reverse=True)
+            attsToBeGeneralized = []
+
 
             for entry in genCand:
                 if entry.type == None:
                     type = "Root::XCore::String"
                 else:
                     type = entry.type
-                parentCl.add_attr(MlmAttr(entry.a1.attr_name, type, 0))
-            
+
+                if entry.a1.attr_name in attsToBeGeneralized:
+                    continue
+                else:
+                    attsToBeGeneralized.append(entry.a1.attr_name)
+                    attsToBeGeneralized.append(entry.a2.attr_name)
+
+            # TODO how to decide for an attr name?
+                name = entry.a1.attr_name
+
+                parentCl.add_attr(MlmAttr(name, type, 0))
+
             parentCl.export(new_Model)
-
-            attrNameListDoNotCreate = []
-            for el in genCand:
-                attrNameListDoNotCreate.append(el.a1.attr_name)
-                attrNameListDoNotCreate.append(el.a2.attr_name)
             
-
             for o in objects:
                 cl =  MlmObject(projectName+"::"+o.name, o.name, 1, None, False)
                 for attr in o.attr_list:
-                    if attr.attr_name in attrNameListDoNotCreate:
+                    if attr.attr_name in attsToBeGeneralized:
                         continue
                     attr = MlmAttr(attr.attr_name, attr.attr_type, 0)
                     cl.add_attr(attr)
@@ -117,12 +123,8 @@ class LexicalAnalysis:
                 cl.export(new_Model)
 
             xml_export.writeXML(new_Model, 'C:\\Users\\fhend\\Documents\\GitHub_Repos\\MosaicFX\\AutoMLM\\mlm_files\\deepModel.xml')
-        else:
-            print("No Classficiation could be done")
-            
-        return 'C:\\Users\\fhend\\Documents\\GitHub_Repos\\MosaicFX\\AutoMLM\\mlm_files\\deepModel.xml'
-        
 
+            return 'C:\\Users\\fhend\\Documents\\GitHub_Repos\\MosaicFX\\AutoMLM\\mlm_files\\deepModel.xml'
 
 class GeneralisationCandiate:
     def __init__(self, o1: MlmObject, o2: MlmObject, a1: MlmAttr, a2: MlmAttr, sim: float, type: str, hypernyms: list):

@@ -86,10 +86,10 @@ print(a1.lexemes)
 
 
 
-model = MultilevelModel('ExampleModels/01_GA/UniversityRC2.xml')
+model = MultilevelModel('ExampleModels/01_GA/rcvickiydreizwei.xml')
 
 
 
-analyser = LexicalAnalysis(model, 'GA', 1,1,1,1)    
+analyser = LexicalAnalysis(model, 'GA', 3,3,0.5,-0.5)    
 
 analyser.perform_Analysis()

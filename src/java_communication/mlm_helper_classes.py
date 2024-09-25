@@ -60,7 +60,6 @@ class MlmAttr:
                 return True
         return False
     
-        
     # TODO
     def _reduceLexemeSet(self, listLexemes: list, threshold: int) -> list:
         return listLexemes[0: threshold]
