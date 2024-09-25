@@ -7,6 +7,7 @@ import requests as re
 
 try:
     import babelnet as bn
+    from babelnet import POS
 except:
     # error occurs if babelnet api limit is reached
     pass
@@ -59,11 +60,6 @@ class LexicalAnalysisHelper():
 
         return ''
 
-
-
-        
-
-
     
     def list_intersection(l1: list, l2: list) -> list:
         l3 = [value for value in l1 if value in l2]
@@ -94,7 +90,7 @@ class LexicalAnalysisHelper():
 
         return lexemeList
         
-    def performTokenization(label: str) -> list:
+    def performTokenization(self, label: str) -> list:
         compunds = []
         j = 0
 
@@ -117,8 +113,8 @@ class LexicalAnalysisHelper():
 
         return compunds    
     
-    def identifyHeadOfCompund(compund: str) -> str:
-        c = LexicalAnalysisHelper.performTokenization(compund)
+    def identifyHeadOfCompund(self, compund: str) -> str:
+        c = self.performTokenization(compund)
         return c[-1]
     
     def selectRelevantLexemes(listLexemes: list) -> list:
@@ -148,8 +144,7 @@ class LexicalAnalysisHelper():
             elif element[1] == LexicalSources.CONCEPTNET:
                 pass
 
-    # TODO
-    # reduce the number of hypernyms
+    # TODO reduce the number of hypernyms
     def _reduceSetOfHypernyms(self, hypernyms):
         max_depth_wordnet = -1
         hyp_wordnet = ''
@@ -182,8 +177,8 @@ class LexicalAnalysisHelper():
 
         lexemesA = objectA.lexemes
         lexemesB = objectB.lexemes
-        i = 0
-        j = 0
+
+        print(f'Comparision of Lexemes from {objectA.name}: {len(lexemesA)} and {objectB.name}: {len(lexemesB)} ')
         for lexA in lexemesA:
             for lexB in lexemesB:
                 # check if source of lexemes is the same
@@ -229,9 +224,6 @@ class LexicalAnalysisHelper():
             
         # TODO delete duplicates
         return commonHypernyms
-    
-
-
 
     # returns a suited data type of two given data types, returns None if no type fits
     def getCompabilityOfTypes(self, dataTypeA: str, dataTypeB: str) -> str:
@@ -269,14 +261,94 @@ class LexicalAnalysisHelper():
             return 'String'
 
     # similiarity of two labels, currently between 0 and 1, we want to change to a different one
-    def getSimilarityOfLabels(self, labelA, labelB) -> float:
+    def getSimilarityOfLabels(self, labelA: str, labelB: str) -> float:
 
         nlp = spacy.load('en_core_web_md')
         tokenA = nlp(labelA)
         tokenB = nlp(labelB)
         return tokenA.similarity(tokenB)
 
+    def getSimilarityOfLexemeLabels(self, listA: list, listB: list) -> list:
+        simSum = 0.0
+        i = 0
+        nlp = spacy.load('en_core_web_md')
 
+        helper = LexicalAnalysisHelper()
+        helperWikidata = LexicalAnalysisHelperWikidata()
+
+        for eleA in listA:
+            labelA = ""
+            if eleA[1] == LexicalSources.WORDNET:
+                labelA = eleA[0].name()
+                labelA = labelA.split(".")[0]
+            elif eleA[1] == LexicalSources.BABELNET:
+                try:
+                    labelA = str(eleA[0].main_sense()).split(":")[2]
+                except:
+                    # babelnet has been running out of valid api calls
+                    pass
+            elif eleA[1] == LexicalSources.WIKIDATA:
+                labelA = helperWikidata.getNameofEntity(eleA[0])
+            elif eleA[1] == LexicalSources.CONCEPTNET:
+                print("label is part of conceptnet")
+            elif eleA[1] == LexicalSources.MERRIAMWEBSTER:
+                labelA = eleA[0]
+            else:
+                print("label is part of nothing???", str(eleA[1]))
+
+            tokenA = nlp(labelA)
+
+            if not tokenA.has_vector:
+                # TODO wie damit umgehen wenn der token leer ist???
+                tkns = helper.performTokenization(labelA)
+                newlabel = ' '.join(tkns)
+                tokenA = nlp(newlabel)
+            
+
+            for eleB in listB:
+                labelB = ""
+                if eleB[1] == LexicalSources.WORDNET:
+                    labelB = eleB[0].name()
+                    labelB = labelB.split(".")[0]
+                elif eleB[1] == LexicalSources.BABELNET:
+                    try:
+                        labelB = str(eleB[0].main_sense()).split(":")[2]
+                    except:
+                         # babelnet has been running out of valid api calls
+                        pass
+                elif eleB[1] == LexicalSources.WIKIDATA:
+                    labelB = helperWikidata.getNameofEntity(eleB[0])
+                    # TODO REMOVE THIS, but right now we need him to be removed
+                    if "Lord Summerisle" in str(labelB):
+                        continue
+                elif eleB[1] == LexicalSources.CONCEPTNET:
+                    print("label is part of conceptnet")
+                elif eleB[1] == LexicalSources.MERRIAMWEBSTER:
+                    labelB = eleB[0]
+                else:
+                    print("label is part of nothing???", str(eleA[1]))
+
+                i+=1
+
+
+                
+                tokenB = nlp(labelB)
+
+                if not tokenB.has_vector:
+                    # TODO wie damit umgehen wenn der token leer ist???
+                    tkns = helper.performTokenization(labelB)
+                    newlabel = ' '.join(tkns)
+                    tokenB = nlp(newlabel)
+                
+
+                
+                simSum+= tokenA.similarity(tokenB)
+
+        try:
+            avg = simSum / i
+        except: # float division by zero
+            avg = 0.0
+        return avg
 
 
 # bundles the functions for wordnet
@@ -297,7 +369,8 @@ class LexicalAnalysisHelperBabelnet():
     
     def lookForLexeme(input: str) -> list:
         lexemeList = []
-        syns = bn.get_synsets(input, from_langs=[Language.EN])
+        # reduction to nouns to increase performance
+        syns = bn.get_synsets(input, from_langs=[Language.EN], poses=[POS.NOUN])
         for syn in syns:
             lexemeList.append((syn, LexicalSources.BABELNET))
         return lexemeList

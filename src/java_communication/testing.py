@@ -3,8 +3,9 @@ testing.py used to test AutoMLM scenarios such as XML parsing and writing
 """
 
 from datetime import datetime
+from lexical_analysis import LexicalAnalysis
 from mlm_class import *
-from java_communication.lexical_analysis_helper import LexicalAnalysisHelper
+from lexical_analysis_helper import LexicalAnalysisHelper
 from nltk.corpus import wordnet as wn
 
 #mlm_simple = MlmDoc("C:\\Programme\\XModeler-AutoMLM-v1\\XModeler\\AutoMLM\\mlm_files\\gen_example.xml")
@@ -72,8 +73,23 @@ print(datetime.now())
 
 
 
+"""
+
+o1 = model.mlm_objects[1]
+
+a1 = o1.attr_list[1]
+
+
+print(a1.lexemes)
+
+"""
 
 
 
+model = MultilevelModel('ExampleModels/01_GA/UniversityRC2.xml')
 
 
+
+analyser = LexicalAnalysis(model, 'GA', 1,1,1,1)    
+
+analyser.perform_Analysis()

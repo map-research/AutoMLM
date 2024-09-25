@@ -2,8 +2,6 @@ import xml.etree.ElementTree as ET
 from mlm_helper_classes import MlmAssociation, MlmAttr, MlmObject, EnumType
 import datetime
 
-# TODO implement export functions into mlm_class.py
-# TODO add implementation into GUI -> automatically open this newly created file ...
 # TODO add layout functionn (possibly layouter, java)
 
 

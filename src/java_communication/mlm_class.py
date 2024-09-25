@@ -28,6 +28,8 @@ class MultilevelModel:
         # automatic matching
         for o in self.mlm_objects:
             o.automaticSemanticMatching()
+            for a in o.attr_list:
+                a.automaticSemanticMatching()
 
     def export_xml(self, filepath : str = 'export_test.xml', project_name='Root::Export'):
         # create the root
@@ -223,7 +225,7 @@ class MultilevelModel:
         raise Exception(f"No matching MLM object ({full_name}) found!")
 
     def __repr__(self):
-        print(*self.enums, sep="\n---\n")
+        print(*self.enums, sep="Syntax Error at line: 38")#lmao opfer
         print("\n--------------------------------------------------------------\n")
         print(*self.mlm_objects, sep="----------------------------------------------\n")
         print("\n--------------------------------------------------------------\n")

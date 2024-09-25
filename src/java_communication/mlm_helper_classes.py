@@ -41,6 +41,7 @@ class MlmAttr:
         self.uses_enum = False
         self.uses_domain_specific_type = False
         self.name_of_owner_class: str = ""
+        self.lexemes = []
 
     def set_enum_type(self, enum_type: EnumType):
         self.attr_type_short = enum_type.enum_name
@@ -52,21 +53,21 @@ class MlmAttr:
     def __repr__(self):
         return f"[ATTR-{self.inst_level}] {self.attr_name}:{self.attr_type_short}"
 
-    def isCompundLabel(label: str) -> bool:
+    def isCompundLabel(self, label: str) -> bool:
         # attribute labels need only one uppercase char to be considered a compound label
         for char in label:
             if char.isupper():
                 return True
-            
         return False
+    
         
     # TODO
     def _reduceLexemeSet(self, listLexemes: list, threshold: int) -> list:
-        return listLexemes
+        return listLexemes[0: threshold]
     
     def automaticSemanticMatching(self) -> list:
-        # TODO move to other position, comes from java
         threshold_numberOfLexemes = 3
+        
         helper = LexicalAnalysisHelper()
 
         # extract label from class name
@@ -74,23 +75,31 @@ class MlmAttr:
         # look up lexemes
         lexemes = helper.lookForLexeme(label)
 
-        if len(lexemes) > 0:
-            lexemes = self._semanticMatchingLabel(lexemes)
-            return lexemes
-        else:
-            # check for compound label and repeat steps
+        # if no lexemes have been found, search for the lowercase variant
+        if len(lexemes) == 0:
+            lowerLabel = label.lower()
+            lexemes = helper.lookForLexeme(lowerLabel)
+        # if no lexemes have been found try to find a compound and use " " as a separation char
+        if len(lexemes) == 0:
+            if self.isCompundLabel(label):
+                tokens = helper.performTokenization(label)
+                splittedLabel = ' '.join(tokens)
+                lexemes = helper.lookForLexeme(splittedLabel)
+
+        # if still no lexemes have been found, look for compound labels
+        if len(lexemes) == 0:
             if self.isCompundLabel(label):
                 label = helper.identifyHeadOfCompund(label)
                 lexemes = helper.lookForLexeme(label)
-                lexemes = self._semanticMatchingLabel(lexemes)
-                return lexemes
             else:
                 # TODO what to do? no lexeme has been found
                 return []
             
-    def _semanticMatchingLabel(self, lexemes: list) -> list:
-        # TODO move to other position, comes from java
-        threshold_numberOfLexemes = 3
+        self.lexemes = self._semanticMatchingLabel(lexemes, threshold_numberOfLexemes)
+        
+            
+    def _semanticMatchingLabel(self, lexemes: list, threshold_numberOfLexemes: int) -> list:
+       
         # check if lexeme is found
         if len(lexemes) > 0:
             # check if number of lexemes are beyond threshold
@@ -265,7 +274,7 @@ class MlmObject:
             # TODO not enough suitable lexemes found
             return []
         
-    def isCompundLabel(input: str) -> bool:
+    def isCompundLabel(self, input: str) -> bool:
         upper = sum(1 for char in input if char.isupper())
         if upper > 1:
             return True
@@ -275,14 +284,15 @@ class MlmObject:
     # TODO
     def _reduceLexemeSet(self, listLexemes: list, threshold: int) -> list:
 
-        # for testing purposes, only wordnet is used at the moment
+        # for testing purposes only one source is used at the moment
+        # TODO change based on threshold
 
         newList = []
         for lex in listLexemes:
-            if lex[1] == LexicalSources.WIKIDATA:
+            if lex[1] == LexicalSources.WIKIDATA or lex[1] == LexicalSources.WORDNET:
                 newList.append(lex)
-                
-        return newList[0:5]
+
+        return newList
         
         #return listLexemes[0:threshold]
 

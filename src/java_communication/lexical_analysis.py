@@ -34,15 +34,14 @@ class LexicalAnalysis:
         # create new model
         # random id generation to allow for multiple openings of the "same" diagram
 
+        acceptingValueSim = 0.50
+
         id = randint(0,5000)
         modelName = 'Root::Modell' + str(id)
         new_Model = xml_export.preamble(modelName)
         projectName = new_Model.attrib['path']
 
         objects = self.model.mlm_objects
-
-        readable_hypernyms = set()
-
 
         # combination of every two indexes, only once
         numbers = list(range(len(objects)))
@@ -51,31 +50,86 @@ class LexicalAnalysis:
         # find hypernym for every combination of classes
         for combi in combis:
                     
+            genCand = []
             o1 = objects[combi[0]]
             o2 = objects[combi[1]]
 
             hypernyms = self.helper.getCommonHypernyms(o1,o2)
 
+            print("")
             cstr = f'{o1.name} and {o2.name}'
-            print(cstr.ljust(50,' '), [a[0] for a in hypernyms])
+            print(cstr.ljust(50,' '), [a for a in hypernyms])
+
+            # compare attribitues
+            for attr_a in o1.attr_list:
+                for attr_b in o2.attr_list:
+
+                    sim = self.helper.getSimilarityOfLexemeLabels(attr_a.lexemes, attr_b.lexemes)
+
+
+                    type = self.helper.getCompabilityOfTypes(attr_a.attr_type, attr_b.attr_type)
+
+                    cstr = f'{attr_a.attr_name} & {attr_b.attr_name}'
+                    if sim > acceptingValueSim:
+                        genCand.append(GeneralisationCandiate(o1, o2, attr_a, attr_b, sim, type, hypernyms))
+                        print(cstr.ljust(50,' '), f'{round(sim,4)} is {type}')
 
 
 
-            #readable_hypernyms.add([a[0] for a in hypernyms])
-            print(readable_hypernyms)
+
+        # TODO check ob für 2 klassen ein attribut mit mehr als einem anderen gemergt werden kann / soll. Falls ja entferne die jenigen mit dem geringsten sim wert
 
 
-        # create new model with "old" aspects
-        for o in objects:
-            cl =  MlmObject(projectName+"::"+o.name, o.name, 1, None, False)
-            for attr in o.attr_list:
-                attr = MlmAttr(attr.attr_name, attr.attr_type, 0)
-                cl.add_attr(attr)
-            cl.export(new_Model)
+        # create parent class and give attributes
 
-        pathNew = 'AutoMLM\\mlm_files\\deepModel.xml'
-        xml_export.writeXML(new_Model, pathNew)
-        return pathNew
+        # TODO do a sensible approach when to generalize
+        if True:
+
+            # TODO find suitable name based on the hypernyms
+            class_name = "Class_A"
+            
+
+            parentCl = MlmObject(projectName+"::"+class_name, class_name, 1, None, False)
+
+            for entry in genCand:
+                if entry.type == None:
+                    type = "Root::XCore::String"
+                else:
+                    type = entry.type
+                parentCl.add_attr(MlmAttr(entry.a1.attr_name, type, 0))
+            
+            parentCl.export(new_Model)
+
+            attrNameListDoNotCreate = []
+            for el in genCand:
+                attrNameListDoNotCreate.append(el.a1.attr_name)
+                attrNameListDoNotCreate.append(el.a2.attr_name)
+            
+
+            for o in objects:
+                cl =  MlmObject(projectName+"::"+o.name, o.name, 1, None, False)
+                for attr in o.attr_list:
+                    if attr.attr_name in attrNameListDoNotCreate:
+                        continue
+                    attr = MlmAttr(attr.attr_name, attr.attr_type, 0)
+                    cl.add_attr(attr)
+                cl.add_parent_class(parentCl)
+                cl.export(new_Model)
+
+            xml_export.writeXML(new_Model, 'C:\\Users\\fhend\\Documents\\GitHub_Repos\\MosaicFX\\AutoMLM\\mlm_files\\deepModel.xml')
+        else:
+            print("No Classficiation could be done")
+            
+        return 'C:\\Users\\fhend\\Documents\\GitHub_Repos\\MosaicFX\\AutoMLM\\mlm_files\\deepModel.xml'
         
 
 
+class GeneralisationCandiate:
+    def __init__(self, o1: MlmObject, o2: MlmObject, a1: MlmAttr, a2: MlmAttr, sim: float, type: str, hypernyms: list):
+        self.o1 = o1
+        self.o2 = o2
+        self.a1 = a1
+        self.a2 = a2
+        self.sim = sim
+        self.type = type
+        self.hypernyms = hypernyms
