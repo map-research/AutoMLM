@@ -1,9 +1,7 @@
 import xml.etree.ElementTree as ET
-import mlm_helper_classes
+from mlm_helper_classes import MlmAssociation, MlmAttr, MlmObject, EnumType
 import datetime
 
-# TODO implement export functions into mlm_class.py
-# TODO add implementation into GUI -> automatically open this newly created file ...
 # TODO add layout functionn (possibly layouter, java)
 
 
@@ -30,7 +28,7 @@ def writeXML(root: ET.Element, filepath: str):
     tree = ET.ElementTree(root)
     tree.write(filepath)
 
-def exportClass(mlmObject : mlm_helper_classes.MlmObject, root):
+def exportClass(mlmObject : MlmObject, root):
 
     projectName = root.attrib['path']
 
@@ -66,7 +64,7 @@ def exportClass(mlmObject : mlm_helper_classes.MlmObject, root):
                                   level=str(operation.inst_level), monitored='false', name=operation.operation_name, package=projectName, paramNames='', paramTypes='', type=operation.return_type)
         operation.set('class', projectName+"::"+mlmObject.name)
 
-def exportAssociation(root, mlmAssoc: mlm_helper_classes.MlmAssociation):
+def exportAssociation(root, mlmAssoc: MlmAssociation):
     projectName = root.attrib['path']
     model = root.find('Model') 
     # transform of cardinalities needed
@@ -105,12 +103,13 @@ def convertDateToXmodeler(dateInput: datetime):
     out = 'Auxiliary::Date::createDate(' + str(dateInput.year) + ',' + str(dateInput.month) + ',' + str(dateInput.day) +')'
     return out
 
-def exportEnum(root, enumType: mlm_helper_classes.EnumType):
+def exportEnum(root, enumType: EnumType):
     model = root.find('Model')
     addEnum = ET.SubElement(model, 'addEnumeration', name=enumType.enum_name)
     for value in enumType.enum_values:
         addEnumValue = ET.SubElement(model, 'addEnumerationValue', enum_name=enumType.enum_name, enum_value_name=str(value))
 
+"""
 def main():
     xml = preamble('Root::Modell')
     projectName = xml.attrib['path']
@@ -142,7 +141,8 @@ def main():
     assoc1.export(xml)
 
     writeXML(xml)
-    
+"""
 
 if __name__ == "__main__":
-    main()
+    #main()
+    pass

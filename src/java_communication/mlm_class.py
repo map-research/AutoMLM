@@ -25,7 +25,11 @@ class MultilevelModel:
         self.parsed_xml = None
         if xml_file_path != "":
             self._parse_xml(xml_file_path)
-        
+        # automatic matching
+        for o in self.mlm_objects:
+            o.automaticSemanticMatching()
+            for a in o.attr_list:
+                a.automaticSemanticMatching()
 
     def export_xml(self, filepath : str = 'export_test.xml', project_name='Root::Export'):
         # create the root
@@ -49,7 +53,6 @@ class MultilevelModel:
 
         # root is returned in case it is needed ?!
         return root
-
 
     def _parse_xml(self, doc_file_path: str):
         document = None
@@ -215,7 +218,6 @@ class MultilevelModel:
                     new_link.set_target_object(mlm_object)
             self.links.append(new_link)
 
-
     def get_mlm_object_by_fullname(self, full_name: str) -> MlmObject:
         for mlm_object in self.mlm_objects:
             if mlm_object.full_name == full_name:
@@ -223,7 +225,7 @@ class MultilevelModel:
         raise Exception(f"No matching MLM object ({full_name}) found!")
 
     def __repr__(self):
-        print(*self.enums, sep="\n---\n")
+        print(*self.enums, sep="Syntax Error at line: 38")#lmao opfer
         print("\n--------------------------------------------------------------\n")
         print(*self.mlm_objects, sep="----------------------------------------------\n")
         print("\n--------------------------------------------------------------\n")
@@ -231,3 +233,5 @@ class MultilevelModel:
         print("\n--------------------------------------------------------------\n")
         print(*self.links, sep="\n---\n")
         return ""
+
+    

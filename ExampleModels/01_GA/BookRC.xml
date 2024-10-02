@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XModelerPackage path="Root::BookRC" version="4" xModelerVersion="">
+    <Imports/>
+    <Model name="Root::BookRC">
+        <addMetaClass abstract="false" level="1" maxLevel="1" name="Journal" package="Root::BookRC" singleton="false"/>
+        <addMetaClass abstract="false" level="1" maxLevel="1" name="Book" package="Root::BookRC" singleton="false"/>
+    </Model>
+    <Diagrams>
+        <Diagram name="diagram1" umlMode="false">
+            <Instances>
+                <Instance hidden="false" path="Root::BookRC::Book" xCoordinate="99" yCoordinate="205"/>
+                <Instance hidden="false" path="Root::BookRC::Journal" xCoordinate="369" yCoordinate="205"/>
+            </Instances>
+            <Edges/>
+            <DiagramDisplayProperties>
+                <SLOTS>true</SLOTS>
+                <CONCRETESYNTAX>true</CONCRETESYNTAX>
+                <METACLASSNAME>false</METACLASSNAME>
+                <ISSUETABLE>false</ISSUETABLE>
+                <OPERATIONS>true</OPERATIONS>
+                <DERIVEDATTRIBUTES>true</DERIVEDATTRIBUTES>
+                <CONSTRAINTS>true</CONSTRAINTS>
+                <CONSTRAINTREPORTS>true</CONSTRAINTREPORTS>
+                <DERIVEDOPERATIONS>true</DERIVEDOPERATIONS>
+                <OPERATIONVALUES>true</OPERATIONVALUES>
+                <GETTERSANDSETTERS>true</GETTERSANDSETTERS>
+            </DiagramDisplayProperties>
+            <Notes/>
+            <Views>
+                <View name="Main View" tx="0.0" ty="0.0" xx="1.0"/>
+            </Views>
+        </Diagram>
+        <Diagram name="UMLDiagram" umlMode="false">
+            <Instances>
+                <Instance hidden="false" path="Root::BookRC::Book" xCoordinate="399" yCoordinate="181"/>
+                <Instance hidden="true" path="Root::BookRC::Journal" xCoordinate="0" yCoordinate="0"/>
+            </Instances>
+            <Edges/>
+            <DiagramDisplayProperties>
+                <SLOTS>true</SLOTS>
+                <CONCRETESYNTAX>true</CONCRETESYNTAX>
+                <METACLASSNAME>false</METACLASSNAME>
+                <ISSUETABLE>false</ISSUETABLE>
+                <OPERATIONS>true</OPERATIONS>
+                <DERIVEDATTRIBUTES>true</DERIVEDATTRIBUTES>
+                <CONSTRAINTS>true</CONSTRAINTS>
+                <CONSTRAINTREPORTS>true</CONSTRAINTREPORTS>
+                <DERIVEDOPERATIONS>true</DERIVEDOPERATIONS>
+                <OPERATIONVALUES>true</OPERATIONVALUES>
+                <GETTERSANDSETTERS>true</GETTERSANDSETTERS>
+            </DiagramDisplayProperties>
+            <Notes/>
+            <Views>
+                <View name="Main View" tx="0.0" ty="0.0" xx="1.0"/>
+            </Views>
+        </Diagram>
+    </Diagrams>
+</XModelerPackage>
