@@ -1,8 +1,6 @@
 from typing import List
 import xml.etree.ElementTree as ET
 
-from numpy import source
-
 from lexical_analysis_helper import LexicalAnalysisHelper, LexicalSources
 
 # This file specifies all classes within an MLM.

@@ -122,9 +122,9 @@ class LexicalAnalysis:
                 cl.add_parent_class(parentCl)
                 cl.export(new_Model)
 
-            xml_export.writeXML(new_Model, 'C:\\Users\\fhend\\Documents\\GitHub_Repos\\MosaicFX\\AutoMLM\\mlm_files\\deepModel.xml')
+            xml_export.writeXML(new_Model, 'C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\output.xml')
 
-            return 'C:\\Users\\fhend\\Documents\\GitHub_Repos\\MosaicFX\\AutoMLM\\mlm_files\\deepModel.xml'
+            return 'C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\output.xml'
 
 class GeneralisationCandiate:
     def __init__(self, o1: MlmObject, o2: MlmObject, a1: MlmAttr, a2: MlmAttr, sim: float, type: str, hypernyms: list):
