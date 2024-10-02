@@ -89,6 +89,10 @@ class LexicalAnalysis:
             parentCl = MlmObject(projectName+"::"+class_name, class_name, 1, None, False)
 
 
+            print("List of Hypernyns")
+            for hyp in genCand[0].hypernyms:
+                print(hyp)
+
             genCand.sort(key=lambda x: x.sim, reverse=True)
             attsToBeGeneralized = []
 
