@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XModelerPackage path="Root::rcvickiydreizwei" version="4" xModelerVersion="">
+    <Imports/>
+    <Model name="Root::rcvickiydreizwei">
+        <addMetaClass abstract="false" level="1" maxLevel="1" name="OralExam" package="Root::rcvickiydreizwei" singleton="false"/>
+        <addMetaClass abstract="false" level="1" maxLevel="1" name="WrittenExam" package="Root::rcvickiydreizwei" singleton="false"/>
+        <addAttribute class="Root::rcvickiydreizwei::OralExam" level="0" multiplicity="Seq{1,1,true,false}" name="dateOfExam" package="Root::rcvickiydreizwei" type="Root::Auxiliary::Date"/>
+        <addAttribute class="Root::rcvickiydreizwei::OralExam" level="0" multiplicity="Seq{1,1,true,false}" name="highestScore" package="Root::rcvickiydreizwei" type="Root::XCore::Integer"/>
+        <addAttribute class="Root::rcvickiydreizwei::OralExam" level="0" multiplicity="Seq{1,1,true,false}" name="lengthInMinutes" package="Root::rcvickiydreizwei" type="Root::XCore::Integer"/>
+        <addAttribute class="Root::rcvickiydreizwei::OralExam" level="0" multiplicity="Seq{1,1,true,false}" name="notGraded" package="Root::rcvickiydreizwei" type="Root::XCore::Boolean"/>
+        <addAttribute class="Root::rcvickiydreizwei::OralExam" level="0" multiplicity="Seq{1,1,true,false}" name="preparationTimeInMinutes" package="Root::rcvickiydreizwei" type="Root::XCore::Integer"/>
+        <addAttribute class="Root::rcvickiydreizwei::OralExam" level="0" multiplicity="Seq{1,1,true,false}" name="registrationRequired" package="Root::rcvickiydreizwei" type="Root::XCore::Boolean"/>
+        <addAttribute class="Root::rcvickiydreizwei::OralExam" level="0" multiplicity="Seq{1,1,true,false}" name="term" package="Root::rcvickiydreizwei" type="Root::XCore::String"/>
+        <addAttribute class="Root::rcvickiydreizwei::OralExam" level="0" multiplicity="Seq{1,1,true,false}" name="timeOfExam" package="Root::rcvickiydreizwei" type="Root::XCore::String"/>
+        <addAttribute class="Root::rcvickiydreizwei::WrittenExam" level="0" multiplicity="Seq{1,1,true,false}" name="computeraided" package="Root::rcvickiydreizwei" type="Root::XCore::Boolean"/>
+        <addAttribute class="Root::rcvickiydreizwei::WrittenExam" level="0" multiplicity="Seq{1,1,true,false}" name="durationInMinutes" package="Root::rcvickiydreizwei" type="Root::XCore::Integer"/>
+        <addAttribute class="Root::rcvickiydreizwei::WrittenExam" level="0" multiplicity="Seq{1,1,true,false}" name="isUngraded" package="Root::rcvickiydreizwei" type="Root::XCore::Boolean"/>
+        <addAttribute class="Root::rcvickiydreizwei::WrittenExam" level="0" multiplicity="Seq{1,1,true,false}" name="maxPoints" package="Root::rcvickiydreizwei" type="Root::XCore::Integer"/>
+        <addAttribute class="Root::rcvickiydreizwei::WrittenExam" level="0" multiplicity="Seq{1,1,true,false}" name="mustBeRegistered" package="Root::rcvickiydreizwei" type="Root::XCore::Boolean"/>
+        <addAttribute class="Root::rcvickiydreizwei::WrittenExam" level="0" multiplicity="Seq{1,1,true,false}" name="readingTimeInMinutes" package="Root::rcvickiydreizwei" type="Root::XCore::Integer"/>
+        <addAttribute class="Root::rcvickiydreizwei::WrittenExam" level="0" multiplicity="Seq{1,1,true,false}" name="term" package="Root::rcvickiydreizwei" type="Root::XCore::String"/>
+    </Model>
+    <Diagrams>
+        <Diagram name="diagram1" umlMode="false">
+            <Instances>
+                <Instance hidden="false" path="Root::rcvickiydreizwei::OralExam" xCoordinate="772" yCoordinate="263"/>
+                <Instance hidden="false" path="Root::rcvickiydreizwei::WrittenExam" xCoordinate="256" yCoordinate="208"/>
+            </Instances>
+            <Edges/>
+            <DiagramDisplayProperties>
+                <SLOTS>true</SLOTS>
+                <CONCRETESYNTAX>true</CONCRETESYNTAX>
+                <METACLASSNAME>false</METACLASSNAME>
+                <ISSUETABLE>false</ISSUETABLE>
+                <OPERATIONS>true</OPERATIONS>
+                <DERIVEDATTRIBUTES>true</DERIVEDATTRIBUTES>
+                <CONSTRAINTS>true</CONSTRAINTS>
+                <CONSTRAINTREPORTS>true</CONSTRAINTREPORTS>
+                <DERIVEDOPERATIONS>true</DERIVEDOPERATIONS>
+                <OPERATIONVALUES>true</OPERATIONVALUES>
+                <GETTERSANDSETTERS>true</GETTERSANDSETTERS>
+            </DiagramDisplayProperties>
+            <Notes/>
+            <Views>
+                <View name="Main View" tx="55.333332" ty="88.0" xx="1.0"/>
+            </Views>
+        </Diagram>
+    </Diagrams>
+</XModelerPackage>

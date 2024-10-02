@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XModelerPackage path="Root::University" version="4" xModelerVersion="">
+    <Imports/>
+    <Model name="Root::University">
+        <addMetaClass abstract="false" level="1" maxLevel="1" name="Excercise" package="Root::University" singleton="false"/>
+        <addMetaClass abstract="false" level="1" maxLevel="1" name="Lecture" package="Root::University" singleton="false"/>
+        <addEnumeration name="dayEnum"/>
+        <addEnumeration name="termEnum"/>
+        <addAttribute class="Root::University::Excercise" level="0" multiplicity="Seq{1,1,true,false}" name="beginning" package="Root::University" type="Root::Auxiliary::Date"/>
+        <addAttribute class="Root::University::Excercise" level="0" multiplicity="Seq{1,1,true,false}" name="contactPerson" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Excercise" level="0" multiplicity="Seq{1,1,true,false}" name="hasELearning" package="Root::University" type="Root::XCore::Boolean"/>
+        <addAttribute class="Root::University::Excercise" level="0" multiplicity="Seq{1,1,true,false}" name="longName" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Excercise" level="0" multiplicity="Seq{1,1,true,false}" name="shortName" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Excercise" level="0" multiplicity="Seq{1,1,true,false}" name="term" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Excercise" level="0" multiplicity="Seq{1,1,true,false}" name="terminationDate" package="Root::University" type="Root::Auxiliary::Date"/>
+        <addAttribute class="Root::University::Excercise" level="0" multiplicity="Seq{1,1,true,false}" name="time" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Excercise" level="0" multiplicity="Seq{1,1,true,false}" name="website" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Excercise" level="0" multiplicity="Seq{1,1,true,false}" name="weekday" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Lecture" level="0" multiplicity="Seq{1,1,true,false}" name="contact" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Lecture" level="0" multiplicity="Seq{1,1,true,false}" name="eLearning" package="Root::University" type="Root::XCore::Boolean"/>
+        <addAttribute class="Root::University::Lecture" level="0" multiplicity="Seq{1,1,true,false}" name="end" package="Root::University" type="Root::Auxiliary::Date"/>
+        <addAttribute class="Root::University::Lecture" level="0" multiplicity="Seq{1,1,true,false}" name="fullName" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Lecture" level="0" multiplicity="Seq{1,1,true,false}" name="integratedTutorial" package="Root::University" type="Root::XCore::Boolean"/>
+        <addAttribute class="Root::University::Lecture" level="0" multiplicity="Seq{1,1,true,false}" name="linkToLSF" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Lecture" level="0" multiplicity="Seq{1,1,true,false}" name="shortName" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Lecture" level="0" multiplicity="Seq{1,1,true,false}" name="start" package="Root::University" type="Root::Auxiliary::Date"/>
+        <addAttribute class="Root::University::Lecture" level="0" multiplicity="Seq{1,1,true,false}" name="term" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Lecture" level="0" multiplicity="Seq{1,1,true,false}" name="time" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Lecture" level="0" multiplicity="Seq{1,1,true,false}" name="weekday" package="Root::University" type="Root::XCore::String"/>
+    </Model>
+    <Diagrams>
+        <Diagram name="CaseTypesForGA" umlMode="false">
+            <Instances>
+                <Instance hidden="false" path="Root::University::Excercise" xCoordinate="264" yCoordinate="55"/>
+                <Instance hidden="false" path="Root::University::Lecture" xCoordinate="13" yCoordinate="55"/>
+            </Instances>
+            <Edges/>
+            <DiagramDisplayProperties>
+                <SLOTS>true</SLOTS>
+                <CONCRETESYNTAX>true</CONCRETESYNTAX>
+                <METACLASSNAME>false</METACLASSNAME>
+                <ISSUETABLE>false</ISSUETABLE>
+                <OPERATIONS>true</OPERATIONS>
+                <DERIVEDATTRIBUTES>true</DERIVEDATTRIBUTES>
+                <CONSTRAINTS>true</CONSTRAINTS>
+                <CONSTRAINTREPORTS>true</CONSTRAINTREPORTS>
+                <DERIVEDOPERATIONS>true</DERIVEDOPERATIONS>
+                <OPERATIONVALUES>true</OPERATIONVALUES>
+                <GETTERSANDSETTERS>true</GETTERSANDSETTERS>
+            </DiagramDisplayProperties>
+            <Notes/>
+            <Views>
+                <View name="Main View" tx="138.66667" ty="57.333332" xx="1.0"/>
+            </Views>
+        </Diagram>
+    </Diagrams>
+</XModelerPackage>

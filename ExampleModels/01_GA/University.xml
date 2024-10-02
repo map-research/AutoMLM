@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XModelerPackage path="Root::University" version="4" xModelerVersion="">
+    <Imports/>
+    <Model name="Root::University">
+        <addMetaClass abstract="false" level="1" maxLevel="1" name="Employee" package="Root::University" singleton="false"/>
+        <addMetaClass abstract="false" level="1" maxLevel="1" name="Student" package="Root::University" singleton="false"/>
+        <addEnumeration name="cycleEnum"/>
+        <addEnumeration name="dayEnum"/>
+        <addEnumeration name="languageEnum"/>
+        <addEnumeration name="termEnum"/>
+        <addEnumerationValue enum_name="cycleEnum" enum_value_name="SS"/>
+        <addEnumerationValue enum_name="cycleEnum" enum_value_name="SSandWS"/>
+        <addEnumerationValue enum_name="cycleEnum" enum_value_name="WS"/>
+        <addEnumerationValue enum_name="dayEnum" enum_value_name="Friday"/>
+        <addEnumerationValue enum_name="dayEnum" enum_value_name="Monday"/>
+        <addEnumerationValue enum_name="dayEnum" enum_value_name="Saturday"/>
+        <addEnumerationValue enum_name="dayEnum" enum_value_name="Sunday"/>
+        <addEnumerationValue enum_name="dayEnum" enum_value_name="Thursday"/>
+        <addEnumerationValue enum_name="dayEnum" enum_value_name="Tuesday"/>
+        <addEnumerationValue enum_name="dayEnum" enum_value_name="Wednesday"/>
+        <addEnumerationValue enum_name="languageEnum" enum_value_name="English"/>
+        <addEnumerationValue enum_name="languageEnum" enum_value_name="German"/>
+        <addEnumerationValue enum_name="languageEnum" enum_value_name="Spanish"/>
+        <addEnumerationValue enum_name="termEnum" enum_value_name="SS22"/>
+        <addEnumerationValue enum_name="termEnum" enum_value_name="SS23"/>
+        <addEnumerationValue enum_name="termEnum" enum_value_name="SS24"/>
+        <addEnumerationValue enum_name="termEnum" enum_value_name="WS2223"/>
+        <addEnumerationValue enum_name="termEnum" enum_value_name="WS2324"/>
+        <addEnumerationValue enum_name="termEnum" enum_value_name="WS2425"/>
+        <addAttribute class="Root::University::Employee" level="0" multiplicity="Seq{1,1,true,false}" name="function" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Employee" level="0" multiplicity="Seq{1,1,true,false}" name="givenName" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Employee" level="0" multiplicity="Seq{1,1,true,false}" name="mailaddress" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Employee" level="0" multiplicity="Seq{1,1,true,false}" name="personalConsultationDay" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Employee" level="0" multiplicity="Seq{1,1,true,false}" name="personalConsultationHours" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Employee" level="0" multiplicity="Seq{1,1,true,false}" name="phoneNr" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Employee" level="0" multiplicity="Seq{1,1,true,false}" name="surname" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Employee" level="0" multiplicity="Seq{1,1,true,false}" name="telephoneConsultationDay" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Employee" level="0" multiplicity="Seq{1,1,true,false}" name="telephoneConsultationHours" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Student" level="0" multiplicity="Seq{1,1,true,false}" name="firstName" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Student" level="0" multiplicity="Seq{1,1,true,false}" name="lastName" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Student" level="0" multiplicity="Seq{1,1,true,false}" name="matriculationNr" package="Root::University" type="Root::XCore::Integer"/>
+        <addAttribute class="Root::University::Student" level="0" multiplicity="Seq{1,1,true,false}" name="privateMailAddress" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Student" level="0" multiplicity="Seq{1,1,true,false}" name="subjectTerm" package="Root::University" type="Root::XCore::Integer"/>
+        <addAttribute class="Root::University::Student" level="0" multiplicity="Seq{1,1,true,false}" name="universityMailAddress" package="Root::University" type="Root::XCore::String"/>
+        <addAttribute class="Root::University::Student" level="0" multiplicity="Seq{1,1,true,false}" name="universityTerm" package="Root::University" type="Root::XCore::Integer"/>
+    </Model>
+    <Diagrams>
+        <Diagram name="CaseTypesForGA" umlMode="false">
+            <Instances>
+                <Instance hidden="false" path="Root::University::Student" xCoordinate="548" yCoordinate="-664"/>
+                <Instance hidden="true" path="Root::University::dayEnum" xCoordinate="0" yCoordinate="0"/>
+                <Instance hidden="false" path="Root::University::Employee" xCoordinate="935" yCoordinate="-679"/>
+                <Instance hidden="true" path="Root::University::languageEnum" xCoordinate="0" yCoordinate="0"/>
+                <Instance hidden="true" path="Root::University::cycleEnum" xCoordinate="0" yCoordinate="0"/>
+                <Instance hidden="true" path="Root::University::termEnum" xCoordinate="0" yCoordinate="0"/>
+            </Instances>
+            <Edges>
+                <Edge path="InheritanceMapping: Root::University::SubjectModule/Root::University::Module" sourcePort="NORTH" targetPort="SOUTH" type="Inheritance">
+                    <IntermediatePoints>
+                        <IntermediatePoint xCoordinate="167.06119" yCoordinate="-509.99142"/>
+                        <IntermediatePoint xCoordinate="325.50455" yCoordinate="-509.99142"/>
+                    </IntermediatePoints>
+                    <Labels/>
+                </Edge>
+                <Edge path="InheritanceMapping: Root::University::Lecture/Root::University::TypeOfCourse" sourcePort="NORTH" targetPort="SOUTH" type="Inheritance">
+                    <IntermediatePoints>
+                        <IntermediatePoint xCoordinate="25.007448" yCoordinate="65.58534"/>
+                        <IntermediatePoint xCoordinate="177.14551" yCoordinate="65.58534"/>
+                    </IntermediatePoints>
+                    <Labels/>
+                </Edge>
+                <Edge path="InheritanceMapping: Root::University::Tutorial/Root::University::TypeOfCourse" sourcePort="NORTH" targetPort="SOUTH" type="Inheritance">
+                    <IntermediatePoints>
+                        <IntermediatePoint xCoordinate="399.78012" yCoordinate="66.202225"/>
+                        <IntermediatePoint xCoordinate="240.29102" yCoordinate="66.202225"/>
+                    </IntermediatePoints>
+                    <Labels/>
+                </Edge>
+                <Edge path="InheritanceMapping: Root::University::ProjectCourse/Root::University::Module" sourcePort="NORTH" targetPort="SOUTH" type="Inheritance">
+                    <IntermediatePoints>
+                        <IntermediatePoint xCoordinate="560.77313" yCoordinate="-509.99142"/>
+                        <IntermediatePoint xCoordinate="400.00912" yCoordinate="-509.99142"/>
+                    </IntermediatePoints>
+                    <Labels/>
+                </Edge>
+            </Edges>
+            <DiagramDisplayProperties>
+                <SLOTS>true</SLOTS>
+                <CONCRETESYNTAX>true</CONCRETESYNTAX>
+                <METACLASSNAME>false</METACLASSNAME>
+                <ISSUETABLE>false</ISSUETABLE>
+                <OPERATIONS>true</OPERATIONS>
+                <DERIVEDATTRIBUTES>true</DERIVEDATTRIBUTES>
+                <CONSTRAINTS>true</CONSTRAINTS>
+                <CONSTRAINTREPORTS>true</CONSTRAINTREPORTS>
+                <DERIVEDOPERATIONS>true</DERIVEDOPERATIONS>
+                <OPERATIONVALUES>true</OPERATIONVALUES>
+                <GETTERSANDSETTERS>true</GETTERSANDSETTERS>
+            </DiagramDisplayProperties>
+            <Notes/>
+            <Views>
+                <View name="Main View" tx="-286.27487" ty="840.12146" xx="1.0905076"/>
+            </Views>
+        </Diagram>
+    </Diagrams>
+</XModelerPackage>
