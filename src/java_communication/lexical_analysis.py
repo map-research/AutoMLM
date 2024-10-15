@@ -65,14 +65,16 @@ class LexicalAnalysis:
                 for attr_b in o2.attr_list:
 
                     sim = self.helper.getSimilarityOfLexemeLabels(attr_a.lexemes, attr_b.lexemes)
-
+                    #sim = self.helper.getSimilarityOfLabels(attr_a.attr_name, attr_b.attr_name)
 
                     type = self.helper.getCompabilityOfTypes(attr_a.attr_type, attr_b.attr_type)
+                    
+                    #print(f'{attr_a.attr_name} & {attr_b.attr_name}'.ljust(50,' '), f'{round(sim,4)} is {type}')
 
-                    cstr = f'{attr_a.attr_name} & {attr_b.attr_name}'
+                    
                     if sim > acceptingValueSim:
                         genCand.append(GeneralisationCandiate(o1, o2, attr_a, attr_b, sim, type, hypernyms))
-                        print(cstr.ljust(50,' '), f'{round(sim,4)} is {type}')
+                        #print(cstr.ljust(50,' '), f'{round(sim,4)} is {type}')
 
 
 
@@ -95,17 +97,23 @@ class LexicalAnalysis:
 
             genCand.sort(key=lambda x: x.sim, reverse=True)
             attsToBeGeneralized = []
-
+            print('')
 
             for entry in genCand:
+                print(f'{entry.a1.attr_name} & {entry.a2.attr_name}'.ljust(50,' '), f'{round(entry.sim,4)} is {entry.type}')
                 if entry.type == None:
                     type = "Root::XCore::String"
                 else:
                     type = entry.type
 
                 if entry.a1.attr_name in attsToBeGeneralized:
+                    print('not generalized')
+                    continue
+                if entry.a2.attr_name in attsToBeGeneralized:
+                    print('not generalized')
                     continue
                 else:
+                    print('generalized')
                     attsToBeGeneralized.append(entry.a1.attr_name)
                     attsToBeGeneralized.append(entry.a2.attr_name)
 

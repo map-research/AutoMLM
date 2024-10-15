@@ -60,7 +60,8 @@ class MlmAttr:
     
     # TODO
     def _reduceLexemeSet(self, listLexemes: list, threshold: int) -> list:
-        return listLexemes[0: threshold]
+        return listLexemes
+        #return listLexemes[0: threshold]
     
     def automaticSemanticMatching(self) -> list:
         threshold_numberOfLexemes = 3

@@ -178,7 +178,7 @@ class LexicalAnalysisHelper():
         lexemesA = objectA.lexemes
         lexemesB = objectB.lexemes
 
-        print(f'Comparision of Lexemes from {objectA.name}: {len(lexemesA)} and {objectB.name}: {len(lexemesB)} ')
+        #print(f'Comparision of Lexemes from {objectA.name}: {len(lexemesA)} and {objectB.name}: {len(lexemesB)} ')
         for lexA in lexemesA:
             for lexB in lexemesB:
                 # check if source of lexemes is the same
@@ -260,15 +260,23 @@ class LexicalAnalysisHelper():
         if dataTypeA == 'String' or dataTypeB == 'String':
             return 'String'
 
-    # similiarity of two labels, currently between 0 and 1, we want to change to a different one
+    # similiarity of two labels, currently between 0 and 1 (??), we want to change to a different one
     def getSimilarityOfLabels(self, labelA: str, labelB: str) -> float:
+
+        tkns = self.performTokenization(labelA)
+        labelA = ' '.join(tkns).lower()
+
+        tkns = self.performTokenization(labelB)
+        labelB = ' '.join(tkns).lower()
 
         nlp = spacy.load('en_core_web_md')
         tokenA = nlp(labelA)
         tokenB = nlp(labelB)
         return tokenA.similarity(tokenB)
 
-    def getSimilarityOfLexemeLabels(self, listA: list, listB: list) -> list:
+    def getSimilarityOfLexemeLabels(self, listA: list, listB: list) -> float:
+
+        # Original function to compare sim of lexemes
         simSum = 0.0
         i = 0
         nlp = spacy.load('en_core_web_md')
@@ -341,7 +349,9 @@ class LexicalAnalysisHelper():
                     tokenB = nlp(newlabel)
                 
 
-                
+                #print(tokenA, tokenB)
+                #print(tokenA, tokenB)
+
                 simSum+= tokenA.similarity(tokenB)
 
         try:
@@ -370,7 +380,7 @@ class LexicalAnalysisHelperBabelnet():
     def lookForLexeme(input: str) -> list:
         lexemeList = []
         # reduction to nouns to increase performance
-        syns = bn.get_synsets(input, from_langs=[Language.EN], poses=[POS.NOUN])
+        syns = bn.get_synsets(input, from_langs=[Language.EN])
         for syn in syns:
             lexemeList.append((syn, LexicalSources.BABELNET))
         return lexemeList
