@@ -66,7 +66,7 @@ def run_llm_example():
         all_classes = True
 
     if not all_classes:
-        print("Please provide the name of the class you want to analyze:")
+        print("Please provide the name of the class you want to analyze (avoid typos):")
         single_class_name = input()
 
     custom_example(path_to_standard_fmmlx, all_classes, single_class_name)

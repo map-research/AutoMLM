@@ -122,7 +122,7 @@ class MultiLevelModelAnalyzer():
         remaining_groups = all_groups - visited_groups
         ordered_groups.extend(sorted(remaining_groups, key=lambda g: sorted(attr.attr_name for attr in grouped_attributes[g])))
 
-        # print("\nAttribute order from lowest to highest (grouped by SAME):")
+        print("\nAttribute order from lowest to highest (grouped by SAME):\n")
         deep_class_level: int = 0
         new_attributes: List[MlmAttr] = []
         for i, group in enumerate(ordered_groups, start=0):
@@ -130,7 +130,8 @@ class MultiLevelModelAnalyzer():
             for old_attr in grouped_attributes[group]:
                 deep_attr = MlmAttr(old_attr.attr_name, old_attr.attr_type, i)
                 new_attributes.append(deep_attr)
-            deep_class_level += i
+            deep_class_level += 1
+            print(f"Instantiation Level {i}:")
             print(" = ".join(sorted(attr.attr_name for attr in grouped_attributes[group])))
 
         #STEP 5: Create new Class
@@ -140,7 +141,7 @@ class MultiLevelModelAnalyzer():
         for new_attr in new_attributes:
             deep_class.add_attr(new_attr)
 
-        print("\n\n")
+        print("\n")
         print(deep_class)
 
     def _is_bijective(self, seq1, seq2):
