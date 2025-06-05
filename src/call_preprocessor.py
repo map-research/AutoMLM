@@ -22,7 +22,7 @@ def perform_promotion_process_from_java(messageId):
     # arg[0] is path of XML/MLM document
     path = arg[0]
     mlm = MultilevelModel(path)
-    message_manager.postResponse(messageId,mlm)
+    message_manager.postResponse(messageId, mlm)
     return
 
 
@@ -99,7 +99,7 @@ def process_string(messageId):
     arg = message_manager.readMessageContent(messageId)
     string = arg[0]
     string += ' from Python'
-    message_manager.postResponse(messageId,string)
+    message_manager.postResponse(messageId, string)
     return
 
 def promoteDiagram(messageId):

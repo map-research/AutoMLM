@@ -17,15 +17,31 @@ metaClass = MlmObject("MetaClass", "MetaClass", "99", None, "false")
 
 class MultilevelModel:
 
-    def __init__(self, xml_file_path: str = ""):
+    def __init__(self, xml_file_path: str = "", auto_sem_matching: bool = False, print_progress: bool = False):
+        self.path_name = ""
         self.mlm_objects: List[MlmObject] = []
         self.enums: List[EnumType] = []
         self.associations: List[MlmAssociation] = []
         self.links: List[MlmLink] = []
         self.parsed_xml = None
+        self.print_progress = print_progress
         if xml_file_path != "":
             self._parse_xml(xml_file_path)
         # automatic matching
+        if auto_sem_matching:
+            self._automatic_semantic_matching()
+
+    def get_all_objects_at_level_x(self, level: int) -> List[MlmObject]:
+        objects_at_level_x: List[MlmObject] = []
+        for obj in self.mlm_objects:
+            if obj.level == level:
+                objects_at_level_x.append(obj)
+        return objects_at_level_x
+
+    def get_all_flat_classes(self) -> List[MlmObject]:
+        return self.get_all_objects_at_level_x(1)
+
+    def _automatic_semantic_matching(self):
         for o in self.mlm_objects:
             o.automaticSemanticMatching()
             for a in o.attr_list:
@@ -78,17 +94,35 @@ class MultilevelModel:
         else:
             self._parse_xml(xml_file_path)
             self.extract_mlm_from_xml()
+            if self.print_progress:
+                print("Extraction completed successfully!")
 
     def extract_mlm_from_xml(self):
+        self.path_name = self.retrieve_path_name()
+        if self.print_progress:
+            print("BEGIN MLM EXTRACTION")
         self.mlm_objects = self.retrieve_all_mlm_objects()
+        if self.print_progress:
+            print("ALL OBJECTS RETRIEVED")
         self._set_generalizations()
+        if self.print_progress:
+            print("ALL GENERALIZATIONS RETRIEVED")
         self.enums = self.retrieve_all_enums()
+        if self.print_progress:
+            print("ALL ENUMS RETRIEVED")
         self.retrieve_all_attributes()
+        if self.print_progress:
+            print("ALL ATTRIBUTES RETRIEVED")
         self.retrieve_all_slots()
+        if self.print_progress:
+            print("ALL SLOTS RETRIEVED")
         self.retrieve_all_operations()
         self.retrieve_all_constraints()
         self.retrieve_all_associations()
         self.retrieve_all_links()
+
+    def retrieve_path_name(self) -> str:
+        return self.parsed_xml.documentElement.getAttribute("path")
 
     def retrieve_all_mlm_objects(self) -> List[MlmObject]:
         """
@@ -100,6 +134,8 @@ class MultilevelModel:
         for instance_object in self._retrieve_instance_objects():
             instance_object.set_class_of_object(self._get_class_of_mlm_object(instance_object.class_of_object.full_name,
                                                                               mlm_objects))
+            if self.print_progress:
+                print(f"Object {instance_object.name} extracted.")
             mlm_objects.append(instance_object)
         return mlm_objects
 
@@ -154,7 +190,7 @@ class MultilevelModel:
             # need to look for custom attr data types: enums or custom class types
             if new_attr.attr_type.split("::")[1] != "XCore" and new_attr.attr_type.split("::")[1] != "Auxiliary":
                 if not self._is_custom_attribute_type_an_enum(new_attr):
-                    print("CUSTOM CLASS") #TODO CUSTOM CLASS AS OBJECT
+                    print("TO-DO: Custom Data Type " + new_attr.attr_type_short + " Detected") #TODO CUSTOM CLASS AS OBJECT
             for mlm_object in self.mlm_objects:
                 if attribute_element.getAttribute("class") == mlm_object.full_name:
                     mlm_object.add_attr(new_attr)
@@ -169,11 +205,20 @@ class MultilevelModel:
 
     def retrieve_all_slots(self):
         for slot_element in self.parsed_xml.getElementsByTagName("changeSlotValue"):
-            new_slot = MlmSlot(slot_element.getAttribute("slotName"), slot_element.getAttribute("valueToBeParsed"))
+            new_slot = MlmSlot(slot_element.getAttribute("slotName"),
+                               self._parse_slot_value(slot_element.getAttribute("valueToBeParsed")))
             for mlm_object in self.mlm_objects:
                 if slot_element.getAttribute("class") == mlm_object.full_name:
                     mlm_object.add_slot(new_slot)
 
+    def _parse_slot_value(self, slot_value: str):
+        if slot_value.endswith("asString()"):
+            sign_list = slot_value[1:].split("]")[0].split(",")
+            slot_value = ""
+            if sign_list[0] != "":
+                for sign_code in sign_list:
+                    slot_value += chr(int(sign_code))
+        return slot_value
     def retrieve_all_operations(self):
         for operations_element in self.parsed_xml.getElementsByTagName("addOperation"):
             new_operation = MlmOperation(operations_element.getAttribute("name"),
@@ -197,8 +242,8 @@ class MultilevelModel:
             new_association = MlmAssociation(association_element.getAttribute("fwName"),
                                              association_element.getAttribute("instLevelSource"),
                                              association_element.getAttribute("instLevelTarget"))
-            src_mult = association_element.getAttribute("multSourceToTarget")[4:-1].split(",")
-            tgt_mult = association_element.getAttribute("multTargetToSource")[4:-1].split(",")
+            tgt_mult = association_element.getAttribute("multSourceToTarget")[4:-1].split(",")
+            src_mult = association_element.getAttribute("multTargetToSource")[4:-1].split(",")
             new_association.set_source_multiplicity(int(src_mult[0]), int(src_mult[1]))
             new_association.set_target_multiplicity(int(tgt_mult[0]), int(tgt_mult[1]))
             for mlm_object in self.mlm_objects:
@@ -224,7 +269,30 @@ class MultilevelModel:
                 return mlm_object
         raise Exception(f"No matching MLM object ({full_name}) found!")
 
+    def get_mlm_object_by_shortname(self, short_name: str) -> MlmObject:
+        full_name = f"{self.path_name}::{short_name}"
+        for mlm_object in self.mlm_objects:
+            if mlm_object.full_name == full_name:
+                return mlm_object
+        raise Exception(f"No matching MLM object ({full_name}) found!")
+
+    def get_all_objects_for_class(self, search_class: MlmObject) -> List[MlmObject]:
+        instances_for_class:List[MlmObject] = []
+        for mlm_object in self.mlm_objects:
+            if mlm_object.class_of_object == search_class:
+                instances_for_class.append(mlm_object)
+        return instances_for_class
+
+
+    def get_assoc_classification_indicators(self) -> List[MlmAssociation]:
+        indicating_associations: List[MlmAssociation] = []
+        for mlm_assoc in self.associations:
+            if mlm_assoc.is_classification_indicator():
+                indicating_associations.append(mlm_assoc)
+        return indicating_associations
+
     def __repr__(self):
+        print(f"Multilevel Model <{self.path_name}>")
         print(*self.enums, sep="Syntax Error at line: 38")#lmao opfer
         print("\n--------------------------------------------------------------\n")
         print(*self.mlm_objects, sep="----------------------------------------------\n")

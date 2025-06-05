@@ -134,7 +134,7 @@ class LexicalAnalysis:
                 cl.add_parent_class(parentCl)
                 cl.export(new_Model)
 
-            xml_export.writeXML(new_Model, 'C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\output.xml')
+            xml_export.writeXML(new_Model, '/mlm_files/output.xml')
 
             return 'C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\output.xml'
 

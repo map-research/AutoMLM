@@ -98,6 +98,7 @@ print(a1.lexemes)
 #analyser.perform_Analysis()
 
 
+#isgraded/ungraded
 def test_1():
     spacing = 40
     print(datetime.now())
@@ -127,6 +128,7 @@ def test_1():
     print(datetime.now())
 
 
+#highestScore / maxPoints
 def test_2():
     spacing = 35
     print(datetime.now())
@@ -154,6 +156,7 @@ def test_2():
     print(datetime.now())
 
 
+#lengthinminutes/durationInMinutes
 def test_3():
     spacing = 35
     print(datetime.now())
@@ -180,6 +183,7 @@ def test_3():
     print('')
     print(datetime.now())
 
+#term
 def test_4():
     spacing = 35
     print(datetime.now())
@@ -206,7 +210,7 @@ def test_4():
     print('')
     print(datetime.now())
 
-
+#linktoLSF
 def test_5():
     spacing = 35
     print(datetime.now())
@@ -226,7 +230,7 @@ def test_5():
     print('')
     print(datetime.now())
 
-
+#monograph/book
 def test_6():
 
     helper = LexicalAnalysisHelper()
@@ -339,5 +343,15 @@ for h in hyp:
     print(main_sense)
 """
 
+
+"""
+test1: graded/ungraded
+test2: highestScore
+test3: lengthInMinutes
+test4: term
+test5: linkToLSF
+test6: monograph/book
+
+"""
 
 test_4()
