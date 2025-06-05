@@ -10,7 +10,7 @@ import message_manager
 from mlm_class import *
 #from xml.dom.minidom import parse
 import xml.etree.ElementTree as ET
-import xml_export
+from datetime import datetime
 
 
 def perform_promotion_process_from_java(messageId):
@@ -22,7 +22,7 @@ def perform_promotion_process_from_java(messageId):
     # arg[0] is path of XML/MLM document
     path = arg[0]
     mlm = MultilevelModel(path)
-    message_manager.postResponse(messageId,mlm)
+    message_manager.postResponse(messageId, mlm)
     return
 
 
@@ -99,10 +99,12 @@ def process_string(messageId):
     arg = message_manager.readMessageContent(messageId)
     string = arg[0]
     string += ' from Python'
-    message_manager.postResponse(messageId,string)
+    message_manager.postResponse(messageId, string)
     return
 
 def promoteDiagram(messageId):
+
+    print(datetime.now)
 
     arg = message_manager.readMessageContent(messageId)
     input_file_path = arg[1]
@@ -114,6 +116,8 @@ def promoteDiagram(messageId):
     pathNew = analyser.perform_Analysis()
 
     message_manager.postResponse(messageId, pathNew)
+
+    print(datetime.now)
     return
 
     """
