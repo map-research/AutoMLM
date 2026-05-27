@@ -4,6 +4,7 @@ from mlm_helper_classes import *
 
 # maybe the import name is confusing
 import xml_export as export_xml
+import csv
 
 metaClass = MlmObject("MetaClass", "MetaClass", "99", None, "false")
 
@@ -17,7 +18,7 @@ metaClass = MlmObject("MetaClass", "MetaClass", "99", None, "false")
 
 class MultilevelModel:
 
-    def __init__(self, xml_file_path: str = "", auto_sem_matching: bool = False, print_progress: bool = False):
+    def __init__(self, xml_file_path: str = "", csv_file_path: str = "", auto_sem_matching: bool = False, print_progress: bool = False):
         self.path_name = ""
         self.mlm_objects: List[MlmObject] = []
         self.enums: List[EnumType] = []
@@ -27,9 +28,46 @@ class MultilevelModel:
         self.print_progress = print_progress
         if xml_file_path != "":
             self._parse_xml(xml_file_path)
+        if csv_file_path != "":
+            self._import_csv(csv_file_path)
         # automatic matching
         if auto_sem_matching:
             self._automatic_semantic_matching()
+
+    def _import_csv(self, csv_file_path: str):
+        all_mlm_objects = []
+        with open(csv_file_path, "r") as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=",")
+            line_count = 0
+            all_csv_attr = []
+            for row in csv_reader:
+                if line_count == 0:
+                    mlm_class: MlmObject = MlmObject("long","csv_class","1", MlmObject.meta_class(),
+                                                    "false")
+                    for col_counter in range(len(row)):
+                        value: str = row[col_counter].strip().strip("\"")
+                        new_attr: MlmAttr = MlmAttr(value, "Root::XCore::String", 0)
+                        all_csv_attr.append(new_attr)
+                        mlm_class.add_attr(new_attr)
+
+                    all_mlm_objects.append(mlm_class)
+                else:
+                    mlm_instance: MlmObject = MlmObject("long","instance","0", mlm_class, "false")
+                    all_mlm_objects.append(mlm_instance)
+
+                    for col_counter in range(len(row)):
+                        value: str = row[col_counter].strip().strip("\"")
+                        new_slot: MlmSlot = MlmSlot(all_csv_attr[col_counter].attr_name, value)
+                        new_slot.set_attribute(all_csv_attr[col_counter])
+                        mlm_instance.add_slot(new_slot)
+
+                line_count += 1
+        self._set_mlm_objects(all_mlm_objects)
+    def _set_mlm_objects(self, mlm_objects: List[MlmObject]):
+        self.mlm_objects = mlm_objects
+
+    def add_mlm_object(self, mlm_object: MlmObject):
+        self.mlm_objects.append(mlm_object)
 
     def get_all_objects_at_level_x(self, level: int) -> List[MlmObject]:
         objects_at_level_x: List[MlmObject] = []
@@ -290,6 +328,7 @@ class MultilevelModel:
             if mlm_assoc.is_classification_indicator():
                 indicating_associations.append(mlm_assoc)
         return indicating_associations
+
 
     def __repr__(self):
         print(f"Multilevel Model <{self.path_name}>")

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XModelerPackage path="Root::MD_CarSimple" version="4" xModelerVersion="3">
+    <Imports/>
+    <Model name="Root::MD_CarSimple">
+        <addMetaClass abstract="false" isControlClass="false" level="1" maxLevel="1" name="RentalCar" package="Root::MD_CarSimple" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar9" of="Root::MD_CarSimple::RentalCar" package="Root::MD_CarSimple" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar8" of="Root::MD_CarSimple::RentalCar" package="Root::MD_CarSimple" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar7" of="Root::MD_CarSimple::RentalCar" package="Root::MD_CarSimple" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar6" of="Root::MD_CarSimple::RentalCar" package="Root::MD_CarSimple" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar5" of="Root::MD_CarSimple::RentalCar" package="Root::MD_CarSimple" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar4" of="Root::MD_CarSimple::RentalCar" package="Root::MD_CarSimple" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar3" of="Root::MD_CarSimple::RentalCar" package="Root::MD_CarSimple" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar2" of="Root::MD_CarSimple::RentalCar" package="Root::MD_CarSimple" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar1" of="Root::MD_CarSimple::RentalCar" package="Root::MD_CarSimple" singleton="false"/>
+        <addAttribute class="Root::MD_CarSimple::RentalCar" level="0" multiplicity="Seq{1,1,true,false}" name="hasDamages" package="Root::MD_CarSimple" type="Root::XCore::Boolean"/>
+        <addAttribute class="Root::MD_CarSimple::RentalCar" level="0" multiplicity="Seq{1,1,true,false}" name="licensePlate" package="Root::MD_CarSimple" type="Root::XCore::String"/>
+        <addAttribute class="Root::MD_CarSimple::RentalCar" level="0" multiplicity="Seq{1,1,true,false}" name="modelName" package="Root::MD_CarSimple" type="Root::XCore::String"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar1" package="Root::MD_CarSimple" slotName="hasDamages" valueToBeParsed="true"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar1" package="Root::MD_CarSimple" slotName="licensePlate" valueToBeParsed="[78,65,53,50,51,72].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar1" package="Root::MD_CarSimple" slotName="modelName" valueToBeParsed="[65,117,100,105,32,65,51].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar2" package="Root::MD_CarSimple" slotName="hasDamages" valueToBeParsed="false"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar2" package="Root::MD_CarSimple" slotName="licensePlate" valueToBeParsed="[75,65,52,57,56,82].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar2" package="Root::MD_CarSimple" slotName="modelName" valueToBeParsed="[70,111,114,100,32,77,117,115,116,97,110,103].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar3" package="Root::MD_CarSimple" slotName="hasDamages" valueToBeParsed="true"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar3" package="Root::MD_CarSimple" slotName="licensePlate" valueToBeParsed="[48,57,56,71,68].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar3" package="Root::MD_CarSimple" slotName="modelName" valueToBeParsed="[70,111,114,100,32,77,117,115,116,97,110,103].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar4" package="Root::MD_CarSimple" slotName="hasDamages" valueToBeParsed="false"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar4" package="Root::MD_CarSimple" slotName="licensePlate" valueToBeParsed="[76,68,85,48,51].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar4" package="Root::MD_CarSimple" slotName="modelName" valueToBeParsed="[66,117,105,99,107,32,67,101,110,116,117,114,121].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar5" package="Root::MD_CarSimple" slotName="hasDamages" valueToBeParsed="false"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar5" package="Root::MD_CarSimple" slotName="licensePlate" valueToBeParsed="[70,82,69,68,50].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar5" package="Root::MD_CarSimple" slotName="modelName" valueToBeParsed="[77,73,78,73,32,67,111,111,112,101,114].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar6" package="Root::MD_CarSimple" slotName="hasDamages" valueToBeParsed="false"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar6" package="Root::MD_CarSimple" slotName="licensePlate" valueToBeParsed="[72,73,68,52,50].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar6" package="Root::MD_CarSimple" slotName="modelName" valueToBeParsed="[77,73,78,73,32,67,111,117,110,116,114,121,109,97,110].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar7" package="Root::MD_CarSimple" slotName="hasDamages" valueToBeParsed="true"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar7" package="Root::MD_CarSimple" slotName="licensePlate" valueToBeParsed="[56,71,70,52,76,74].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar7" package="Root::MD_CarSimple" slotName="modelName" valueToBeParsed="[66,117,105,99,107,32,67,101,110,116,117,114,121].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar8" package="Root::MD_CarSimple" slotName="hasDamages" valueToBeParsed="true"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar8" package="Root::MD_CarSimple" slotName="licensePlate" valueToBeParsed="[76,72,55,74,70].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar8" package="Root::MD_CarSimple" slotName="modelName" valueToBeParsed="[65,117,100,105,32,65,56].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar9" package="Root::MD_CarSimple" slotName="hasDamages" valueToBeParsed="false"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar9" package="Root::MD_CarSimple" slotName="licensePlate" valueToBeParsed="[66,83,55,51,83].asString()"/>
+        <changeSlotValue class="Root::MD_CarSimple::rentalCar9" package="Root::MD_CarSimple" slotName="modelName" valueToBeParsed="[65,117,100,105,32,65,51].asString()"/>
+    </Model>
+    <Diagrams>
+        <Diagram name="FmmlxDiagram_1" umlMode="false">
+            <Instances>
+                <Instance hidden="false" path="Root::MD_CarSimple::rentalCar3" xCoordinate="153" yCoordinate="652"/>
+                <Instance hidden="false" path="Root::MD_CarSimple::rentalCar2" xCoordinate="507" yCoordinate="603"/>
+                <Instance hidden="false" path="Root::MD_CarSimple::RentalCar" xCoordinate="644" yCoordinate="271"/>
+                <Instance hidden="false" path="Root::MD_CarSimple::rentalCar1" xCoordinate="383" yCoordinate="312"/>
+                <Instance hidden="false" path="Root::MD_CarSimple::rentalCar7" xCoordinate="144" yCoordinate="467"/>
+                <Instance hidden="false" path="Root::MD_CarSimple::rentalCar6" xCoordinate="368" yCoordinate="912"/>
+                <Instance hidden="false" path="Root::MD_CarSimple::rentalCar5" xCoordinate="146" yCoordinate="883"/>
+                <Instance hidden="false" path="Root::MD_CarSimple::rentalCar4" xCoordinate="435" yCoordinate="454"/>
+                <Instance hidden="false" path="Root::MD_CarSimple::rentalCar9" xCoordinate="210" yCoordinate="239"/>
+                <Instance hidden="false" path="Root::MD_CarSimple::rentalCar8" xCoordinate="618" yCoordinate="864"/>
+            </Instances>
+            <Edges/>
+            <DiagramDisplayProperties>
+                <SLOTS>true</SLOTS>
+                <CONCRETESYNTAX>true</CONCRETESYNTAX>
+                <METACLASSNAME>false</METACLASSNAME>
+                <ISSUETABLE>false</ISSUETABLE>
+                <OPERATIONS>true</OPERATIONS>
+                <DERIVEDATTRIBUTES>true</DERIVEDATTRIBUTES>
+                <CONSTRAINTS>true</CONSTRAINTS>
+                <CONSTRAINTREPORTS>true</CONSTRAINTREPORTS>
+                <DERIVEDOPERATIONS>true</DERIVEDOPERATIONS>
+                <OPERATIONVALUES>true</OPERATIONVALUES>
+                <GETTERSANDSETTERS>true</GETTERSANDSETTERS>
+            </DiagramDisplayProperties>
+            <Notes/>
+            <Views>
+                <View name="Main View" tx="0.0" ty="0.0" xx="1.0"/>
+            </Views>
+        </Diagram>
+    </Diagrams>
+</XModelerPackage>

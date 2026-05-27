@@ -1,6 +1,9 @@
 from typing import List
 import xml.etree.ElementTree as ET
 
+from src import PropertyPrecedenceGraph
+
+
 #from lexical_analysis_helper import LexicalAnalysisHelper, LexicalSources
 
 # This file specifies all classes within an MLM.
@@ -160,6 +163,7 @@ class MlmConstraint:
 
 class MlmObject:
     def __init__(self, full_name: str, name: str, level: str, class_of_object, is_abstract: str):
+        self.cod_graph: CoDependencyGraph = None
         self.full_name = full_name
         self.name = name
         self.level: int = int(level)
@@ -191,10 +195,21 @@ class MlmObject:
         return cls("MetaClass","MetaClass","99",
                    MlmObject("MetaClass", "MetaClass", "100", None, "False")
                    , "False")
+
+    @classmethod
+    def get_shell_class(cls, base_class):
+        return cls(base_class.full_name, base_class.name, "0", cls.meta_class(), "false")
+
+    def set_cod_graph(self, cod_graph: CoDependencyGraph):
+        self.cod_graph = cod_graph
+
+    def get_cod_graph(self) -> CoDependencyGraph:
+        return self.cod_graph
+
     def get_all_slots(self) -> List[MlmSlot]:
         return self.slot_list
 
-    def get_all_attributes(self) -> List[str]:
+    def get_all_attributes(self) -> List[MlmAttr]:
         return self.attr_list
 
     def set_class_of_object(self, new_class_of_object):
@@ -212,6 +227,9 @@ class MlmObject:
 
     def add_constraint(self, constraint: MlmConstraint):
         self.constraints_list.append(constraint)
+
+    def set_level(self, level: int):
+        self.level = level
 
     def export(self, root):
         projectName = root.attrib['path']
