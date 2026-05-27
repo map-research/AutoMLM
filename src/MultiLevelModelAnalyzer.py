@@ -197,9 +197,11 @@ class MultiLevelModelAnalyzer:
         print(self.deep_model)
 
     def attribute_precedence_analysis(self, flat_class: MlmObject):
-        co_dependency_graph: PropertyPrecedenceGraph = self.construct_attribute_codependency_graph(flat_class)
-        co_dependency_graph.perform_multiplicity_analysis()
-        flat_class.set_pp_graph(co_dependency_graph)
+        property_precedence_graph: PropertyPrecedenceGraph = self.construct_attribute_precedence_graph(flat_class)
+        print(property_precedence_graph)
+        property_precedence_graph.perform_multiplicity_analysis()
+        print(property_precedence_graph)
+        flat_class.set_pp_graph(property_precedence_graph)
         self.construct_deep_hierarchy_for_class(flat_class)
 
     def construct_deep_hierarchy_for_class(self, flat_class: MlmObject):
@@ -288,11 +290,10 @@ class MultiLevelModelAnalyzer:
         # STEP 2: GROUP SLOT VALUES PER ATTRIBUTE
         attribute_value_lists = [list([all_attributes_of_class[i], attribute_values])
                                  for i, attribute_values in enumerate(zip(*all_slot_lists), start=0)]
-
         return attribute_value_lists
 
     # new implementation of dependency analysis with dependency graph and dominance analysis (Sep 10, 2025)
-    def construct_attribute_codependency_graph(self, mlm_class: MlmObject) -> PropertyPrecedenceGraph:
-        co_dependency_graph: PropertyPrecedenceGraph = PropertyPrecedenceGraph(self._get_attribute_value_lists_for_class(mlm_class))
-        return co_dependency_graph
+    def construct_attribute_precedence_graph(self, mlm_class: MlmObject) -> PropertyPrecedenceGraph:
+        property_precedence_graph: PropertyPrecedenceGraph = PropertyPrecedenceGraph(self._get_attribute_value_lists_for_class(mlm_class))
+        return property_precedence_graph
 

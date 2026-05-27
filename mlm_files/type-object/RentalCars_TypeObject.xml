@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XModelerPackage path="Root::RentalCars_TypeObject" version="4" xModelerVersion="3.2">
+    <Imports/>
+    <Model name="Root::RentalCars_TypeObject">
+        <addMetaClass abstract="false" isControlClass="false" level="1" maxLevel="1" name="Car" package="Root::RentalCars_TypeObject" singleton="false"/>
+        <addMetaClass abstract="false" isControlClass="false" level="1" maxLevel="1" name="CarModel" package="Root::RentalCars_TypeObject" singleton="false"/>
+        <addAttribute class="Root::RentalCars_TypeObject::Car" level="0" multiplicity="Seq{1,1,true,false}" name="hasDamages" package="Root::RentalCars_TypeObject" type="Root::XCore::Boolean"/>
+        <addAttribute class="Root::RentalCars_TypeObject::Car" level="0" multiplicity="Seq{1,1,true,false}" name="licensePlateNumber" package="Root::RentalCars_TypeObject" type="Root::XCore::String"/>
+        <addAttribute class="Root::RentalCars_TypeObject::CarModel" level="0" multiplicity="Seq{1,1,true,false}" name="brandName" package="Root::RentalCars_TypeObject" type="Root::XCore::String"/>
+        <addAttribute class="Root::RentalCars_TypeObject::CarModel" level="0" multiplicity="Seq{1,1,true,false}" name="modelName" package="Root::RentalCars_TypeObject" type="Root::XCore::String"/>
+        <addAssociation accessSourceFromTargetName="car" accessTargetFromSourceName="carModel" associationType="Root::Associations::DefaultAssociation" classSource="Root::RentalCars_TypeObject::Car" classTarget="Root::RentalCars_TypeObject::CarModel" fwName="is_of" instLevelSource="0" instLevelTarget="0" multSourceToTarget="Seq{1,1,true,false}" multTargetToSource="Seq{0,-1,false,false}" package="Root::RentalCars_TypeObject" reverseName="-1" sourceVisibleFromTarget="true" targetVisibleFromSource="true"/>
+    </Model>
+    <Diagrams>
+        <Diagram name="FmmlxDiagram_1" umlMode="false">
+            <Instances>
+                <Instance hidden="false" path="Root::RentalCars_TypeObject::Car" xCoordinate="1098" yCoordinate="377"/>
+                <Instance hidden="false" path="Root::RentalCars_TypeObject::CarModel" xCoordinate="715" yCoordinate="386"/>
+            </Instances>
+            <Edges/>
+            <DiagramDisplayProperties>
+                <SLOTS>true</SLOTS>
+                <CONCRETESYNTAX>true</CONCRETESYNTAX>
+                <METACLASSNAME>false</METACLASSNAME>
+                <ISSUETABLE>false</ISSUETABLE>
+                <OPERATIONS>true</OPERATIONS>
+                <DERIVEDATTRIBUTES>true</DERIVEDATTRIBUTES>
+                <CONSTRAINTS>true</CONSTRAINTS>
+                <CONSTRAINTREPORTS>true</CONSTRAINTREPORTS>
+                <DERIVEDOPERATIONS>true</DERIVEDOPERATIONS>
+                <OPERATIONVALUES>true</OPERATIONVALUES>
+                <GETTERSANDSETTERS>true</GETTERSANDSETTERS>
+            </DiagramDisplayProperties>
+            <Notes/>
+            <Views>
+                <View name="Main View" tx="0.0" ty="0.0" xx="1.0"/>
+            </Views>
+        </Diagram>
+    </Diagrams>
+</XModelerPackage>

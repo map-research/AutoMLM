@@ -16,6 +16,7 @@ class PropertyPrecedenceGraph(object):
         self.precedence_graph = {}
         self.attribute_value_lists = attribute_value_lists
         self._initialize_graph()
+        print(self.precedence_graph)
 
     def _initialize_graph(self):
         all_attribute_labels = [attr_value_list[0].attr_name for attr_value_list in self.attribute_value_lists]
@@ -23,31 +24,28 @@ class PropertyPrecedenceGraph(object):
         for current_attr_iter in range(len(all_attribute_labels)):
             current_attr = all_attribute_labels[current_attr_iter]
             self.precedence_graph.update({current_attr: []})
-            dependency_relationships_for_node = []
+            precedence_relationships_for_node = []
             for next_attr_iter in range(current_attr_iter+1,len(all_attribute_labels)):
                 next_attr = all_attribute_labels[next_attr_iter]
-                dependency_rel: DependencyRelationship = (
-                    DependencyRelationship(current_attr, next_attr,
+                precedence_rel: PrecedenceRelationship = (
+                    PrecedenceRelationship(current_attr, next_attr,
                                            self.attribute_value_lists[current_attr_iter][1],
                                            self.attribute_value_lists[next_attr_iter][1]))
-                dependency_relationships_for_node.append(dependency_rel)
+                precedence_relationships_for_node.append(precedence_rel)
             if current_attr_iter > 0:
-                for current_dependency in list(chain.from_iterable(self.precedence_graph.values())):
-                    if current_dependency.contains(prop=current_attr):
-                        dependency_relationships_for_node.append(current_dependency)
-                        self.precedence_graph.update({current_attr: dependency_relationships_for_node})
-            else:
-                self.precedence_graph.update({current_attr: dependency_relationships_for_node})
+                for current_precedence in list(chain.from_iterable(self.precedence_graph.values())):
+                    if current_precedence.contains(prop=current_attr):
+                        precedence_relationships_for_node.append(current_precedence)
+            self.precedence_graph.update({current_attr: precedence_relationships_for_node})
 
-    def get_all_dependency_relationships(self):
-        return list(chain.from_iterable(self.precedence_graph.values()))
+    def get_all_precedence_relationships(self):
+        # using set() removes duplicates, order is irrelevant here
+        return list(set(chain.from_iterable(self.precedence_graph.values())))
 
     def perform_multiplicity_analysis(self):
-        rel_encountered = []
-        for dependency_rel in self.get_all_dependency_relationships():
-            if dependency_rel not in rel_encountered:
-                dependency_rel.value_mapping_analysis()
-                rel_encountered.append(dependency_rel)
+        print(self.precedence_graph)
+        for precedence_rel in self.get_all_precedence_relationships():
+            precedence_rel.value_mapping_analysis()
 
     def get_conflict_free_attributes(self):
         all_conflict_free_attr = []
@@ -73,7 +71,6 @@ class PropertyPrecedenceGraph(object):
             for cf_attr in lowest_attr:
                 self.remove_attr_from_graph(cf_attr)
         return attr_list
-
 
     def get_lowest_attributes(self):
         conflict_free_attrs = self.get_conflict_free_attributes()
@@ -103,21 +100,20 @@ class PropertyPrecedenceGraph(object):
                     break
             self.precedence_graph.update({attr: all_edges})
 
-
-
     def _is_attr_conflict_free(self, attr_name: str):
-        dependency_relationships = self.precedence_graph[attr_name]
-        for dep_rel in dependency_relationships:
-            if dep_rel.inst_level_order == InstLevelOrder.UNDEFINED:
+        precedence_relationships = self.precedence_graph[attr_name]
+        for precedence_rel in precedence_relationships:
+            if precedence_rel.inst_level_order == InstLevelOrder.UNDEFINED:
                 return False
         return True
+
     def _get_slot_values_for_attr_label(self, attr_label: str):
         for attribute_value_list in self.attribute_value_lists:
             if attribute_value_list[0].attr_name == attr_label:
                 return attribute_value_list[1]
         return []
 
-    def get_dependency_relationships_for_node(self, node:str):
+    def get_precedence_relationships_for_node(self, node:str):
         if node in self.precedence_graph:
             return self.precedence_graph.get(node)
 
@@ -131,22 +127,15 @@ class PropertyPrecedenceGraph(object):
     def __repr__(self):
         return str(self.precedence_graph)
 
-# Class Property is Node
-class Node(object):
-    def __init__(self, label: str, value_array=None):
-        if value_array is None:
-            value_array = []
-        self.label = label
-        self.value_array = value_array
-
 
 class MultiplicityEnum(Enum):
     UNBOUND = "*"
     ONE = "1"
     NONE = "XXX"
 
-# Dependency Relationship is Edge
-class DependencyRelationship(object):
+
+# Precedence Relationship is Edge
+class PrecedenceRelationship(object):
     def __init__(self, property_a: str, property_b: str, set_of_values_a, set_of_values_b):
         self.property_a = property_a
         self.property_b = property_b
@@ -156,8 +145,10 @@ class DependencyRelationship(object):
         self.dominance_weight_b: float = 1
         self.multiplicity_a: MultiplicityEnum = MultiplicityEnum.ONE
         self.multiplicity_b: MultiplicityEnum = MultiplicityEnum.ONE
-        self.dependency_values_a = (self.multiplicity_a, self.dominance_weight_a)
-        self.dependency_values_b = (self.multiplicity_b, self.dominance_weight_b)
+        self.precedence_values_a = (self.multiplicity_a, self.dominance_weight_a)
+        self.precedence_values_b = (self.multiplicity_b, self.dominance_weight_b)
+        self.node_a = (self.property_a, self.set_of_values_a, self.multiplicity_a, self.dominance_weight_a)
+        self.node_b = (self.property_b, self.set_of_values_b, self.multiplicity_b, self.dominance_weight_b)
         self.inst_level_order: InstLevelOrder = InstLevelOrder.UNDEFINED
 
     def contains(self, prop: str):
@@ -183,7 +174,7 @@ class DependencyRelationship(object):
         encountered_a = []
         encountered_b = []
         for current_value_a, current_value_b in zipped_values:
-            current_value_a = current_value_a.lower()
+            current_value_a = current_value_a.lower() #currently only Strings??
             current_value_b = current_value_b.lower()
             len_of_encountered_values = len(encountered_a)
             if len_of_encountered_values > 0:
@@ -223,7 +214,6 @@ class DependencyRelationship(object):
             return True
         else:
             return False
-
 
     def __repr__(self):
         return (f"{self.property_a} <-> {self.property_b} ({self.inst_level_order.value}:"

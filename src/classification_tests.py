@@ -15,7 +15,7 @@ def run_ci_analysis(flat_model: MultilevelModel):
             print(f"{assoc.target_class.name} may be promoted")
 """
 def airplane_example():
-    flight_model = MultilevelModel('C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\FlightManagement.xml',
+    flight_model = MultilevelModel('/mlm_files/misc/FlightManagement.xml',
                                    print_progress=False)
     airplane: MlmObject = flight_model.get_mlm_object_by_shortname("Airplane")
 
@@ -25,20 +25,19 @@ def airplane_example():
     mlm_analyzer.analyze_attribute_precedence_for_class(airplane)
 
 def car_example():
-    car_model = MultilevelModel('C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\MD_CarComplex.xml',
+    car_model = MultilevelModel('/mlm_files/prop-precedence/MD_CarComplex.xml',
                                 print_progress=False)
     car_class: MlmObject = car_model.get_mlm_object_by_shortname("RentalCar")
 
     mlm_analyzer = MultiLevelModelAnalyzer(car_model)
-    mlm_analyzer.construct_attribute_codependency_graph(car_class)
+    mlm_analyzer.construct_attribute_precedence_graph(car_class)
 
 def oc_example():
-    oc_example_model_small = MultilevelModel("C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\mlm_files"
-                                             "\\standard-oc-small.xml", print_progress=False)
+    oc_example_model_small = MultilevelModel("/mlm_files/misc/standard-oc-small.xml", print_progress=False)
     mlm_analyzer = MultiLevelModelAnalyzer(oc_example_model_small)
     for i, flat_class in enumerate(oc_example_model_small.get_all_flat_classes(), start=0):
         print(f"------------------------------------------------------------------------------------------------\n"
-              f"ANLYZING ATTRIBUTE CO-DEPENDENCY FOR CLASS <{flat_class.name}>\n")
+              f"ANALYZING ATTRIBUTE CO-DEPENDENCY FOR CLASS <{flat_class.name}>\n")
         mlm_analyzer.analyze_attribute_precedence_for_class(flat_class)
 
 
@@ -88,6 +87,8 @@ def run_llm_example():
 
 #car_example()
 
+user_path=""
+
 oc_small = "C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\mlm_files\\standard-oc-small.xml"
 car_simple = "C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\MD_CarSimple.xml"
 car_simple_v2 = "C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\MD_CarSimple-cr.xml"
@@ -97,8 +98,8 @@ car_simple_v5 = "C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\CarSimpl
 car = "C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\MD_CarComplex.xml"
 csv_model = "C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\csv_files\\news_decline.csv"
 
+cars_to_path = "C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\type-object\\RentalCars_TypeObject.xml"
 
-
-print(MultilevelModel(car_simple_v5))
+print(MultilevelModel(cars_to_path))
 #custom_example(car_simple_v5, True)
 
