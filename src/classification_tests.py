@@ -1,5 +1,5 @@
 from src.MultiLevelModelAnalyzer import MultiLevelModelAnalyzer
-from src.mlm_class import MultilevelModel
+from src.MultiLevelModel import MultilevelModel
 from src.mlm_helper_classes import MlmObject, MlmAssociation
 from itertools import chain
 

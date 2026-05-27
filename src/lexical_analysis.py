@@ -6,7 +6,7 @@ from itertools import combinations
 from mlm_helper_classes import MlmAttr, MlmObject
 from lexical_analysis_helper import LexicalAnalysisHelper
 import xml_export
-from mlm_class import MultilevelModel
+from MultiLevelModel import MultilevelModel
 from random import randint
 
 

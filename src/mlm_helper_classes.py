@@ -163,7 +163,7 @@ class MlmConstraint:
 
 class MlmObject:
     def __init__(self, full_name: str, name: str, level: str, class_of_object, is_abstract: str):
-        self.cod_graph: CoDependencyGraph = None
+        self.pp_graph: PropertyPrecedenceGraph = None
         self.full_name = full_name
         self.name = name
         self.level: int = int(level)
@@ -200,11 +200,11 @@ class MlmObject:
     def get_shell_class(cls, base_class):
         return cls(base_class.full_name, base_class.name, "0", cls.meta_class(), "false")
 
-    def set_cod_graph(self, cod_graph: CoDependencyGraph):
-        self.cod_graph = cod_graph
+    def set_pp_graph(self, pp_graph: PropertyPrecedenceGraph):
+        self.pp_graph = pp_graph
 
-    def get_cod_graph(self) -> CoDependencyGraph:
-        return self.cod_graph
+    def get_pp_graph(self) -> PropertyPrecedenceGraph:
+        return self.pp_graph
 
     def get_all_slots(self) -> List[MlmSlot]:
         return self.slot_list
@@ -383,11 +383,10 @@ class MlmAssociation:
     def set_source_multiplicity(self, min_card: int, max_card: int):
         # FH java, XMF saves "hasUpperLimit" -> is_unbounded muss genau andersherum sein daher änderung if und else teil
         if max_card == -1:
-             self.source_multiplicity = Multiplicity(min_card, max_card, is_unbounded=True)
+            self.source_multiplicity = Multiplicity(min_card, max_card, is_unbounded=True)
             # IMPORTANT: DOES NOT WORK IF CONTINGENT ASSOCIATIONS ARE PRESENT
         else:
             self.source_multiplicity = Multiplicity(min_card, max_card)
-           
 
     def set_target_multiplicity(self, min_card: int, max_card: int):
         # FH java, XMF saves "hasUpperLimit" -> is_unbounded muss genau andersherum sein daher änderung if und else teil

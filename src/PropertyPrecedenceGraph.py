@@ -11,9 +11,9 @@ class InstLevelOrder(Enum):
     UNDEFINED = "?"
 
 
-class CoDependencyGraph(object):
+class PropertyPrecedenceGraph(object):
     def __init__(self, attribute_value_lists):
-        self.dependency_graph = {}
+        self.precedence_graph = {}
         self.attribute_value_lists = attribute_value_lists
         self._initialize_graph()
 
@@ -22,7 +22,7 @@ class CoDependencyGraph(object):
 
         for current_attr_iter in range(len(all_attribute_labels)):
             current_attr = all_attribute_labels[current_attr_iter]
-            self.dependency_graph.update({current_attr: []})
+            self.precedence_graph.update({current_attr: []})
             dependency_relationships_for_node = []
             for next_attr_iter in range(current_attr_iter+1,len(all_attribute_labels)):
                 next_attr = all_attribute_labels[next_attr_iter]
@@ -32,15 +32,15 @@ class CoDependencyGraph(object):
                                            self.attribute_value_lists[next_attr_iter][1]))
                 dependency_relationships_for_node.append(dependency_rel)
             if current_attr_iter > 0:
-                for current_dependency in list(chain.from_iterable(self.dependency_graph.values())):
+                for current_dependency in list(chain.from_iterable(self.precedence_graph.values())):
                     if current_dependency.contains(prop=current_attr):
                         dependency_relationships_for_node.append(current_dependency)
-                        self.dependency_graph.update({current_attr: dependency_relationships_for_node})
+                        self.precedence_graph.update({current_attr: dependency_relationships_for_node})
             else:
-                self.dependency_graph.update({current_attr: dependency_relationships_for_node})
+                self.precedence_graph.update({current_attr: dependency_relationships_for_node})
 
     def get_all_dependency_relationships(self):
-        return list(chain.from_iterable(self.dependency_graph.values()))
+        return list(chain.from_iterable(self.precedence_graph.values()))
 
     def perform_multiplicity_analysis(self):
         rel_encountered = []
@@ -51,7 +51,7 @@ class CoDependencyGraph(object):
 
     def get_conflict_free_attributes(self):
         all_conflict_free_attr = []
-        for attr_name in self.dependency_graph:
+        for attr_name in self.precedence_graph:
             if self._is_attr_conflict_free(attr_name):
                 all_conflict_free_attr.append(attr_name)
         return all_conflict_free_attr
@@ -63,7 +63,7 @@ class CoDependencyGraph(object):
             inst_level = break_counter
             lowest_attr = self.get_lowest_attributes()
             if len(lowest_attr)==0:
-                lowest_attr = list(self.dependency_graph.keys())
+                lowest_attr = list(self.precedence_graph.keys())
             for attr in lowest_attr:
                 new_attr: MlmAttr = MlmAttr(attr, "Root::XCore::String", inst_level)
                 attr_list.append(new_attr)
@@ -80,7 +80,7 @@ class CoDependencyGraph(object):
         lowest_attrs = []
         for conflict_free_attr in conflict_free_attrs:
             may_be_lowest: bool = True
-            all_edges = self.dependency_graph.get(conflict_free_attr)
+            all_edges = self.precedence_graph.get(conflict_free_attr)
             for edge in all_edges:
                 if edge.property_a == conflict_free_attr:
                     if not edge.get_lower_or_equals():
@@ -93,20 +93,20 @@ class CoDependencyGraph(object):
         return lowest_attrs
 
     def remove_attr_from_graph(self, attr_name: str):
-        self.dependency_graph.pop(attr_name)
-        for attr in self.dependency_graph:
-            all_edges = self.dependency_graph.get(attr)
+        self.precedence_graph.pop(attr_name)
+        for attr in self.precedence_graph:
+            all_edges = self.precedence_graph.get(attr)
             for edge_iter in range(len(all_edges)):
                 edge = all_edges[edge_iter]
                 if edge.contains(attr_name):
                     all_edges.pop(edge_iter)
                     break
-            self.dependency_graph.update({attr: all_edges})
+            self.precedence_graph.update({attr: all_edges})
 
 
 
     def _is_attr_conflict_free(self, attr_name: str):
-        dependency_relationships = self.dependency_graph[attr_name]
+        dependency_relationships = self.precedence_graph[attr_name]
         for dep_rel in dependency_relationships:
             if dep_rel.inst_level_order == InstLevelOrder.UNDEFINED:
                 return False
@@ -118,18 +118,18 @@ class CoDependencyGraph(object):
         return []
 
     def get_dependency_relationships_for_node(self, node:str):
-        if node in self.dependency_graph:
-            return self.dependency_graph.get(node)
+        if node in self.precedence_graph:
+            return self.precedence_graph.get(node)
 
     def get_all_properties(self):
-        return self.dependency_graph.keys()
+        return self.precedence_graph.keys()
 
     # returns graph items as list of tuples
     def get_items(self):
-        return self.dependency_graph.items()
+        return self.precedence_graph.items()
 
     def __repr__(self):
-        return str(self.dependency_graph)
+        return str(self.precedence_graph)
 
 # Class Property is Node
 class Node(object):

@@ -1,22 +1,17 @@
 from enum import EnumMeta
 from xml.dom.minidom import parse
 from mlm_helper_classes import *
-
-# maybe the import name is confusing
 import xml_export as export_xml
 import csv
 
 metaClass = MlmObject("MetaClass", "MetaClass", "99", None, "false")
 
-
-# Helper function to parse XML files
-
-# The class MLM serves to represent complete MLM models as provided by an xml file.
-# Therefore, it receives a path of the file as an input (parameter "input_source") and parses the file
-# All elements of the MLM are then instances of the classes defined in "mlm_helper_classes.py"
-
-
 class MultilevelModel:
+    """
+    This class serves to represent complete MultiLevelModels. It offers functions for importing standard FMMLx XML files
+    into a Python representation and exporting them again to XML documents once processed as intended.
+    All elements within a multi-level model are themselves instances of Python classes specified in mlm_helper_classes.py
+    """
 
     def __init__(self, xml_file_path: str = "", csv_file_path: str = "", auto_sem_matching: bool = False, print_progress: bool = False):
         self.path_name = ""
@@ -35,6 +30,10 @@ class MultilevelModel:
             self._automatic_semantic_matching()
 
     def _import_csv(self, csv_file_path: str):
+        """
+        import CSV as MultiLevelModel. Note that CSV imports only account for classes and objects; relationships
+        between classes and objects are not accounted for.
+        """
         all_mlm_objects = []
         with open(csv_file_path, "r") as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=",")
@@ -63,6 +62,7 @@ class MultilevelModel:
 
                 line_count += 1
         self._set_mlm_objects(all_mlm_objects)
+
     def _set_mlm_objects(self, mlm_objects: List[MlmObject]):
         self.mlm_objects = mlm_objects
 
@@ -321,14 +321,12 @@ class MultilevelModel:
                 instances_for_class.append(mlm_object)
         return instances_for_class
 
-
     def get_assoc_classification_indicators(self) -> List[MlmAssociation]:
         indicating_associations: List[MlmAssociation] = []
         for mlm_assoc in self.associations:
             if mlm_assoc.is_classification_indicator():
                 indicating_associations.append(mlm_assoc)
         return indicating_associations
-
 
     def __repr__(self):
         print(f"Multilevel Model <{self.path_name}>")

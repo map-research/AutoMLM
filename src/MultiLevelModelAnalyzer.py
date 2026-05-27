@@ -1,6 +1,6 @@
 from typing import List
 
-from src.mlm_class import *
+from src.MultiLevelModel import *
 from src.mlm_helper_classes import *
 from itertools import permutations
 from enum import Enum
@@ -187,29 +187,29 @@ class MultiLevelModelAnalyzer:
             for i, flat_class in enumerate(self.flat_model.get_all_flat_classes(), start = 0):
                 print(
                     f"------------------------------------------------------------------------------------------------\n"
-                    f"ANALYZING ATTRIBUTE CO-DEPENDENCY FOR CLASS <{flat_class.name}>\n")
-                self.attribute_codependency_analysis(flat_class)
+                    f"ANALYZING ATTRIBUTE PRECEDENCE FOR CLASS <{flat_class.name}>\n")
+                self.attribute_precedence_analysis(flat_class)
         else:
             if single_class_name == "":
                 print(f"NO CLASS TO ANALYZE PROVIDED!")
             else:
-                self.attribute_codependency_analysis(self.flat_model.get_mlm_object_by_shortname(single_class_name))
+                self.attribute_precedence_analysis(self.flat_model.get_mlm_object_by_shortname(single_class_name))
         print(self.deep_model)
 
-    def attribute_codependency_analysis(self, flat_class: MlmObject):
-        co_dependency_graph: CoDependencyGraph = self.construct_attribute_codependency_graph(flat_class)
+    def attribute_precedence_analysis(self, flat_class: MlmObject):
+        co_dependency_graph: PropertyPrecedenceGraph = self.construct_attribute_codependency_graph(flat_class)
         co_dependency_graph.perform_multiplicity_analysis()
-        flat_class.set_cod_graph(co_dependency_graph)
+        flat_class.set_pp_graph(co_dependency_graph)
         self.construct_deep_hierarchy_for_class(flat_class)
 
     def construct_deep_hierarchy_for_class(self, flat_class: MlmObject):
-        assert flat_class.get_cod_graph() is not None  # as a pre-condition
+        assert flat_class.get_pp_graph() is not None  # as a pre-condition
         deepest_class: MlmObject = MlmObject.get_shell_class(flat_class)
         deepest_level: int = 0
         attr_dict = {}
         all_instances: List[MlmObject] = self.flat_model.get_all_objects_for_class(flat_class)
 
-        for mlm_attr in flat_class.get_cod_graph().get_reordered_mlm_attributes():
+        for mlm_attr in flat_class.get_pp_graph().get_reordered_mlm_attributes():
             # dict entry currently overrides each time
             attr_dict.update({mlm_attr.inst_level: mlm_attr})
             deepest_class.add_attr(mlm_attr)
@@ -292,7 +292,7 @@ class MultiLevelModelAnalyzer:
         return attribute_value_lists
 
     # new implementation of dependency analysis with dependency graph and dominance analysis (Sep 10, 2025)
-    def construct_attribute_codependency_graph(self, mlm_class: MlmObject) -> CoDependencyGraph:
-        co_dependency_graph: CoDependencyGraph = CoDependencyGraph(self._get_attribute_value_lists_for_class(mlm_class))
+    def construct_attribute_codependency_graph(self, mlm_class: MlmObject) -> PropertyPrecedenceGraph:
+        co_dependency_graph: PropertyPrecedenceGraph = PropertyPrecedenceGraph(self._get_attribute_value_lists_for_class(mlm_class))
         return co_dependency_graph
 

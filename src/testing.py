@@ -5,7 +5,7 @@ testing.py used to test AutoMLM scenarios such as XML parsing and writing
 from datetime import datetime
 from itertools import combinations
 from lexical_analysis import LexicalAnalysis
-from mlm_class import *
+from MultiLevelModel import *
 from lexical_analysis_helper import LexicalAnalysisHelper, LexicalAnalysisHelperBabelnet, LexicalAnalysisHelperWikidata
 from nltk.corpus import wordnet as wn
 import xlsxwriter

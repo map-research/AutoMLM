@@ -7,7 +7,7 @@ This module offers the implementation of the functions called by Java. Reference
 #import sys
 from lexical_analysis import LexicalAnalysis
 import message_manager
-from mlm_class import *
+from MultiLevelModel import *
 #from xml.dom.minidom import parse
 import xml.etree.ElementTree as ET
 from datetime import datetime
