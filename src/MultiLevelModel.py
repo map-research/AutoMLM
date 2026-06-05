@@ -6,6 +6,7 @@ import csv
 
 metaClass = MlmObject("MetaClass", "MetaClass", "99", None, "false")
 
+
 class MultilevelModel:
     """
     This class serves to represent complete MultiLevelModels. It offers functions for importing standard FMMLx XML files

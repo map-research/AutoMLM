@@ -1,10 +1,6 @@
-from typing import List
-
 from src.MultiLevelModel import *
-from src.mlm_helper_classes import *
 from itertools import permutations
-from enum import Enum
-from PropertyPrecedenceGraph import *
+from src._archive.PropertyPrecedenceGraph import *
 
 
 class InstantiationLevelOrder(Enum):

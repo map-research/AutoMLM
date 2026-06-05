@@ -1,7 +1,8 @@
 from typing import List
 import xml.etree.ElementTree as ET
 
-from src import PropertyPrecedenceGraph
+from src._archive import PropertyPrecedenceGraph
+from src._archive.lexical_analysis_helper import *
 
 
 #from lexical_analysis_helper import LexicalAnalysisHelper, LexicalSources
