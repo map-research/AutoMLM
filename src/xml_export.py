@@ -68,8 +68,8 @@ def exportAssociation(root, mlmAssoc: MlmAssociation):
     projectName = root.attrib['path']
     model = root.find('Model') 
     # transform of cardinalities needed
-    multSourceToTarget = 'Seq{' + str(mlmAssoc.target_multiplicity.min_card) +',' + str(mlmAssoc.target_multiplicity.max_card) + ',true,false}'
-    multTargetToSource = 'Seq{' + str(mlmAssoc.source_multiplicity.min_card) +',' + str(mlmAssoc.source_multiplicity.max_card) + ',false,false}'
+    multSourceToTarget = 'Seq{' + str(mlmAssoc.target_multiplicity.min_multiplicity) + ',' + str(mlmAssoc.target_multiplicity.max_multiplicity) + ',true,false}'
+    multTargetToSource = 'Seq{' + str(mlmAssoc.source_multiplicity.min_multiplicity) + ',' + str(mlmAssoc.source_multiplicity.max_multiplicity) + ',false,false}'
 
     addAssoc = ET.SubElement(model, 'addAssociation',accessSourceFromTargetName=mlmAssoc.source_class.name.lower(), 
                              accessTargetFromSourceName=mlmAssoc.target_class.name.lower(), classSource=mlmAssoc.source_class.full_name, 

@@ -1,7 +1,10 @@
 from typing import List
 import xml.etree.ElementTree as ET
 
-from lexical_analysis_helper import LexicalAnalysisHelper, LexicalSources
+from src import PropertyPrecedenceGraph
+
+
+#from lexical_analysis_helper import LexicalAnalysisHelper, LexicalSources
 
 # This file specifies all classes within an MLM.
 
@@ -60,7 +63,8 @@ class MlmAttr:
     
     # TODO
     def _reduceLexemeSet(self, listLexemes: list, threshold: int) -> list:
-        return listLexemes[0: threshold]
+        return listLexemes
+        #return listLexemes[0: threshold]
     
     def automaticSemanticMatching(self) -> list:
         threshold_numberOfLexemes = 3
@@ -159,6 +163,7 @@ class MlmConstraint:
 
 class MlmObject:
     def __init__(self, full_name: str, name: str, level: str, class_of_object, is_abstract: str):
+        self.pp_graph: PropertyPrecedenceGraph = None
         self.full_name = full_name
         self.name = name
         self.level: int = int(level)
@@ -184,7 +189,28 @@ class MlmObject:
         print(*self.operations_list, sep="\n")
         print(*self.constraints_list, sep="\n")
         return ""
-    
+
+    @classmethod
+    def meta_class(cls):
+        return cls("MetaClass","MetaClass","99",
+                   MlmObject("MetaClass", "MetaClass", "100", None, "False")
+                   , "False")
+
+    @classmethod
+    def get_shell_class(cls, base_class):
+        return cls(base_class.full_name, base_class.name, "0", cls.meta_class(), "false")
+
+    def set_pp_graph(self, pp_graph: PropertyPrecedenceGraph):
+        self.pp_graph = pp_graph
+
+    def get_pp_graph(self) -> PropertyPrecedenceGraph:
+        return self.pp_graph
+
+    def get_all_slots(self) -> List[MlmSlot]:
+        return self.slot_list
+
+    def get_all_attributes(self) -> List[MlmAttr]:
+        return self.attr_list
 
     def set_class_of_object(self, new_class_of_object):
         self.class_of_object = new_class_of_object
@@ -201,6 +227,9 @@ class MlmObject:
 
     def add_constraint(self, constraint: MlmConstraint):
         self.constraints_list.append(constraint)
+
+    def set_level(self, level: int):
+        self.level = level
 
     def export(self, root):
         projectName = root.attrib['path']
@@ -318,16 +347,21 @@ class MlmObject:
                 return []
             
     
-class Cardinality:
-    def __init__(self, min_card: int, max_card: int, is_unbounded: bool = False) -> None:
-        self.min_card = min_card
-        self.max_card = max_card
+class Multiplicity:
+    def __init__(self, min_multiplicity: int, max_multiplicity: int, is_unbounded: bool = False) -> None:
+        self.min_multiplicity = min_multiplicity
+        self.max_multiplicity = max_multiplicity
         self.is_unbounded = is_unbounded
 
     def __repr__(self):
-        print(self.is_unbounded)
-        max_card_str = "*" if self.is_unbounded else f"{self.max_card}"
-        return f"({self.min_card}, {max_card_str})"
+        max_card_str = "*" if self.is_unbounded else f"{self.max_multiplicity}"
+        return f"({self.min_multiplicity}..{max_card_str})"
+
+    def is_exactly_one(self) -> bool:
+        if self.min_multiplicity == 1 and self.max_multiplicity == 1:
+            return True
+        else:
+            return False
 
 
 class MlmAssociation:
@@ -337,8 +371,8 @@ class MlmAssociation:
         self.target_inst_level = target_inst_level
         self.source_class: MlmObject = None
         self.target_class: MlmObject = None
-        self.source_multiplicity: Cardinality = None
-        self.target_multiplicity: Cardinality = None
+        self.source_multiplicity: Multiplicity = None
+        self.target_multiplicity: Multiplicity = None
 
     def set_source_class(self, source_class):
         self.source_class = source_class
@@ -349,24 +383,32 @@ class MlmAssociation:
     def set_source_multiplicity(self, min_card: int, max_card: int):
         # FH java, XMF saves "hasUpperLimit" -> is_unbounded muss genau andersherum sein daher änderung if und else teil
         if max_card == -1:
-             self.source_multiplicity = Cardinality(min_card, max_card)
+            self.source_multiplicity = Multiplicity(min_card, max_card, is_unbounded=True)
             # IMPORTANT: DOES NOT WORK IF CONTINGENT ASSOCIATIONS ARE PRESENT
         else:
-            self.source_multiplicity = Cardinality(min_card, max_card, is_unbounded=True)
-           
+            self.source_multiplicity = Multiplicity(min_card, max_card)
 
     def set_target_multiplicity(self, min_card: int, max_card: int):
         # FH java, XMF saves "hasUpperLimit" -> is_unbounded muss genau andersherum sein daher änderung if und else teil
         if max_card == -1:
-            self.target_multiplicity = Cardinality(min_card, max_card)
+            self.target_multiplicity = Multiplicity(min_card, max_card, is_unbounded=True)
             # IMPORTANT: DOES NOT WORK IF CONTINGENT ASSOCIATIONS ARE PRESENT
         else:
-            self.target_multiplicity = Cardinality(min_card, max_card, is_unbounded=True)
+            self.target_multiplicity = Multiplicity(min_card, max_card)
             
+    def is_classification_indicator(self):
+        if self.source_multiplicity.is_exactly_one() and self.target_multiplicity.is_unbounded:
+            return True
+        else:
+            if self.target_multiplicity.is_exactly_one() and self.source_multiplicity.is_unbounded:
+                return True
+            else:
+                return False
 
     def __repr__(self):
-        return (f"[ASSOCIATION {self.name}] From {self.source_class.name} (at L{self.source_inst_level})"
-                f" to {self.target_class.name} (at L{self.target_inst_level})")
+        return (f"[ASSOCIATION {self.name}] {self.source_multiplicity} From {self.source_class.name}"
+                f" (at L{self.source_inst_level})"
+                f" to {self.target_multiplicity} {self.target_class.name} (at L{self.target_inst_level})")
                 # f"\n {self.source_multiplicity} {self.source_class.name}"
                 # f" {self.name} {self.target_class.name}")
     
@@ -375,9 +417,9 @@ class MlmAssociation:
         model = root.find('Model') 
        
         # transform of cardinalities
-        multSourceToTarget = 'Seq{' + str(self.target_multiplicity.min_card) + ',' + str(self.target_multiplicity.max_card) + ',' + str(self.target_multiplicity.is_unbounded).lower() + ',false}'
+        multSourceToTarget = 'Seq{' + str(self.target_multiplicity.min_multiplicity) + ',' + str(self.target_multiplicity.max_multiplicity) + ',' + str(self.target_multiplicity.is_unbounded).lower() + ',false}'
 
-        multTargetToSource = 'Seq{' + str(self.source_multiplicity.min_card) +',' + str(self.source_multiplicity.max_card) + ','+ str(self.source_multiplicity.is_unbounded).lower() + ',false}'
+        multTargetToSource = 'Seq{' + str(self.source_multiplicity.min_multiplicity) + ',' + str(self.source_multiplicity.max_multiplicity) + ',' + str(self.source_multiplicity.is_unbounded).lower() + ',false}'
 
         # adapt class names to new projectname
         classSourceName = projectName + "::"  + self.source_class.name

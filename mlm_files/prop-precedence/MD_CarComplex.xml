@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XModelerPackage path="Root::MD_CarComplex" version="4" xModelerVersion="2.4.1_u1.2.1">
+    <Imports/>
+    <Model name="Root::MD_CarComplex">
+        <addMetaClass abstract="false" isControlClass="false" level="1" maxLevel="1" name="RentalCar" package="Root::MD_CarComplex" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar8" of="Root::MD_CarComplex::RentalCar" package="Root::MD_CarComplex" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar7" of="Root::MD_CarComplex::RentalCar" package="Root::MD_CarComplex" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar6" of="Root::MD_CarComplex::RentalCar" package="Root::MD_CarComplex" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar5" of="Root::MD_CarComplex::RentalCar" package="Root::MD_CarComplex" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar4" of="Root::MD_CarComplex::RentalCar" package="Root::MD_CarComplex" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar3" of="Root::MD_CarComplex::RentalCar" package="Root::MD_CarComplex" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar2" of="Root::MD_CarComplex::RentalCar" package="Root::MD_CarComplex" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar1" of="Root::MD_CarComplex::RentalCar" package="Root::MD_CarComplex" singleton="false"/>
+        <addEnumeration name="RentalCarCategory"/>
+        <addEnumerationValue enum_name="RentalCarCategory" enum_value_name="Cabriolet"/>
+        <addEnumerationValue enum_name="RentalCarCategory" enum_value_name="Compact"/>
+        <addEnumerationValue enum_name="RentalCarCategory" enum_value_name="Luxury"/>
+        <addAttribute class="Root::MD_CarComplex::RentalCar" level="0" multiplicity="Seq{1,1,true,false}" name="brandName" package="Root::MD_CarComplex" type="Root::XCore::String"/>
+        <addAttribute class="Root::MD_CarComplex::RentalCar" level="0" multiplicity="Seq{1,1,true,false}" name="depositAmount" package="Root::MD_CarComplex" type="Root::XCore::Integer"/>
+        <addAttribute class="Root::MD_CarComplex::RentalCar" level="0" multiplicity="Seq{1,1,true,false}" name="modelName" package="Root::MD_CarComplex" type="Root::XCore::String"/>
+        <addAttribute class="Root::MD_CarComplex::RentalCar" level="0" multiplicity="Seq{1,1,true,false}" name="numberOfSeats" package="Root::MD_CarComplex" type="Root::XCore::Integer"/>
+        <addAttribute class="Root::MD_CarComplex::RentalCar" level="0" multiplicity="Seq{1,1,true,false}" name="rentalCarCategory" package="Root::MD_CarComplex" type="Root::MD_CarComplex::RentalCarCategory"/>
+        <addAttribute class="Root::MD_CarComplex::RentalCar" level="0" multiplicity="Seq{1,1,true,false}" name="vin" package="Root::MD_CarComplex" type="Root::XCore::String"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar1" package="Root::MD_CarComplex" slotName="brandName" valueToBeParsed="[65,117,100,105].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar1" package="Root::MD_CarComplex" slotName="depositAmount" valueToBeParsed="150"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar1" package="Root::MD_CarComplex" slotName="modelName" valueToBeParsed="[65,52].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar1" package="Root::MD_CarComplex" slotName="numberOfSeats" valueToBeParsed="5"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar1" package="Root::MD_CarComplex" slotName="rentalCarCategory" valueToBeParsed="Root::MD_CarComplex::RentalCarCategory::Compact"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar1" package="Root::MD_CarComplex" slotName="vin" valueToBeParsed="[87,65,85,68,71,55,56,69,48,53,65,53,50,52,51,52,56].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar2" package="Root::MD_CarComplex" slotName="brandName" valueToBeParsed="[65,117,100,105].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar2" package="Root::MD_CarComplex" slotName="depositAmount" valueToBeParsed="150"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar2" package="Root::MD_CarComplex" slotName="modelName" valueToBeParsed="[65,51].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar2" package="Root::MD_CarComplex" slotName="numberOfSeats" valueToBeParsed="5"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar2" package="Root::MD_CarComplex" slotName="rentalCarCategory" valueToBeParsed="Root::MD_CarComplex::RentalCarCategory::Compact"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar2" package="Root::MD_CarComplex" slotName="vin" valueToBeParsed="[87,65,85,75,70,57,56,80,49,57,65,48,53,57,53,51,48].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar3" package="Root::MD_CarComplex" slotName="brandName" valueToBeParsed="[65,117,100,105].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar3" package="Root::MD_CarComplex" slotName="depositAmount" valueToBeParsed="150"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar3" package="Root::MD_CarComplex" slotName="modelName" valueToBeParsed="[65,52].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar3" package="Root::MD_CarComplex" slotName="numberOfSeats" valueToBeParsed="5"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar3" package="Root::MD_CarComplex" slotName="rentalCarCategory" valueToBeParsed="Root::MD_CarComplex::RentalCarCategory::Compact"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar3" package="Root::MD_CarComplex" slotName="vin" valueToBeParsed="[87,65,85,83,70,67,70,76,50,65,65,48,56,54,51,52,56].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar4" package="Root::MD_CarComplex" slotName="brandName" valueToBeParsed="[70,105,97,116].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar4" package="Root::MD_CarComplex" slotName="depositAmount" valueToBeParsed="150"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar4" package="Root::MD_CarComplex" slotName="modelName" valueToBeParsed="[70,114,101,101,109,111,110,116].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar4" package="Root::MD_CarComplex" slotName="numberOfSeats" valueToBeParsed="4"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar4" package="Root::MD_CarComplex" slotName="rentalCarCategory" valueToBeParsed="Root::MD_CarComplex::RentalCarCategory::Compact"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar4" package="Root::MD_CarComplex" slotName="vin" valueToBeParsed="[51,67,52,80,70,65,68,66,53,68,84,54,48,53,52,50,56].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar5" package="Root::MD_CarComplex" slotName="brandName" valueToBeParsed="[70,105,97,116].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar5" package="Root::MD_CarComplex" slotName="depositAmount" valueToBeParsed="150"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar5" package="Root::MD_CarComplex" slotName="modelName" valueToBeParsed="[70,114,101,101,109,111,110,116].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar5" package="Root::MD_CarComplex" slotName="numberOfSeats" valueToBeParsed="4"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar5" package="Root::MD_CarComplex" slotName="rentalCarCategory" valueToBeParsed="Root::MD_CarComplex::RentalCarCategory::Compact"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar5" package="Root::MD_CarComplex" slotName="vin" valueToBeParsed="[51,67,52,80,70,65,66,66,56,69,84,49,48,48,53,53,51].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar6" package="Root::MD_CarComplex" slotName="brandName" valueToBeParsed="[66,117,105,99,107].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar6" package="Root::MD_CarComplex" slotName="depositAmount" valueToBeParsed="300"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar6" package="Root::MD_CarComplex" slotName="modelName" valueToBeParsed="[67,101,110,116,117,114,121].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar6" package="Root::MD_CarComplex" slotName="numberOfSeats" valueToBeParsed="4"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar6" package="Root::MD_CarComplex" slotName="rentalCarCategory" valueToBeParsed="Root::MD_CarComplex::RentalCarCategory::Luxury"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar6" package="Root::MD_CarComplex" slotName="vin" valueToBeParsed="[49,71,52,65,76,51,53,51,57,70,68,52,51,55,50,51,52].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar7" package="Root::MD_CarComplex" slotName="brandName" valueToBeParsed="[77,73,78,73].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar7" package="Root::MD_CarComplex" slotName="depositAmount" valueToBeParsed="250"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar7" package="Root::MD_CarComplex" slotName="modelName" valueToBeParsed="[67,111,111,112,101,114].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar7" package="Root::MD_CarComplex" slotName="numberOfSeats" valueToBeParsed="4"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar7" package="Root::MD_CarComplex" slotName="rentalCarCategory" valueToBeParsed="Root::MD_CarComplex::RentalCarCategory::Cabriolet"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar7" package="Root::MD_CarComplex" slotName="vin" valueToBeParsed="[87,77,87,90,70,51,67,53,54,66,84,89,48,48,57,55,54].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar8" package="Root::MD_CarComplex" slotName="brandName" valueToBeParsed="[77,73,78,73].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar8" package="Root::MD_CarComplex" slotName="depositAmount" valueToBeParsed="150"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar8" package="Root::MD_CarComplex" slotName="modelName" valueToBeParsed="[67,111,117,110,116,114,121,109,97,110].asString()"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar8" package="Root::MD_CarComplex" slotName="numberOfSeats" valueToBeParsed="5"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar8" package="Root::MD_CarComplex" slotName="rentalCarCategory" valueToBeParsed="Root::MD_CarComplex::RentalCarCategory::Compact"/>
+        <changeSlotValue class="Root::MD_CarComplex::rentalCar8" package="Root::MD_CarComplex" slotName="vin" valueToBeParsed="[87,77,87,90,67,53,67,53,48,71,87,85,48,48,55,50,56].asString()"/>
+    </Model>
+    <Diagrams>
+        <Diagram name="FmmlxDiagram_1" umlMode="false">
+            <Instances>
+                <Instance hidden="true" path="Root::MD_CarComplex::RentalCarCategory" xCoordinate="0" yCoordinate="0"/>
+                <Instance hidden="false" path="Root::MD_CarComplex::rentalCar7" xCoordinate="694" yCoordinate="343"/>
+                <Instance hidden="false" path="Root::MD_CarComplex::rentalCar6" xCoordinate="534" yCoordinate="544"/>
+                <Instance hidden="false" path="Root::MD_CarComplex::rentalCar8" xCoordinate="760" yCoordinate="551"/>
+                <Instance hidden="false" path="Root::MD_CarComplex::rentalCar3" xCoordinate="441" yCoordinate="337"/>
+                <Instance hidden="false" path="Root::MD_CarComplex::rentalCar2" xCoordinate="217" yCoordinate="331"/>
+                <Instance hidden="false" path="Root::MD_CarComplex::rentalCar5" xCoordinate="256" yCoordinate="553"/>
+                <Instance hidden="false" path="Root::MD_CarComplex::RentalCar" xCoordinate="396" yCoordinate="123"/>
+                <Instance hidden="false" path="Root::MD_CarComplex::rentalCar4" xCoordinate="-2" yCoordinate="574"/>
+                <Instance hidden="false" path="Root::MD_CarComplex::rentalCar1" xCoordinate="-6" yCoordinate="374"/>
+            </Instances>
+            <Edges/>
+            <DiagramDisplayProperties>
+                <SLOTS>true</SLOTS>
+                <CONCRETESYNTAX>true</CONCRETESYNTAX>
+                <METACLASSNAME>false</METACLASSNAME>
+                <ISSUETABLE>false</ISSUETABLE>
+                <OPERATIONS>true</OPERATIONS>
+                <DERIVEDATTRIBUTES>true</DERIVEDATTRIBUTES>
+                <CONSTRAINTS>true</CONSTRAINTS>
+                <CONSTRAINTREPORTS>true</CONSTRAINTREPORTS>
+                <DERIVEDOPERATIONS>true</DERIVEDOPERATIONS>
+                <OPERATIONVALUES>true</OPERATIONVALUES>
+                <GETTERSANDSETTERS>true</GETTERSANDSETTERS>
+            </DiagramDisplayProperties>
+            <Notes/>
+            <Views>
+                <View name="Main View" tx="134.35631" ty="-136.6011" xx="0.8408964"/>
+            </Views>
+        </Diagram>
+    </Diagrams>
+</XModelerPackage>

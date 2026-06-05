@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XModelerPackage path="Root::CarFlat" version="4" xModelerVersion="3">
+    <Imports/>
+    <Model name="Root::CarFlat">
+        <addMetaClass abstract="false" isControlClass="false" level="1" maxLevel="1" name="RentalCar" package="Root::CarFlat" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar9" of="Root::CarFlat::RentalCar" package="Root::CarFlat" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar8" of="Root::CarFlat::RentalCar" package="Root::CarFlat" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar7" of="Root::CarFlat::RentalCar" package="Root::CarFlat" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar6" of="Root::CarFlat::RentalCar" package="Root::CarFlat" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar5" of="Root::CarFlat::RentalCar" package="Root::CarFlat" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar4" of="Root::CarFlat::RentalCar" package="Root::CarFlat" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar3" of="Root::CarFlat::RentalCar" package="Root::CarFlat" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar2" of="Root::CarFlat::RentalCar" package="Root::CarFlat" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="rentalCar1" of="Root::CarFlat::RentalCar" package="Root::CarFlat" singleton="false"/>
+        <addAttribute class="Root::CarFlat::RentalCar" level="0" multiplicity="Seq{1,1,true,false}" name="brandName" package="Root::CarFlat" type="Root::XCore::String"/>
+        <addAttribute class="Root::CarFlat::RentalCar" level="0" multiplicity="Seq{1,1,true,false}" name="licensePlateNumber" package="Root::CarFlat" type="Root::XCore::String"/>
+        <addAttribute class="Root::CarFlat::RentalCar" level="0" multiplicity="Seq{1,1,true,false}" name="modelName" package="Root::CarFlat" type="Root::XCore::String"/>
+        <addAttribute class="Root::CarFlat::RentalCar" level="0" multiplicity="Seq{1,1,true,false}" name="rentalCarCategory" package="Root::CarFlat" type="Root::XCore::String"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar1" package="Root::CarFlat" slotName="brandName" valueToBeParsed="[65,117,100,105].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar1" package="Root::CarFlat" slotName="licensePlateNumber" valueToBeParsed="[108,102,118,111].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar1" package="Root::CarFlat" slotName="modelName" valueToBeParsed="[65,51].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar1" package="Root::CarFlat" slotName="rentalCarCategory" valueToBeParsed="[76,117,120,117,114,121].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar2" package="Root::CarFlat" slotName="brandName" valueToBeParsed="[70,111,114,100].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar2" package="Root::CarFlat" slotName="licensePlateNumber" valueToBeParsed="[97,102,106,50].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar2" package="Root::CarFlat" slotName="modelName" valueToBeParsed="[77,117,115,116,97,110,103].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar2" package="Root::CarFlat" slotName="rentalCarCategory" valueToBeParsed="[76,117,120,117,114,121].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar3" package="Root::CarFlat" slotName="brandName" valueToBeParsed="[65,117,100,105].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar3" package="Root::CarFlat" slotName="licensePlateNumber" valueToBeParsed="[97,115,102,106,50,49].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar3" package="Root::CarFlat" slotName="modelName" valueToBeParsed="[65,56].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar3" package="Root::CarFlat" slotName="rentalCarCategory" valueToBeParsed="[76,117,120,117,114,121].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar4" package="Root::CarFlat" slotName="brandName" valueToBeParsed="[77,73,78,73].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar4" package="Root::CarFlat" slotName="licensePlateNumber" valueToBeParsed="[97,102,105,56,50].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar4" package="Root::CarFlat" slotName="modelName" valueToBeParsed="[67,111,111,112,101,114].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar4" package="Root::CarFlat" slotName="rentalCarCategory" valueToBeParsed="[67,111,109,112,97,99,116].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar5" package="Root::CarFlat" slotName="brandName" valueToBeParsed="[77,73,78,73].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar5" package="Root::CarFlat" slotName="licensePlateNumber" valueToBeParsed="[100,102,115,110,100,102].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar5" package="Root::CarFlat" slotName="modelName" valueToBeParsed="[67,111,111,112,101,114].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar5" package="Root::CarFlat" slotName="rentalCarCategory" valueToBeParsed="[67,111,109,112,97,99,116].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar6" package="Root::CarFlat" slotName="brandName" valueToBeParsed="[77,73,78,73].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar6" package="Root::CarFlat" slotName="licensePlateNumber" valueToBeParsed="[100,106,102,55,51].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar6" package="Root::CarFlat" slotName="modelName" valueToBeParsed="[67,111,111,112,101,114].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar6" package="Root::CarFlat" slotName="rentalCarCategory" valueToBeParsed="[67,111,109,112,97,99,116].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar7" package="Root::CarFlat" slotName="brandName" valueToBeParsed="[82,101,110,97,117,108,116].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar7" package="Root::CarFlat" slotName="licensePlateNumber" valueToBeParsed="[107,100,102,56,51].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar7" package="Root::CarFlat" slotName="modelName" valueToBeParsed="[84,119,105,110,103,111].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar7" package="Root::CarFlat" slotName="rentalCarCategory" valueToBeParsed="[67,111,109,112,97,99,116].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar8" package="Root::CarFlat" slotName="brandName" valueToBeParsed="[82,101,110,97,117,108,116].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar8" package="Root::CarFlat" slotName="licensePlateNumber" valueToBeParsed="[56,50,51,114,102,119].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar8" package="Root::CarFlat" slotName="modelName" valueToBeParsed="[84,119,105,110,103,111].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar8" package="Root::CarFlat" slotName="rentalCarCategory" valueToBeParsed="[67,111,109,112,97,99,116].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar9" package="Root::CarFlat" slotName="brandName" valueToBeParsed="[82,101,110,97,117,108,116].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar9" package="Root::CarFlat" slotName="licensePlateNumber" valueToBeParsed="[97,103,100,115,51,50].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar9" package="Root::CarFlat" slotName="modelName" valueToBeParsed="[67,108,105,111].asString()"/>
+        <changeSlotValue class="Root::CarFlat::rentalCar9" package="Root::CarFlat" slotName="rentalCarCategory" valueToBeParsed="[67,111,109,112,97,99,116].asString()"/>
+    </Model>
+    <Diagrams>
+        <Diagram name="FmmlxDiagram_1" umlMode="false">
+            <Instances>
+                <Instance hidden="false" path="Root::CarFlat::rentalCar5" xCoordinate="1013" yCoordinate="699"/>
+                <Instance hidden="false" path="Root::CarFlat::rentalCar6" xCoordinate="1121" yCoordinate="545"/>
+                <Instance hidden="false" path="Root::CarFlat::RentalCar" xCoordinate="685" yCoordinate="363"/>
+                <Instance hidden="false" path="Root::CarFlat::rentalCar7" xCoordinate="1374" yCoordinate="551"/>
+                <Instance hidden="false" path="Root::CarFlat::rentalCar8" xCoordinate="1345" yCoordinate="717"/>
+                <Instance hidden="false" path="Root::CarFlat::rentalCar9" xCoordinate="1659" yCoordinate="607"/>
+                <Instance hidden="false" path="Root::CarFlat::rentalCar1" xCoordinate="449" yCoordinate="546"/>
+                <Instance hidden="false" path="Root::CarFlat::rentalCar2" xCoordinate="539" yCoordinate="708"/>
+                <Instance hidden="false" path="Root::CarFlat::rentalCar3" xCoordinate="688" yCoordinate="548"/>
+                <Instance hidden="false" path="Root::CarFlat::rentalCar4" xCoordinate="904" yCoordinate="552"/>
+            </Instances>
+            <Edges/>
+            <DiagramDisplayProperties>
+                <SLOTS>true</SLOTS>
+                <CONCRETESYNTAX>true</CONCRETESYNTAX>
+                <METACLASSNAME>false</METACLASSNAME>
+                <ISSUETABLE>false</ISSUETABLE>
+                <OPERATIONS>true</OPERATIONS>
+                <DERIVEDATTRIBUTES>true</DERIVEDATTRIBUTES>
+                <CONSTRAINTS>true</CONSTRAINTS>
+                <CONSTRAINTREPORTS>true</CONSTRAINTREPORTS>
+                <DERIVEDOPERATIONS>true</DERIVEDOPERATIONS>
+                <OPERATIONVALUES>true</OPERATIONVALUES>
+                <GETTERSANDSETTERS>true</GETTERSANDSETTERS>
+            </DiagramDisplayProperties>
+            <Notes/>
+            <Views>
+                <View name="Main View" tx="0.0" ty="0.0" xx="1.0"/>
+            </Views>
+        </Diagram>
+    </Diagrams>
+</XModelerPackage>

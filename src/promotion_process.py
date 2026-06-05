@@ -1,4 +1,4 @@
-from mlm_class import *
+from MultiLevelModel import *
 from fca_promotion import *
 
 
