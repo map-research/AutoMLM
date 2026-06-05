@@ -1,8 +1,8 @@
 import xml.etree.ElementTree as ET
-from mlm_helper_classes import MlmAssociation, MlmAttr, MlmObject, EnumType
+from src.fmmlx_mlm_structure.fm_multi_level_model import *
 import datetime
 
-# TODO add layout functionn (possibly layouter, java)
+# TODO add layout function (possibly layouter, java)
 
 
 def preamble(project_name):
@@ -28,7 +28,7 @@ def writeXML(root: ET.Element, filepath: str):
     tree = ET.ElementTree(root)
     tree.write(filepath)
 
-def exportClass(mlmObject : MlmObject, root):
+def exportClass(mlmObject : FmmlxObject, root):
 
     projectName = root.attrib['path']
 
@@ -64,7 +64,7 @@ def exportClass(mlmObject : MlmObject, root):
                                   level=str(operation.inst_level), monitored='false', name=operation.operation_name, package=projectName, paramNames='', paramTypes='', type=operation.return_type)
         operation.set('class', projectName+"::"+mlmObject.name)
 
-def exportAssociation(root, mlmAssoc: MlmAssociation):
+def exportAssociation(root, mlmAssoc: FmmlxAssociation):
     projectName = root.attrib['path']
     model = root.find('Model') 
     # transform of cardinalities needed
@@ -103,7 +103,7 @@ def convertDateToXmodeler(dateInput: datetime):
     out = 'Auxiliary::Date::createDate(' + str(dateInput.year) + ',' + str(dateInput.month) + ',' + str(dateInput.day) +')'
     return out
 
-def exportEnum(root, enumType: EnumType):
+def exportEnum(root, enumType: FmmlxEnumType):
     model = root.find('Model')
     addEnum = ET.SubElement(model, 'addEnumeration', name=enumType.enum_name)
     for value in enumType.enum_values:

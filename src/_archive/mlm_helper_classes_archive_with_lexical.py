@@ -2,9 +2,7 @@ from typing import List
 import xml.etree.ElementTree as ET
 
 from src._archive import PropertyPrecedenceGraph
-from src._archive.lexical_analysis_helper import *
-
-
+#from src._archive.lexical_analysis_helper import *
 #from lexical_analysis_helper import LexicalAnalysisHelper, LexicalSources
 
 # This file specifies all classes within an MLM.
