@@ -10,15 +10,66 @@ class FmmlxAttribute:
         self.inst_level = inst_level
         self.uses_enum = False
         self.uses_domain_specific_type = False
-        self.name_of_owner_class: str = ""
-        self.lexemes = []
+        self.owner = None  # Owner of attribute is instance of FmmlxObject, not specified here to avoid circular imports
+        self.collective_slots: [] = []  # used for property precedence analysis, types may not be used (circ imports)
 
     def set_enum_type(self, enum_type: FmmlxEnumType):
         self.attr_type_short = enum_type.enum_name
         self.uses_enum = True
 
-    def set_name_of_owner_class(self, name_of_owner_class: str):
-        self.name_of_owner_class = name_of_owner_class
+    def set_owner(self, owner):
+        self.owner = owner
+
+    def get_owner(self):
+        return self.owner
+
+    def add_collective_slot(self, slot_collective):
+        self.collective_slots.append(slot_collective)
+
+    def get_collective_slots(self) -> []:
+        return self.collective_slots
+
+    def get_slot_collective_comparisons(self, other) -> [str]:
+        """
+        This method returns all comparison symbols between all slot collectives of each attribute,
+        except "!=" which denotes the disjoint set
+        """
+        cs_comparison_symbols: [str] = []
+        self_collective_slots = self.get_collective_slots()
+        other_collective_slots = other.get_collective_slots()
+        for self_cs in self_collective_slots:
+            for other_cs in other_collective_slots:
+                comparison_symbol = self_cs.compare(other_cs)
+                if comparison_symbol != "!=":
+                    cs_comparison_symbols.append(self_cs.compare(other_cs))
+
+        return cs_comparison_symbols
+
+    def get_attribute_comparison_symbol(self, other) -> str:
+        """
+        Epistemologically, this performs a (naive) inductive leap, the results should be interpreted with care.
+        """
+
+        cs_symbols = set(self.get_slot_collective_comparisons(other))
+
+        if cs_symbols == {"="}:
+            return "="
+
+        if cs_symbols == {">"}:
+            return ">"
+
+        if cs_symbols == {"<"}:
+            return "<"
+
+        if cs_symbols == {">", "="}:
+            return ">="
+
+        if cs_symbols == {"<", "="}:
+            return "<="
+
+        raise ValueError(
+            f"Cannot aggregate contradictory comparisons: {cs_symbols}"
+        )
 
     def __repr__(self):
         return f"[ATTR-{self.inst_level}] {self.attr_name}:{self.attr_type_short}"

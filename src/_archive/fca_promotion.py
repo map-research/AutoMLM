@@ -29,7 +29,7 @@ class FormalConceptAnalysis:
         # STEP 1: Extract Object Labels and Attr Labels
         attr_duplicate: bool = False
         for mlm_object in self.mlm.mlm_objects:
-            self.object_labels.append(mlm_object.name)
+            self.object_labels.append(mlm_object.object_name)
             for mlm_object_attribute in mlm_object.attr_list:
                 attr_duplicate = False
                 for fc_attribute in self.attribute_labels:

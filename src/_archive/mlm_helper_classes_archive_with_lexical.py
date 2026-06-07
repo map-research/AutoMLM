@@ -181,7 +181,7 @@ class MlmObject:
         # for attr in self.attr_list:
         #    attr_str  += ""
         print("ABSTRACT CLASS") if self.is_abstract else None
-        print(f"[L{self.level}-OBJECT] {self.name} [of {self.class_of_object.name}]")
+        print(f"[L{self.level}-OBJECT] {self.name} [of {self.class_of_object.object_name}]")
         print(f"HAS {len(self.parent_classes)} PARENTS") if self.parent_classes else None
         print(*self.attr_list, sep="\n")
         print(*self.slot_list, sep="\n")
@@ -197,7 +197,7 @@ class MlmObject:
 
     @classmethod
     def get_shell_class(cls, base_class):
-        return cls(base_class.full_name, base_class.name, "0", cls.meta_class(), "false")
+        return cls(base_class.full_name, base_class.object_name, "0", cls.meta_class(), "false")
 
     def set_pp_graph(self, pp_graph: PropertyPrecedenceGraph):
         self.pp_graph = pp_graph
@@ -242,7 +242,7 @@ class MlmObject:
         
 
 
-        if self.class_of_object == None or self.class_of_object.name == 'MetaClass':
+        if self.class_of_object == None or self.class_of_object.object_name == 'MetaClass':
             metaClass = ET.SubElement(model, 'addMetaClass', abstract='false', level=str(self.level), maxLevel=str(self.level), name=self.name, package=projectName, singleton='false')
         else:
             # adapt ofname to new projectName
@@ -269,7 +269,7 @@ class MlmObject:
             operation.set('class', projectName+"::"+self.name)
         
         for parent in self.parent_classes:
-            parent = ET.SubElement(model, 'changeParent', new=projectName+"::"+parent.name, old="", package=projectName)
+            parent = ET.SubElement(model, 'changeParent', new=projectName+"::"+parent.object_name, old="", package=projectName)
             parent.set('class', projectName+"::"+self.name)
                                    
 

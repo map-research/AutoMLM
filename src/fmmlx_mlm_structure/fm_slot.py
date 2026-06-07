@@ -20,13 +20,14 @@ class FmmlxSlot:
             if attr.attr_name == self.slot_name:
                 self.attribute = attr
 
+    def get_attribute(self):
+        return self.attribute
+
     def set_owner_object(self, owner):
         self.owner = owner
 
     def get_owner_object(self):
         return self.owner
-
-
 
     def _import_slot_value(self, slot_value: str) -> str:
         # IMPORT STR

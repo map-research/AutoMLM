@@ -1,4 +1,4 @@
-from src.MultiLevelModelAnalyzer import MultiLevelModelAnalyzer
+from src._archive.MultiLevelModelAnalyzer import MultiLevelModelAnalyzer
 from src.fmmlx_mlm_structure.fm_multi_level_model import *
 
 #uf_product_model = MultilevelModel('C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\datenmodell.xml')
@@ -35,7 +35,7 @@ def oc_example():
     mlm_analyzer = MultiLevelModelAnalyzer(oc_example_model_small)
     for i, flat_class in enumerate(oc_example_model_small.get_all_flat_classes(), start=0):
         print(f"------------------------------------------------------------------------------------------------\n"
-              f"ANALYZING ATTRIBUTE CO-DEPENDENCY FOR CLASS <{flat_class.name}>\n")
+              f"ANALYZING ATTRIBUTE CO-DEPENDENCY FOR CLASS <{flat_class.object_name}>\n")
         mlm_analyzer.analyze_attribute_precedence_for_class(flat_class)
 
 

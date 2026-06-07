@@ -21,4 +21,4 @@ class FmmlxLink:
         self.target_object = target_object
 
     def __repr__(self):
-        return f"[LINK {self.name}] From {self.source_object.name} to {self.target_object.name}"
+        return f"[LINK {self.name}] From {self.source_object.object_name} to {self.target_object.object_name}"

@@ -77,6 +77,17 @@ class FmmlxModel:
     def add_mlm_object(self, mlm_object: FmmlxObject):
         self.mlm_objects.append(mlm_object)
 
+    def set_instances_of_mlm_objects(self):
+        mlm_classes: List[FmmlxObject] = []
+        for mlm_object in self.mlm_objects:
+            if mlm_object.level > 0:
+                mlm_classes.append(mlm_object)
+        for mlm_class in mlm_classes:
+            objects_beneath: List[FmmlxObject] = self.get_all_objects_at_level_x(mlm_class.level-1)
+            for object_beneath in objects_beneath:
+                if object_beneath.class_of_object == mlm_class:
+                    mlm_class.add_instance(object_beneath)
+
     def get_all_objects_at_level_x(self, level: int) -> List[FmmlxObject]:
         objects_at_level_x: List[FmmlxObject] = []
         for obj in self.mlm_objects:
@@ -86,6 +97,9 @@ class FmmlxModel:
 
     def get_all_flat_classes(self) -> List[FmmlxObject]:
         return self.get_all_objects_at_level_x(1)
+
+    def get_all_pure_objects(self) -> List[FmmlxObject]:
+        return self.get_all_objects_at_level_x(0)
 
     def export_xml(self, filepath : str = 'export_test.xml', project_name='Root::Export'):
         # create the root
@@ -129,7 +143,8 @@ class FmmlxModel:
         return cls(xml_file_path=loc)
 
     def import_xml(self, xml_file_path: str):
-        assert self.parsed_xml is None, "Multi-level model is already imported! Overriding of existing model is forbidden."
+        assert self.parsed_xml is None, ("Multi-level model is already imported! "
+                                         "Overriding of existing model is forbidden.")
         self._parse_xml(xml_file_path)
         self.extract_mlm_from_xml()
         if self.print_progress:
@@ -140,6 +155,7 @@ class FmmlxModel:
         if self.print_progress:
             print("BEGIN MLM EXTRACTION")
         self.mlm_objects = self.retrieve_all_mlm_objects()
+        self.set_instances_of_mlm_objects()
         if self.print_progress:
             print("ALL OBJECTS RETRIEVED")
         self._set_generalizations()
@@ -173,7 +189,7 @@ class FmmlxModel:
             instance_object.set_class_of_object(self._get_class_of_mlm_object(instance_object.class_of_object.full_name,
                                                                               mlm_objects))
             if self.print_progress:
-                print(f"Object {instance_object.name} extracted.")
+                print(f"Object {instance_object.object_name} extracted.")
             mlm_objects.append(instance_object)
         return mlm_objects
 
@@ -232,6 +248,7 @@ class FmmlxModel:
             for mlm_object in self.mlm_objects:
                 if attribute_element.getAttribute("class") == mlm_object.full_name:
                     mlm_object.add_attr(new_attr)
+                    new_attr.set_owner(mlm_object)
 
     def _is_custom_attribute_type_an_enum(self, mlm_attr: FmmlxAttribute) -> bool:
         # check 1: look if in list of enums
@@ -250,6 +267,7 @@ class FmmlxModel:
                     mlm_object.add_slot(new_slot)
                     new_slot.set_owner_object(mlm_object)
                     new_slot.set_attribute()
+
     def _parse_slot_value(self, slot_value: str):
         if slot_value.endswith("asString()"):
             sign_list = slot_value[1:].split("]")[0].split(",")
@@ -258,6 +276,7 @@ class FmmlxModel:
                 for sign_code in sign_list:
                     slot_value += chr(int(sign_code))
         return slot_value
+
     def retrieve_all_operations(self):
         for operations_element in self.parsed_xml.getElementsByTagName("addOperation"):
             new_operation = FmmlxOperation(operations_element.getAttribute("name"),

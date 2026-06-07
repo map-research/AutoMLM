@@ -14,17 +14,22 @@ class PrecedenceAnalysisTester(Tester):
     def init_simple_precedence_test(self):
         match self.variant:
             case 1:
-                self.init_simple_car_test()
+                self.init_test("MD_CarSimple.xml")
+            case 2:
+                self.init_test("CarSimple-v5.xml")
+            case 3:
+                self.init_test("standard-oc-small.xml")
             case _:
                 raise Exception("Invalid test variant (variant number: " + str(self.variant) + ") specified")
+        self.md_instance.perform_property_precedence_analysis()
         if self.export_model:
             self.export_model_xml()
 
-    def init_simple_car_test(self):
-        self.set_file_name("MD_CarSimple.xml")
-        self.get_md_instance().set_input_model(FmmlxModel(self.get_original_model_path()))
+    def init_test(self, model_xml_name: str):
+        self.set_file_name(model_xml_name)
+        self.md_instance.set_input_model(FmmlxModel(self.get_original_model_path()))
         if self.print_input_model:
             print(self.get_md_instance().get_original_model())
 
     def export_model_xml(self):
-        self.get_md_instance().export_multi_level_model_as_xmf()
+        self.md_instance.export_multi_level_model_as_xml()

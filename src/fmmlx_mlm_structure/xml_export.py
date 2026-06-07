@@ -36,33 +36,33 @@ def exportClass(mlmObject : FmmlxObject, root):
     diagram = diagrams.find('Diagram')
     instances = diagram.find('Instances')
     # TODO good placement
-    instance = ET.SubElement(instances, 'Instance', hidden='false', path=projectName+"::"+mlmObject.name, xCoordinate='0', yCoordinate='0')
+    instance = ET.SubElement(instances, 'Instance', hidden='false', path=projectName+"::"+mlmObject.object_name, xCoordinate='0', yCoordinate='0')
 
     model = root.find('Model')
     
     if mlmObject.class_of_object == None:
-        metaClass = ET.SubElement(model, 'addMetaClass', abstract='false', level=str(mlmObject.level), maxLevel=str(mlmObject.level), name=mlmObject.name, package=projectName, singleton='false')
+        metaClass = ET.SubElement(model, 'addMetaClass', abstract='false', level=str(mlmObject.level), maxLevel=str(mlmObject.level), name=mlmObject.object_name, package=projectName, singleton='false')
     else:
-        instance = ET.SubElement(model, 'addInstance', abstract='false', level=str(mlmObject.level), maxLevel=str(mlmObject.level), name=mlmObject.name, of=mlmObject.class_of_object.full_name, package=projectName, singleton='false')
+        instance = ET.SubElement(model, 'addInstance', abstract='false', level=str(mlmObject.level), maxLevel=str(mlmObject.level), name=mlmObject.object_name, of=mlmObject.class_of_object.full_name, package=projectName, singleton='false')
 
     for attr in mlmObject.attr_list:
         attribute = ET.SubElement(model, 'addAttribute',level=str(attr.inst_level), multiplicity='Seq{1,1,true,false}',name=attr.attr_name, package=projectName, type=attr.attr_type )
         # this attr has to be set separetly because of the keyword class and cannot be used in the prior operation
-        attribute.set('class', projectName+"::"+mlmObject.name)
+        attribute.set('class', projectName +"::" + mlmObject.object_name)
 
     for slot in mlmObject.slot_list:
         slot = ET.SubElement(model, 'changeSlotValue', package = projectName, slotName = slot.attribute.attr_name ,valueToBeParsed=slot.value)
          # this attr has to be set separetly because of the keyword class and cannot be used in the prior operation
-        slot.set('class', projectName+mlmObject.name)           
+        slot.set('class', projectName + mlmObject.object_name)
 
     for constraint in mlmObject.constraints_list:
         constraint = ET.SubElement(model, 'addConstraint', body='true', constName=constraint.constraint_name, instLevel=str(constraint.inst_level), package=projectName, reason='"This constraint fails"')
-        constraint.set('class', projectName+"::"+mlmObject.name)
+        constraint.set('class', projectName +"::" + mlmObject.object_name)
 
     for operation in mlmObject.operations_list:
         operation = ET.SubElement(model, 'addOperation', body='@Operation '+operation.operation_name+' [monitor=false,delToClassAllowed=false]():XCore::'+operation.return_type+' null end', 
                                   level=str(operation.inst_level), monitored='false', name=operation.operation_name, package=projectName, paramNames='', paramTypes='', type=operation.return_type)
-        operation.set('class', projectName+"::"+mlmObject.name)
+        operation.set('class', projectName +"::" + mlmObject.object_name)
 
 def exportAssociation(root, mlmAssoc: FmmlxAssociation):
     projectName = root.attrib['path']
@@ -71,11 +71,11 @@ def exportAssociation(root, mlmAssoc: FmmlxAssociation):
     multSourceToTarget = 'Seq{' + str(mlmAssoc.target_multiplicity.min_multiplicity) + ',' + str(mlmAssoc.target_multiplicity.max_multiplicity) + ',true,false}'
     multTargetToSource = 'Seq{' + str(mlmAssoc.source_multiplicity.min_multiplicity) + ',' + str(mlmAssoc.source_multiplicity.max_multiplicity) + ',false,false}'
 
-    addAssoc = ET.SubElement(model, 'addAssociation',accessSourceFromTargetName=mlmAssoc.source_class.name.lower(), 
-                             accessTargetFromSourceName=mlmAssoc.target_class.name.lower(), classSource=mlmAssoc.source_class.full_name, 
-                             classTarget=mlmAssoc.target_class.full_name, fwName=mlmAssoc.name, instLevelSource=str(mlmAssoc.source_inst_level), 
-                             instLevelTarget=str(mlmAssoc.target_inst_level), multSourceToTarget=multSourceToTarget, 
-                             multTargetToSource=multTargetToSource, package=projectName,reverseName='-1', sourceVisibleFromTarget='false', 
+    addAssoc = ET.SubElement(model, 'addAssociation', accessSourceFromTargetName=mlmAssoc.source_class.object_name.lower(),
+                             accessTargetFromSourceName=mlmAssoc.target_class.object_name.lower(), classSource=mlmAssoc.source_class.full_name,
+                             classTarget=mlmAssoc.target_class.full_name, fwName=mlmAssoc.name, instLevelSource=str(mlmAssoc.source_inst_level),
+                             instLevelTarget=str(mlmAssoc.target_inst_level), multSourceToTarget=multSourceToTarget,
+                             multTargetToSource=multTargetToSource, package=projectName, reverseName='-1', sourceVisibleFromTarget='false',
                              targetVisibleFromSource='true')
     return root
 

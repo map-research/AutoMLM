@@ -137,7 +137,7 @@ class MultiLevelModelAnalyzer:
             print(" = ".join(sorted(attr.attr_name for attr in grouped_attributes[group])))
 
         #STEP 5: Create new Class
-        deep_class: FmmlxObject = FmmlxObject(mlm_class.full_name, mlm_class.name, str(deep_class_level),
+        deep_class: FmmlxObject = FmmlxObject(mlm_class.full_name, mlm_class.object_name, str(deep_class_level),
                                               FmmlxObject.meta_class(), "False")
 
         for new_attr in new_attributes:
@@ -182,7 +182,7 @@ class MultiLevelModelAnalyzer:
             for i, flat_class in enumerate(self.flat_model.get_all_flat_classes(), start = 0):
                 print(
                     f"------------------------------------------------------------------------------------------------\n"
-                    f"ANALYZING ATTRIBUTE PRECEDENCE FOR CLASS <{flat_class.name}>\n")
+                    f"ANALYZING ATTRIBUTE PRECEDENCE FOR CLASS <{flat_class.object_name}>\n")
                 self.attribute_precedence_analysis(flat_class)
         else:
             if single_class_name == "":

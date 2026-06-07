@@ -46,9 +46,9 @@ class FmmlxAssociation:
                 return False
 
     def __repr__(self):
-        return (f"[ASSOCIATION {self.name}] {self.source_multiplicity} From {self.source_class.name}"
+        return (f"[ASSOCIATION {self.name}] {self.source_multiplicity} From {self.source_class.object_name}"
                 f" (at L{self.source_inst_level})"
-                f" to {self.target_multiplicity} {self.target_class.name} (at L{self.target_inst_level})")
+                f" to {self.target_multiplicity} {self.target_class.object_name} (at L{self.target_inst_level})")
         # f"\n {self.source_multiplicity} {self.source_class.name}"
         # f" {self.name} {self.target_class.name}")
 
@@ -66,14 +66,14 @@ class FmmlxAssociation:
             self.source_multiplicity.is_unbounded).lower() + ',false}'
 
         # adapt class names to new projectname
-        classSourceName = projectName + "::" + self.source_class.name
-        targetSourceName = projectName + "::" + self.target_class.name
+        classSourceName = projectName + "::" + self.source_class.object_name
+        targetSourceName = projectName + "::" + self.target_class.object_name
 
         # associations use always the class name as an access name at the moment, this leads to a problem when more than one association exists between the same two classes, as the access name is no longer unique
         # TODO think about fix
         addAssoc = ElementTree.SubElement(model, 'addAssociation',
-                                          accessSourceFromTargetName=self.source_class.name.lower(),
-                                          accessTargetFromSourceName=self.target_class.name.lower(),
+                                          accessSourceFromTargetName=self.source_class.object_name.lower(),
+                                          accessTargetFromSourceName=self.target_class.object_name.lower(),
                                           associationType='Root::Associations::DefaultAssociation',
                                           classSource=classSourceName, classTarget=targetSourceName, fwName=self.name,
                                           instLevelSource=str(self.source_inst_level),

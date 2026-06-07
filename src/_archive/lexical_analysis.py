@@ -57,7 +57,7 @@ class LexicalAnalysis:
             hypernyms = self.helper.getCommonHypernyms(o1,o2)
 
             print("")
-            cstr = f'{o1.name} and {o2.name}'
+            cstr = f'{o1.object_name} and {o2.object_name}'
             print(cstr.ljust(50,' '), [a for a in hypernyms])
 
             # compare attribitues
@@ -125,7 +125,7 @@ class LexicalAnalysis:
             parentCl.export(new_Model)
             
             for o in objects:
-                cl =  MlmObject(projectName+"::"+o.name, o.name, 1, None, False)
+                cl =  MlmObject(projectName +"::" + o.object_name, o.object_name, 1, None, False)
                 for attr in o.attr_list:
                     if attr.attr_name in attsToBeGeneralized:
                         continue

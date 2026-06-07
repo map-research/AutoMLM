@@ -58,8 +58,8 @@ def getLemmas_wordnet(lexeme: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL
         senses = list(filter(lambda x: isLemmaOwnerOfWordSense_wordnet(lexeme, x), senses))
 
     for syn in senses:
-        for lemma in wn.synset(syn.name()).lemmas():
-            setLemmas.add(lemma.name())
+        for lemma in wn.synset(syn.object_name()).lemmas():
+            setLemmas.add(lemma.object_name())
     return setLemmas
 
 
@@ -67,7 +67,7 @@ def getLemmas_wordnet(lexeme: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.ALL
 def getLemmasBySense_wordnet(sense) -> set:
     setLemmas = set()
     for lemma in sense.lemmas():
-        setLemmas.add(lemma.name())
+        setLemmas.add(lemma.object_name())
     return setLemmas
 
 
@@ -84,8 +84,8 @@ def getHypernyms_wordnet(lexeme: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet.
 
     for sense in senses:
         for hypernym in sense.hypernyms():
-            for lemma in wn.synset(hypernym.name()).lemmas():
-                sethypernyms.add(lemma.name())
+            for lemma in wn.synset(hypernym.object_name()).lemmas():
+                sethypernyms.add(lemma.object_name())
     return sethypernyms
 
 # returns hypernyms of a lemma
@@ -94,8 +94,8 @@ def getHypernyms_wordnet(lemma: str) -> set:
     sethypernyms = set()
     sense = wn.synset(lemma)
     for hypernym in sense.hypernyms():
-        for lemma in wn.synset(hypernym.name()).lemmas():
-            sethypernyms.add(lemma.name())
+        for lemma in wn.synset(hypernym.object_name()).lemmas():
+            sethypernyms.add(lemma.object_name())
     return sethypernyms
 
 
@@ -112,8 +112,8 @@ def getLemmaOfHyponyms_wordnet(lexeme: str, type: WordTpyes_Wordnet=WordTpyes_Wo
 
     for sense in senses:
         for hypernym in sense.hyponyms():
-            for lemma in wn.synset(hypernym.name()).lemmas():
-                setHyponyms.add(lemma.name())
+            for lemma in wn.synset(hypernym.object_name()).lemmas():
+                setHyponyms.add(lemma.object_name())
     return setHyponyms
 
 
@@ -130,8 +130,8 @@ def getLemmaOfRootHypernyms_wordnet(lexeme: str, type: WordTpyes_Wordnet=WordTpy
 
     for sense in senses:
         for hypernyms in sense.root_hypernyms():
-            for lemma in wn.synset(hypernyms.name()).lemmas():
-                setRootHypernyms.add(lemma.name())
+            for lemma in wn.synset(hypernyms.object_name()).lemmas():
+                setRootHypernyms.add(lemma.object_name())
     return setRootHypernyms
 
 
@@ -200,9 +200,9 @@ def getPertainyms_wordnet(lexeme: str, type: WordTpyes_Wordnet=WordTpyes_Wordnet
         senses = list(filter(lambda x: isLemmaOwnerOfWordSense_wordnet(lexeme, x), senses))
 
     for sense in senses:
-        for lemma in wn.synset(sense.name()).lemmas():
+        for lemma in wn.synset(sense.object_name()).lemmas():
             for lemma1 in lemma.pertainyms():
-               setPertainyms.add(lemma1.name())
+               setPertainyms.add(lemma1.object_name())
     
 
     if len(setPertainyms) > 0:
@@ -277,7 +277,7 @@ def areSynonyms_wordnet(lexeme1: str, lexeme2: str) -> bool:
 
 # returns the owner lemma of a sense as a string
 def getOwnerofLemma_wordnet(sense: nltk.corpus.reader.wordnet.Synset) -> str:
-    return sense.name().split(".")[0]
+    return sense.object_name().split(".")[0]
 
 
 # returns whether the owner of the sense is the lexeme
