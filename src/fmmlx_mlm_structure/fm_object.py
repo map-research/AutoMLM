@@ -4,6 +4,7 @@ from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
 from src.fmmlx_mlm_structure.fm_constraint import FmmlxConstraint
 from src.fmmlx_mlm_structure.fm_operation import FmmlxOperation
 from src.fmmlx_mlm_structure.fm_slot import FmmlxSlot
+from src.fmmlx_mlm_structure.precedence_graph import PrecedenceGraph
 from src.fmmlx_mlm_structure.slot_collective import SlotCollective
 
 
@@ -21,6 +22,7 @@ class FmmlxObject:
         self.parent_classes = []
         self.instances = []
         self.slot_collectives: [SlotCollective] = []
+        self.precedence_graph: PrecedenceGraph = PrecedenceGraph()
 
     def __repr__(self):
         # class_str = f"[CLASS] {self.name}"
@@ -91,7 +93,7 @@ class FmmlxObject:
                 return slot_collective
 
     def create_slot_collectives(self, ignore_case: bool = True):
-        assert self.level == 1, "Slot collectives can currently only be created for instances of classes on level 1"
+        assert self.level == 1, "Slot collectives can currently only be created for L0 instances of L1 classes"
         for attr in self.attr_list:
             encountered_slot_values: [str] = []
             for instance in self.instances:
@@ -112,16 +114,17 @@ class FmmlxObject:
         assert self.level == 1, "Attribute precedence can only be induced for L1 classes"
         assert len(self.attr_list) > 1, "Attribute precedence can only be induced when multiple attributes are present"
         assert len(self.attr_list[0].get_collective_slots()) > 0, ("Attribute precedence analysis "
-                                                                 "requires collective slots")
-
+                                                                   "requires collective slots")
         for outer_i in range(len(self.attr_list)):
             outer_attr: FmmlxAttribute = self.attr_list[outer_i]
             for inner_in in range(outer_i+1, len(self.attr_list)):
                 inner_attr: FmmlxAttribute = self.attr_list[inner_in]
-                print(f"{outer_attr.attr_name} to {inner_attr.attr_name}: {outer_attr.get_attribute_comparison_symbol(inner_attr)}")
-                #TODO compare two attrs
-
-
+                print(f"{outer_attr.attr_name} to {inner_attr.attr_name}: "
+                      f"{outer_attr.get_attribute_comparison_symbol(inner_attr)}")
+                self.precedence_graph.add_attribute_relation(
+                    outer_attr, inner_attr, outer_attr.get_attribute_comparison_symbol(inner_attr))
+        print(self.precedence_graph)
+        print(self.precedence_graph.get_static_order())
 
 
     def export(self, root):
