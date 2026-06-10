@@ -21,7 +21,8 @@ class PrecedenceAnalysisTester(Tester):
                 self.init_test("standard-oc-small.xml")
             case _:
                 raise Exception("Invalid test variant (variant number: " + str(self.variant) + ") specified")
-        self.md_instance.perform_property_precedence_analysis()
+        self.md_instance.perform_property_precedence_analysis(print_attribute_relations=False,
+                                                              print_slot_comparisons=False)
         if self.export_model:
             self.export_model_xml()
 

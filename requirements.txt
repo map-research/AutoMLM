@@ -7,5 +7,6 @@ Wikidata==0.8.1
 nltk~=3.9.4
 xlsxwriter~=3.2.9
 pandas~=2.1.0
-matplotlib~=3.7.2
+matplotlib~=3.11.0rc2
 fcapy~=0.1.4.3
+pydot~=1.4.2

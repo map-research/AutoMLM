@@ -9,7 +9,6 @@ class ModelDeepening:
         self.output_model: FmmlxModel = input_model
         self.flat_classes: [FmmlxObject] = []
         self.pure_objects: [FmmlxObject] = []
-
     """
     The following sets of methods specify getters and setters for the transformed models.
     """
@@ -46,7 +45,9 @@ class ModelDeepening:
     3. perform inductive leap: apply precedence relation from slots to attributes
     """
 
-    def perform_property_precedence_analysis(self):
+    def perform_property_precedence_analysis(self, print_slot_collectives: bool = False,
+                                             print_attribute_relations: bool = True,
+                                             print_slot_comparisons: bool = True):
         """
         The core of property precedence analysis lies in the specification of slot collectives. Accessing the
         object sets of a slot collective, allows comparing slot collectives. The built-in set comparisons from Python
@@ -55,9 +56,17 @@ class ModelDeepening:
         After having created the slot collectives, the main task is to compare all slot collectives of the
         given attributes in order to induce the precedence relation between attributes.
         """
+        print_any: bool = print_slot_collectives | print_attribute_relations | print_slot_comparisons
         for flat_class in self.flat_classes:
-            flat_class.create_slot_collectives(ignore_case=True)
-            flat_class.analyze_attribute_precedence()
+            if print_any:
+                print("PROPERTY PRECEDENCE ANALYSIS FOR " + flat_class.object_name + "\n")
+            flat_class.create_slot_collectives(ignore_case=True, print_progress=print_slot_collectives)
+            flat_class.analyze_attribute_precedence(print_attr_relations=print_attribute_relations,
+                                                    print_slots=print_slot_comparisons)
+            flat_class.get_precedence_graph().export_graph_as_svg(flat_class.object_name)
+
+            if print_any:
+                print("\n-------------------------------------------------------------------\n")
 
 
         print("DONE")

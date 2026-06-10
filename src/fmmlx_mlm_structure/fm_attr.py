@@ -29,10 +29,10 @@ class FmmlxAttribute:
     def get_collective_slots(self) -> []:
         return self.collective_slots
 
-    def get_slot_collective_comparisons(self, other) -> [str]:
+    def get_slot_collective_comparisons(self, other, print_progress: bool = True) -> [str]:
         """
         This method returns all comparison symbols between all slot collectives of each attribute,
-        except "!=" which denotes the disjoint set
+        except "||" which denotes incomparability
         """
         cs_comparison_symbols: [str] = []
         self_collective_slots = self.get_collective_slots()
@@ -40,17 +40,20 @@ class FmmlxAttribute:
         for self_cs in self_collective_slots:
             for other_cs in other_collective_slots:
                 comparison_symbol = self_cs.compare(other_cs)
-                if comparison_symbol != "!=":
+                if print_progress:
+                    print(f"{self_cs} to {other_cs}: {comparison_symbol}")
+                if comparison_symbol != "||":
                     cs_comparison_symbols.append(self_cs.compare(other_cs))
 
         return cs_comparison_symbols
 
-    def get_attribute_comparison_symbol(self, other) -> str:
+    def get_attribute_comparison_symbol(self, other, print_slots: bool = False,
+                                        raise_error_for_contradiction: bool = False) -> str:
         """
         Epistemologically, this performs a (naive) inductive leap, the results should be interpreted with care.
         """
 
-        cs_symbols = set(self.get_slot_collective_comparisons(other))
+        cs_symbols = set(self.get_slot_collective_comparisons(other, print_progress=print_slots))
 
         if cs_symbols == {"="}:
             return "="
@@ -66,6 +69,9 @@ class FmmlxAttribute:
 
         if cs_symbols == {"<", "="}:
             return "<="
+
+        if not raise_error_for_contradiction:
+            return "?"
 
         raise ValueError(
             f"Cannot aggregate contradictory comparisons: {cs_symbols}"

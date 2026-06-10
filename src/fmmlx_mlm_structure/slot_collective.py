@@ -58,8 +58,7 @@ class SlotCollective:
         elif self >= other >= self:
             return "="
         else:
-            return "!="  # != in this context means disjoint
-
+            return "||"  # || in this context means disjoint, indicating incomaprability
 
     def pretty_print_scope(self) -> str:
         pp_scope: str = ""
@@ -68,4 +67,4 @@ class SlotCollective:
         return pp_scope
 
     def __repr__(self):
-        return f"[SlotCollective] {self.attribute.attr_name}:\"{self.value}\": {{{self.pretty_print_scope()}}}]"
+        return f"[SlotCollective] {self.attribute.attr_name}:\"{self.value}\": {{{self.pretty_print_scope()}}}"
