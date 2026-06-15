@@ -12,6 +12,7 @@ class FmmlxAttribute:
         self.uses_domain_specific_type = False
         self.owner = None  # Owner of attribute is instance of FmmlxObject, not specified here to avoid circular imports
         self.collective_slots: [] = []  # used for property precedence analysis, types may not be used (circ imports)
+        self.proposed_inst_level: int = 0
 
     def set_enum_type(self, enum_type: FmmlxEnumType):
         self.attr_type_short = enum_type.enum_name
@@ -19,6 +20,15 @@ class FmmlxAttribute:
 
     def set_owner(self, owner):
         self.owner = owner
+
+    def get_proposed_inst_level(self):
+        return self.proposed_inst_level
+
+    def set_proposed_inst_level(self, new_inst_level: int):
+        self.proposed_inst_level = new_inst_level
+
+    def set_inst_level(self, new_inst_level: int):
+        self.inst_level = new_inst_level
 
     def get_owner(self):
         return self.owner
@@ -76,6 +86,12 @@ class FmmlxAttribute:
         raise ValueError(
             f"Cannot aggregate contradictory comparisons: {cs_symbols}"
         )
+
+    def __lt__(self, other):
+        return True if self.get_attribute_comparison_symbol(other) == ("<" or "<=") else False
+
+    def __gt__(self, other):
+        return True if self.get_attribute_comparison_symbol(other) == (">" or ">=") else False
 
     def __repr__(self):
         return f"[ATTR-{self.inst_level}] {self.attr_name}:{self.attr_type_short}"

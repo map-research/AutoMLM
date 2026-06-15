@@ -136,6 +136,8 @@ class FmmlxObject:
         print(self.precedence_graph)
         print(self.precedence_graph.get_static_order())
 
+    def promote_to_level_x(self, new_level: int):
+        self.level = new_level
 
     def export(self, root):
         projectName = root.attrib['path']

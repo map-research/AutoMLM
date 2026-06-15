@@ -1,4 +1,5 @@
 from src.fmmlx_mlm_structure.fm_multi_level_model import *
+from src.fmmlx_mlm_structure.precedence_graph import PrecedenceGraph
 
 
 class ModelDeepening:
@@ -63,7 +64,9 @@ class ModelDeepening:
             flat_class.create_slot_collectives(ignore_case=True, print_progress=print_slot_collectives)
             flat_class.analyze_attribute_precedence(print_attr_relations=print_attribute_relations,
                                                     print_slots=print_slot_comparisons)
-            flat_class.get_precedence_graph().export_graph_as_svg(flat_class.object_name)
+            precedence_graph: PrecedenceGraph = flat_class.precedence_graph.get_precedence_graph()
+            precedence_graph.set_inst_levels_for_properties()
+            if precedence_graph.has_deepening_potential():
 
             if print_any:
                 print("\n-------------------------------------------------------------------\n")
@@ -71,3 +74,17 @@ class ModelDeepening:
 
         print("DONE")
         return self.original_model
+
+    def perform_deepening_operations_for_class(self, flat_class: FmmlxObject):
+        """This method performs the required change operations on the output model, the original model remains
+        unchanged. Currently tailored to property-precedence analysis only, needs to be tailored to further
+        deepening analysis techniques"""
+        assert flat_class.level == 1, "Change operations performed on L1 classes only"
+        assert flat_class.precedence_graph is not None, ("Precedence graph not detected, "
+                                                         "precedence analysis must be performed first")
+        flat_class.promote_to_level_x(flat_class.get_precedence_graph().get_max_level() + 1)
+        # max level returns max inst level, class must be one level higher
+        for attr in flat_class.get_all_attributes():
+            attr.set_inst_level(attr.get_proposed_inst_level())
+
+
