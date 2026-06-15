@@ -66,7 +66,7 @@ class ModelDeepening:
                                                     print_slots=print_slot_comparisons)
             precedence_graph: PrecedenceGraph = flat_class.precedence_graph.get_precedence_graph()
             precedence_graph.set_inst_levels_for_properties()
-            if precedence_graph.has_deepening_potential():
+            #if precedence_graph.has_deepening_potential():
 
             if print_any:
                 print("\n-------------------------------------------------------------------\n")
