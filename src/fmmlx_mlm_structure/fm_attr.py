@@ -11,7 +11,7 @@ class FmmlxAttribute:
         self.uses_enum = False
         self.uses_domain_specific_type = False
         self.owner = None  # Owner of attribute is instance of FmmlxObject, not specified here to avoid circular imports
-        self.collective_slots: [] = []  # used for property precedence analysis, types may not be used (circ imports)
+        self.slot_collectives: [] = []  # used for property precedence analysis, types may not be used (circ imports)
         self.proposed_inst_level: int = 0
 
     def set_enum_type(self, enum_type: FmmlxEnumType):
@@ -34,10 +34,10 @@ class FmmlxAttribute:
         return self.owner
 
     def add_collective_slot(self, slot_collective):
-        self.collective_slots.append(slot_collective)
+        self.slot_collectives.append(slot_collective)
 
     def get_collective_slots(self) -> []:
-        return self.collective_slots
+        return self.slot_collectives
 
     def get_slot_collective_comparisons(self, other, print_progress: bool = True) -> [str]:
         """
