@@ -27,7 +27,7 @@ class FmmlxModel:
     All elements within a multi-level model are themselves instances of Python classes specified in mlm_helper_classes.py
     """
 
-    def __init__(self, xml_file_path: str = "", csv_file_path: str = "", print_progress: bool = False):
+    def __init__(self, file_path: str = "", print_progress: bool = False):
         self.path_name = ""
         self.mlm_objects: List[FmmlxObject] = []
         self.enums: List[FmmlxEnumType] = []
@@ -35,19 +35,17 @@ class FmmlxModel:
         self.links: List[FmmlxLink] = []
         self.parsed_xml = None
         self.print_progress = print_progress
-        if xml_file_path != "":
+        if file_path != "":
             # Der Parameter heisst noch xml_file_path, weil er frueher nur fuer XML gedacht war.
             # Inzwischen darf hier aber auch ein CSV-Pfad stehen.
             # Die Dateiendung entscheidet, wie die Datei gelesen wird.
-            file_extension = os.path.splitext(xml_file_path)[1].lower() #[1] für Dateiende
+            file_extension = os.path.splitext(file_path)[1].lower() #[1] für Dateiende
             if file_extension == ".csv":
-                self._import_csv(xml_file_path)
+                self._import_csv(file_path)
             elif file_extension == ".xml":
-                self._parse_xml(xml_file_path)
+                self._parse_xml(file_path)
             else:
-                raise ValueError(f"File '{xml_file_path}' must be a CSV or XML file.")
-        if csv_file_path != "":
-            self._import_csv(csv_file_path)
+                raise ValueError(f"File '{file_path}' must be a CSV or XML file.")
 
     def _import_csv(self, csv_file_path: str):
         """
@@ -303,7 +301,7 @@ class FmmlxModel:
     def input_xml_path(cls):
         print("BEGIN MLM EXTRACTION\nEnter the MLM Source Location:")
         loc = input()
-        return cls(xml_file_path=loc)
+        return cls(file_path=loc)
 
     def import_xml(self, xml_file_path: str):
         assert self.parsed_xml is None, ("Multi-level model is already imported! "
