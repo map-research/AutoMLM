@@ -39,7 +39,7 @@ class FmmlxAttribute:
     def get_collective_slots(self) -> []:
         return self.slot_collectives
 
-    def get_slot_collective_comparisons(self, other, print_progress: bool = True) -> [str]:
+    def get_slot_collective_comparisons(self, other, print_progress: bool = False) -> [str]:
         """
         This method returns all comparison symbols between all slot collectives of each attribute,
         except "||" which denotes incomparability

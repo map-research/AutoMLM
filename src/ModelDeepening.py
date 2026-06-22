@@ -46,7 +46,7 @@ class ModelDeepening:
     3. perform inductive leap: apply precedence relation from slots to attributes
     """
 
-    def perform_property_precedence_analysis(self, print_slot_collectives: bool = False,
+    def perform_property_precedence_analysis(self, print_slot_collectives: bool = True,
                                              print_attribute_relations: bool = True,
                                              print_slot_comparisons: bool = True):
         """
@@ -64,7 +64,7 @@ class ModelDeepening:
             flat_class.create_slot_collectives(ignore_case=True, print_progress=print_slot_collectives)
             flat_class.analyze_attribute_precedence(print_attr_relations=print_attribute_relations,
                                                     print_slots=print_slot_comparisons)
-            precedence_graph: PrecedenceGraph = flat_class.precedence_graph.get_precedence_graph()
+            precedence_graph: PrecedenceGraph = flat_class.get_precedence_graph()
             precedence_graph.set_inst_levels_for_properties()
             #if precedence_graph.has_deepening_potential():
 
