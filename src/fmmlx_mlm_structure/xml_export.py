@@ -51,7 +51,8 @@ def exportClass(mlmObject : FmmlxObject, root):
         attribute.set('class', projectName +"::" + mlmObject.object_name)
 
     for slot in mlmObject.slot_list:
-        slot = ET.SubElement(model, 'changeSlotValue', package = projectName, slotName = slot.attribute.attr_name ,valueToBeParsed=slot.value)
+        # Beim Schreiben in XML muss jeder Wert als Text übergeben werden.
+        slot = ET.SubElement(model, 'changeSlotValue', package = projectName, slotName = slot.attribute.attr_name ,valueToBeParsed=str(slot.value))
          # this attr has to be set separetly because of the keyword class and cannot be used in the prior operation
         slot.set('class', projectName + mlmObject.object_name)
 
