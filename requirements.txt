@@ -1,5 +1,6 @@
 
 numpy~=2.0.2
+networkx~=3.6.1
 requests~=2.34.2
 spacy~=3.8.14
 Wikidata==0.8.1

@@ -15,7 +15,13 @@ class FmmlxSlot:
         self.value = value # self._import_slot_value(value) # parsing done in FmmlxModel class
         self.owner = None
 
-    def set_attribute(self):
+    def set_attribute(self, attribute: FmmlxAttribute = None):
+        # Beim CSV-Import kennen wir das passende Attribut schon.
+        if attribute is not None:
+            self.attribute = attribute
+            return
+
+        # Beim XML-Import wird das passende Attribut gesucht.
         for attr in self.owner.class_of_object.get_all_attributes():
             if attr.attr_name == self.slot_name:
                 self.attribute = attr

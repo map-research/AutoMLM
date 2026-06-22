@@ -169,8 +169,9 @@ class FmmlxObject:
             attribute.set('class', projectName + "::" + self.object_name)
 
         for slot in self.slot_list:
+            # Beim Schreiben in XML muss jeder Wert als Text übergeben werden.
             slot = ElementTree.SubElement(model, 'changeSlotValue', package=projectName,
-                                          slotName=slot.attribute.attr_name, valueToBeParsed=slot.value)
+                                          slotName=slot.attribute.attr_name, valueToBeParsed=str(slot.value))
             # this attr has to be set separetly because of the keyword class and cannot be used in the prior operation
             slot.set('class', projectName + self.object_name)
 

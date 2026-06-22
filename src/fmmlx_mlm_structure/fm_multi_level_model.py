@@ -3,6 +3,9 @@ from xml.dom.minidom import parse
 from src.fmmlx_mlm_structure import xml_export as export_xml
 from typing import List
 import csv
+import keyword #für reservierten Wert
+import os #für Dateinamen aus Dateiendung
+import re #für Prüfung von Zeichen
 
 from src.fmmlx_mlm_structure.fm_association import FmmlxAssociation
 from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
@@ -24,7 +27,7 @@ class FmmlxModel:
     All elements within a multi-level model are themselves instances of Python classes specified in mlm_helper_classes.py
     """
 
-    def __init__(self, xml_file_path: str = "", csv_file_path: str = "", print_progress: bool = False):
+    def __init__(self, file_path: str = "", print_progress: bool = False):
         self.path_name = ""
         self.mlm_objects: List[FmmlxObject] = []
         self.enums: List[FmmlxEnumType] = []
@@ -32,45 +35,203 @@ class FmmlxModel:
         self.links: List[FmmlxLink] = []
         self.parsed_xml = None
         self.print_progress = print_progress
-        if xml_file_path != "":
-            self._parse_xml(xml_file_path)
-        if csv_file_path != "":
-            self._import_csv(csv_file_path)
+        if file_path != "":
+            # Der Parameter heisst noch xml_file_path, weil er frueher nur fuer XML gedacht war.
+            # Inzwischen darf hier aber auch ein CSV-Pfad stehen.
+            # Die Dateiendung entscheidet, wie die Datei gelesen wird.
+            file_extension = os.path.splitext(file_path)[1].lower() #[1] für Dateiende
+            if file_extension == ".csv":
+                self._import_csv(file_path)
+            elif file_extension == ".xml":
+                self._parse_xml(file_path)
+            else:
+                raise ValueError(f"File '{file_path}' must be a CSV or XML file.")
 
     def _import_csv(self, csv_file_path: str):
         """
         import CSV as MultiLevelModel. Note that CSV imports only account for classes and objects; relationships
         between classes and objects are not accounted for.
         """
-        all_mlm_objects = []
-        with open(csv_file_path, "r") as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=",")
-            line_count = 0
-            all_csv_attr = []
-            for row in csv_reader:
-                if line_count == 0:
-                    mlm_class: FmmlxObject = FmmlxObject("long", "csv_class", "1", FmmlxObject.meta_class(),
-                                                    "false")
-                    for col_counter in range(len(row)):
-                        value: str = row[col_counter].strip().strip("\"")
-                        new_attr: FmmlxAttribute = FmmlxAttribute(value, "Root::XCore::String", 0)
-                        all_csv_attr.append(new_attr)
-                        mlm_class.add_attr(new_attr)
+        all_mlm_objects: List[FmmlxObject] = []
+        with open(csv_file_path, "r", newline="") as csv_file: #r = read
+            # Das Trennzeichen wird erkannt, damit auch Dateien mit ; oder Tab funktionieren.
+            csv_reader = csv.reader(csv_file, self._get_csv_dialect(csv_file), skipinitialspace=True)
+            #mit strip vorne und hinten Leerzeichen und Anführungszeichen entfernen
+            rows = [[value.strip().strip("\"") for value in row] for row in csv_reader if row]
 
-                    all_mlm_objects.append(mlm_class)
-                else:
-                    mlm_instance: FmmlxObject = FmmlxObject("long", "instance", "0", mlm_class, "false")
-                    all_mlm_objects.append(mlm_instance)
+        # prüft, dass Datei nicht leer ist
+        assert len(rows) > 0, "CSV file must contain at least one row."
 
-                    for col_counter in range(len(row)):
-                        value: str = row[col_counter].strip().strip("\"")
-                        new_slot: FmmlxSlot = FmmlxSlot(all_csv_attr[col_counter].attr_name, value)
-                        new_slot.set_attribute(all_csv_attr[col_counter])
-                        mlm_instance.add_slot(new_slot)
+        # Die erste Zeile beschreibt die Spalten. Die restlichen Zeilen sind die Daten.
+        header_row = rows[0]
+        data_rows = rows[1:]
+        number_of_columns = len(header_row)
+        # prüft, dass erste Zele mindestens eine Spalte hat
+        assert number_of_columns > 0, "CSV header must contain at least one column."
+        # prüft, ob erste Zeile wirklich Schema-Infos enthält
+        assert self._first_row_looks_like_header(header_row, data_rows), (
+            "CSV header does not look valid. The first row seems to contain data instead of attribute names."
+        )
 
-                line_count += 1
+        # Jede Datenzeile muss genauso viele Werte haben wie die erste Zeile (daher start bei 2)
+        for row_number, row in enumerate(data_rows, start=2):
+            assert len(row) == number_of_columns, (
+                f"CSV row {row_number} has {len(row)} values, but the header has {number_of_columns} values."
+            )
+
+        # Der Klassenname kommt aus dem Dateinamen.
+        class_name = self._make_csv_class_name(csv_file_path)
+        project_name = f"Root::{class_name}"
+        self.path_name = project_name
+
+        # Hier wird die eine Klasse gebaut, zu der alle CSV-Zeilen später gehören.
+        # Beispiel: Aus der Datei news_decline.csv wird die Klasse NewsDecline.
+        mlm_class: FmmlxObject = FmmlxObject(
+            f"{project_name}::{class_name}", class_name, "1", FmmlxObject.meta_class(), "false"
+        )
+        all_mlm_objects.append(mlm_class) #speichert Klasse im Modell
+
+        all_csv_attr = []
+        used_attribute_names = []
+        for col_counter, raw_attribute_name in enumerate(header_row):
+            # Aus jeder Spalte wird ein Attribut.
+            attribute_name = self._make_safe_name(raw_attribute_name, "attribute", allow_first_char_digit=True)
+            attribute_name = self._make_unique_name(attribute_name, used_attribute_names) #für doppelte Namen
+            column_values = [row[col_counter] for row in data_rows] #holt alle Werte dieser Spalte
+            attribute_type = self._get_csv_attribute_type(column_values) #String, Integer oder Float
+            new_attr: FmmlxAttribute = FmmlxAttribute(attribute_name, attribute_type, 0)
+            new_attr.set_owner(mlm_class)
+            all_csv_attr.append(new_attr) #attribut in Liste
+            mlm_class.add_attr(new_attr) #fügt zur Klasse hinzu
+
+        for row_counter, row in enumerate(data_rows, start=1):
+            # Aus jeder Datenzeile wird eine Instanz mit eindeutigem Namen.
+            instance_name = f"{class_name.lower()}{row_counter}"
+            mlm_instance: FmmlxObject = FmmlxObject(
+                f"{project_name}::{instance_name}", instance_name, "0", mlm_class, "false"
+            )
+            mlm_class.add_instance(mlm_instance)
+            all_mlm_objects.append(mlm_instance)
+
+            #Slots einfügen
+            for col_counter, value in enumerate(row):
+                attribute = all_csv_attr[col_counter]
+                new_slot: FmmlxSlot = FmmlxSlot(attribute.attr_name, self._convert_csv_value(value, attribute.attr_type))
+                new_slot.set_owner_object(mlm_instance)
+                # Der Slot bekommt direkt das Attribut aus seiner Spalte.
+                new_slot.set_attribute(attribute)
+                mlm_instance.add_slot(new_slot)
+
         self._set_mlm_objects(all_mlm_objects)
 
+    # Ab hier kommen kleine Hilfsfunktionen, um den Import oben kuerzer zu halten.
+    def _get_csv_dialect(self, csv_file):
+        # Es wird nur ein kleiner Anfang der Datei angeschaut, per Default "," .
+        sample = csv_file.read(2048)
+        csv_file.seek(0)
+        try:
+            return csv.Sniffer().sniff(sample, delimiters=",;\t|")
+        except csv.Error:
+            return csv.excel
+
+    #Wenn es keine Daten gibt, kann man nicht vergleichen. Dann wird die Kopfzeile akzeptiert.
+    def _first_row_looks_like_header(self, header_row: List[str], data_rows: List[List[str]]) -> bool:
+        if len(data_rows) == 0:
+            return True
+
+        # Namen wie "name" oder "city" sind als erste Zeile in Ordnung.
+        if all(self._is_simple_header_name(header_value) for header_value in header_row):
+            return True
+
+        # Wenn die erste Zeile wie normale Daten aussieht, ist sie wahrscheinlich keine Kopfzeile.
+        for col_counter, header_value in enumerate(header_row):
+            column_values = [row[col_counter] for row in data_rows]
+            if self._get_simple_csv_value_type(header_value) not in self._get_simple_csv_column_types(column_values): #also wenn erste Zeile anders aussieht als die Daten dadrunter, ist es wahrsheinlich ein Header
+                return True
+        return False
+
+    def _is_simple_header_name(self, value: str) -> bool:
+        return re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", value) is not None
+
+    def _get_simple_csv_column_types(self, values: List[str]) -> List[str]:
+        column_types = []
+        for value in values:
+            value_type = self._get_simple_csv_value_type(value)
+            if value_type not in column_types:
+                column_types.append(value_type)
+        return column_types
+
+    def _get_simple_csv_value_type(self, value: str) -> str:
+        if value == "":
+            return "empty"
+        if self._is_integer(value):
+            return "integer"
+        if self._is_float(value):
+            return "float"
+        return "string"
+
+    def _make_csv_class_name(self, csv_file_path: str) -> str:
+        # Aus "news_decline.csv" wird zum Beispiel "NewsDecline".
+        file_name = os.path.splitext(os.path.basename(csv_file_path))[0]
+        safe_name = self._make_safe_name(file_name, "CsvClass")
+        return "".join(name_part.capitalize() for name_part in safe_name.split("_"))
+
+    def _make_safe_name(self, name: str, fallback_name: str, allow_first_char_digit: bool = False) -> str:
+        # Zeichen, die in Namen stören können, werden durch _ ersetzt.
+        safe_name = re.sub(r"\W", "_", name.strip())
+        safe_name = re.sub(r"_+", "_", safe_name).strip("_")
+        if safe_name == "":
+            safe_name = fallback_name
+        if safe_name[0].isdigit() and not allow_first_char_digit:
+            safe_name = f"{fallback_name}_{safe_name}"
+        if keyword.iskeyword(safe_name):
+            safe_name = f"{safe_name}_{fallback_name}"
+        return safe_name
+
+    def _make_unique_name(self, name: str, already_used_names: List[str]) -> str:
+        # Gleiche Namen bekommen eine Zahl am Ende.
+        unique_name = name
+        number = 2
+        while unique_name in already_used_names:
+            unique_name = f"{name}_{number}"
+            number += 1
+        already_used_names.append(unique_name)
+        return unique_name
+
+    def _get_csv_attribute_type(self, values: List[str]) -> str:
+        # Wenn alle Werte Zahlen sind, wird auch das Attribut als Zahl gespeichert.
+        values_without_empty_strings = [value for value in values if value != ""]
+        if values_without_empty_strings and all(self._is_integer(value) for value in values_without_empty_strings):
+            return "Root::XCore::Integer"
+        if values_without_empty_strings and all(self._is_float(value) for value in values_without_empty_strings):
+            return "Root::XCore::Float"
+        return "Root::XCore::String"
+
+    def _convert_csv_value(self, value: str, attribute_type: str):
+        # Der Wert wird passend zum erkannten Attribut gespeichert.
+        if value == "":
+            return value
+        if attribute_type == "Root::XCore::Integer":
+            return int(value)
+        if attribute_type == "Root::XCore::Float":
+            return float(value)
+        return value
+
+    def _is_integer(self, value: str) -> bool:
+        try:
+            int(value)
+            return True
+        except ValueError:
+            return False
+
+    def _is_float(self, value: str) -> bool:
+        try:
+            float(value)
+            return True
+        except ValueError:
+            return False
+
+    # Ab hier gehen die normalen Funktionen weiter.
     def _set_mlm_objects(self, mlm_objects: List[FmmlxObject]):
         self.mlm_objects = mlm_objects
 
@@ -140,7 +301,7 @@ class FmmlxModel:
     def input_xml_path(cls):
         print("BEGIN MLM EXTRACTION\nEnter the MLM Source Location:")
         loc = input()
-        return cls(xml_file_path=loc)
+        return cls(file_path=loc)
 
     def import_xml(self, xml_file_path: str):
         assert self.parsed_xml is None, ("Multi-level model is already imported! "
@@ -358,4 +519,3 @@ class FmmlxModel:
         print("\n--------------------------------------------------------------\n")
         print(*self.links, sep="\n---\n")
         return ""
-

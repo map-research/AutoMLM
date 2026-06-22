@@ -1,4 +1,4 @@
-
 *.pyc
+.venv/
 # ignore ide specific files
 .idea
