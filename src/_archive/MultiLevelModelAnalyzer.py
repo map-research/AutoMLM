@@ -1,10 +1,5 @@
-from typing import List
-
-from src.MultiLevelModel import *
-from src.mlm_helper_classes import *
 from itertools import permutations
-from enum import Enum
-from PropertyPrecedenceGraph import *
+from src._archive.PropertyPrecedenceGraph import *
 
 
 class InstantiationLevelOrder(Enum):
@@ -14,15 +9,15 @@ class InstantiationLevelOrder(Enum):
 
 
 class MultiLevelModelAnalyzer:
-    def __init__(self, flat_model: MultilevelModel):
+    def __init__(self, flat_model: FmmlxModel):
         self.flat_model = flat_model
-        self.deep_model: MultilevelModel = MultilevelModel()
+        self.deep_model: FmmlxModel = FmmlxModel()
 
-    def analyze_attribute_precedence_for_class(self, mlm_class: MlmObject):
-        all_instances: List[MlmObject] = self.flat_model.get_all_objects_for_class(mlm_class)
+    def analyze_attribute_precedence_for_class(self, mlm_class: FmmlxObject):
+        all_instances: List[FmmlxObject] = self.flat_model.get_all_objects_for_class(mlm_class)
         all_attributes_of_class = mlm_class.get_all_attributes()
-        all_slots: List[MlmSlot] = []
-        all_slot_lists: List[List[MlmSlot]] = []
+        all_slots: List[FmmlxSlot] = []
+        all_slot_lists: List[List[FmmlxSlot]] = []
 
         # STEP 1: EXTRACT ALL SLOT VALUES
 
@@ -131,19 +126,19 @@ class MultiLevelModelAnalyzer:
 
         print("\nAttribute order from lowest to highest (grouped by SAME):\n")
         deep_class_level: int = 0
-        new_attributes: List[MlmAttr] = []
+        new_attributes: List[FmmlxAttribute] = []
         for i, group in enumerate(ordered_groups, start=0):
             #print(f"Instantiation Level {i}: {grouped_attributes[group]}")
             for old_attr in grouped_attributes[group]:
-                deep_attr = MlmAttr(old_attr.attr_name, old_attr.attr_type, i)
+                deep_attr = FmmlxAttribute(old_attr.attr_name, old_attr.attr_type, i)
                 new_attributes.append(deep_attr)
             deep_class_level += 1
             print(f"Instantiation Level {i}:")
             print(" = ".join(sorted(attr.attr_name for attr in grouped_attributes[group])))
 
         #STEP 5: Create new Class
-        deep_class: MlmObject = MlmObject(mlm_class.full_name, mlm_class.name, str(deep_class_level),
-                                          MlmObject.meta_class(), "False")
+        deep_class: FmmlxObject = FmmlxObject(mlm_class.full_name, mlm_class.object_name, str(deep_class_level),
+                                              FmmlxObject.meta_class(), "False")
 
         for new_attr in new_attributes:
             deep_class.add_attr(new_attr)
@@ -187,7 +182,7 @@ class MultiLevelModelAnalyzer:
             for i, flat_class in enumerate(self.flat_model.get_all_flat_classes(), start = 0):
                 print(
                     f"------------------------------------------------------------------------------------------------\n"
-                    f"ANALYZING ATTRIBUTE PRECEDENCE FOR CLASS <{flat_class.name}>\n")
+                    f"ANALYZING ATTRIBUTE PRECEDENCE FOR CLASS <{flat_class.object_name}>\n")
                 self.attribute_precedence_analysis(flat_class)
         else:
             if single_class_name == "":
@@ -196,7 +191,7 @@ class MultiLevelModelAnalyzer:
                 self.attribute_precedence_analysis(self.flat_model.get_mlm_object_by_shortname(single_class_name))
         print(self.deep_model)
 
-    def attribute_precedence_analysis(self, flat_class: MlmObject):
+    def attribute_precedence_analysis(self, flat_class: FmmlxObject):
         property_precedence_graph: PropertyPrecedenceGraph = self.construct_attribute_precedence_graph(flat_class)
         print(property_precedence_graph)
         property_precedence_graph.perform_multiplicity_analysis()
@@ -204,12 +199,12 @@ class MultiLevelModelAnalyzer:
         flat_class.set_pp_graph(property_precedence_graph)
         self.construct_deep_hierarchy_for_class(flat_class)
 
-    def construct_deep_hierarchy_for_class(self, flat_class: MlmObject):
+    def construct_deep_hierarchy_for_class(self, flat_class: FmmlxObject):
         assert flat_class.get_pp_graph() is not None  # as a pre-condition
-        deepest_class: MlmObject = MlmObject.get_shell_class(flat_class)
+        deepest_class: FmmlxObject = FmmlxObject.get_shell_class(flat_class)
         deepest_level: int = 0
         attr_dict = {}
-        all_instances: List[MlmObject] = self.flat_model.get_all_objects_for_class(flat_class)
+        all_instances: List[FmmlxObject] = self.flat_model.get_all_objects_for_class(flat_class)
 
         for mlm_attr in flat_class.get_pp_graph().get_reordered_mlm_attributes():
             # dict entry currently overrides each time
@@ -226,7 +221,7 @@ class MultiLevelModelAnalyzer:
 
         while level_iterator > 0:
             level_iterator -= 1
-            attr_for_current_level: List[MlmAttr] = []
+            attr_for_current_level: List[FmmlxAttribute] = []
             num_of_instances: int = 0
             all_level_values = []
             zipped_level_values = ()
@@ -242,12 +237,12 @@ class MultiLevelModelAnalyzer:
             new_instance_name: str = ""
             for unique_value_set in zipped_level_values:
                 new_instance_name = self._get_new_instance_name(unique_value_set)
-                new_instance: MlmObject = MlmObject(new_instance_name, new_instance_name, str(level_iterator),
-                                                    deepest_class, "false")
+                new_instance: FmmlxObject = FmmlxObject(new_instance_name, new_instance_name, str(level_iterator),
+                                                        deepest_class, "false")
                 for current_attr, attr_values in zip(attr_for_current_level, all_level_values):
                     print(current_attr)
                     print(attr_values)
-                    new_slot: MlmSlot = MlmSlot(current_attr.attr_name, "dummy_value")
+                    new_slot: FmmlxSlot = FmmlxSlot(current_attr.attr_name, "dummy_value")
                     new_slot.set_attribute(current_attr)
                     new_instance.add_slot(new_slot)
                 print(new_instance_name)
@@ -272,11 +267,11 @@ class MultiLevelModelAnalyzer:
 
         return new_instance_name
 
-    def _get_attribute_value_lists_for_class(self, mlm_class: MlmObject):
-        all_instances: List[MlmObject] = self.flat_model.get_all_objects_for_class(mlm_class)
+    def _get_attribute_value_lists_for_class(self, mlm_class: FmmlxObject):
+        all_instances: List[FmmlxObject] = self.flat_model.get_all_objects_for_class(mlm_class)
         all_attributes_of_class = mlm_class.get_all_attributes()
-        all_slots: List[MlmSlot] = []
-        all_slot_lists: List[List[MlmSlot]] = []
+        all_slots: List[FmmlxSlot] = []
+        all_slot_lists: List[List[FmmlxSlot]] = []
 
         # STEP 1: EXTRACT ALL SLOT VALUES
 
@@ -293,7 +288,7 @@ class MultiLevelModelAnalyzer:
         return attribute_value_lists
 
     # new implementation of dependency analysis with dependency graph and dominance analysis (Sep 10, 2025)
-    def construct_attribute_precedence_graph(self, mlm_class: MlmObject) -> PropertyPrecedenceGraph:
+    def construct_attribute_precedence_graph(self, mlm_class: FmmlxObject) -> PropertyPrecedenceGraph:
         property_precedence_graph: PropertyPrecedenceGraph = PropertyPrecedenceGraph(self._get_attribute_value_lists_for_class(mlm_class))
         return property_precedence_graph
 

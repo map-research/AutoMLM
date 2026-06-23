@@ -1,7 +1,7 @@
 from enum import Enum
 from itertools import chain
 
-from src.mlm_helper_classes import *
+from src.fmmlx_mlm_structure.fm_multi_level_model import *
 
 
 class InstLevelOrder(Enum):
@@ -54,7 +54,7 @@ class PropertyPrecedenceGraph(object):
                 all_conflict_free_attr.append(attr_name)
         return all_conflict_free_attr
 
-    def get_reordered_mlm_attributes(self) -> [MlmAttr]:
+    def get_reordered_mlm_attributes(self) -> [FmmlxAttribute]:
         break_counter = 0
         attr_list = []
         while len(self.get_conflict_free_attributes())>0:
@@ -63,7 +63,7 @@ class PropertyPrecedenceGraph(object):
             if len(lowest_attr)==0:
                 lowest_attr = list(self.precedence_graph.keys())
             for attr in lowest_attr:
-                new_attr: MlmAttr = MlmAttr(attr, "Root::XCore::String", inst_level)
+                new_attr: FmmlxAttribute = FmmlxAttribute(attr, "Root::XCore::String", inst_level)
                 attr_list.append(new_attr)
             break_counter += 1
             if break_counter > 5:

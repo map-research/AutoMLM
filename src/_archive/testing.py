@@ -2,12 +2,8 @@
 testing.py used to test AutoMLM scenarios such as XML parsing and writing
 """
 
-from datetime import datetime
-from itertools import combinations
-from lexical_analysis import LexicalAnalysis
 from MultiLevelModel import *
 from lexical_analysis_helper import LexicalAnalysisHelper, LexicalAnalysisHelperBabelnet, LexicalAnalysisHelperWikidata
-from nltk.corpus import wordnet as wn
 import xlsxwriter
 
 
@@ -247,13 +243,13 @@ def test_6():
     class_1.automaticSemanticMatching()
     class_2.automaticSemanticMatching()
 
-    print(f'Len of {class_1.name}:'.ljust(spacing,' '), f'{len(class_1.lexemes)}')
-    print(f'Lex of {class_1.name}:'.ljust(spacing,' '), f'{[l for l in class_1.lexemes]}')
+    print(f'Len of {class_1.object_name}:'.ljust(spacing, ' '), f'{len(class_1.lexemes)}')
+    print(f'Lex of {class_1.object_name}:'.ljust(spacing, ' '), f'{[l for l in class_1.lexemes]}')
     print('')
-    print(f'Len of {class_2.name}:'.ljust(spacing,' '), f'{len(class_2.lexemes)}')
-    print(f'Lex of {class_2.name}:'.ljust(spacing,' '), f'{[l for l in class_2.lexemes]}')
+    print(f'Len of {class_2.object_name}:'.ljust(spacing, ' '), f'{len(class_2.lexemes)}')
+    print(f'Lex of {class_2.object_name}:'.ljust(spacing, ' '), f'{[l for l in class_2.lexemes]}')
     print('')
-    print(f'Common Hypernyms of {class_1.name} and {class_2.name}: '.ljust(spacing,' '), f'{[hyp for hyp in helper.getCommonHypernyms(class_1, class_2)]}')
+    print(f'Common Hypernyms of {class_1.object_name} and {class_2.object_name}: '.ljust(spacing, ' '), f'{[hyp for hyp in helper.getCommonHypernyms(class_1, class_2)]}')
 
     # print hypernyms of class label
     """

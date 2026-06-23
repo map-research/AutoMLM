@@ -1,7 +1,5 @@
-from src.MultiLevelModelAnalyzer import MultiLevelModelAnalyzer
-from src.MultiLevelModel import MultilevelModel
-from src.mlm_helper_classes import MlmObject, MlmAssociation
-from itertools import chain
+from src._archive.MultiLevelModelAnalyzer import MultiLevelModelAnalyzer
+from src.fmmlx_mlm_structure.fm_multi_level_model import *
 
 #uf_product_model = MultilevelModel('C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\datenmodell.xml')
 
@@ -15,9 +13,9 @@ def run_ci_analysis(flat_model: MultilevelModel):
             print(f"{assoc.target_class.name} may be promoted")
 """
 def airplane_example():
-    flight_model = MultilevelModel('/mlm_files/misc/FlightManagement.xml',
-                                   print_progress=False)
-    airplane: MlmObject = flight_model.get_mlm_object_by_shortname("Airplane")
+    flight_model = FmmlxModel('/mlm_files/misc/FlightManagement.xml',
+                              print_progress=False)
+    airplane: FmmlxObject = flight_model.get_mlm_object_by_shortname("Airplane")
 
     # print(airplane)
     # print(*flight_model.get_all_objects_for_class(airplane))
@@ -25,27 +23,27 @@ def airplane_example():
     mlm_analyzer.analyze_attribute_precedence_for_class(airplane)
 
 def car_example():
-    car_model = MultilevelModel('/mlm_files/prop-precedence/MD_CarComplex.xml',
-                                print_progress=False)
-    car_class: MlmObject = car_model.get_mlm_object_by_shortname("RentalCar")
+    car_model = FmmlxModel('/mlm_files/prop-precedence/MD_CarComplex.xml',
+                           print_progress=False)
+    car_class: FmmlxObject = car_model.get_mlm_object_by_shortname("RentalCar")
 
     mlm_analyzer = MultiLevelModelAnalyzer(car_model)
     mlm_analyzer.construct_attribute_precedence_graph(car_class)
 
 def oc_example():
-    oc_example_model_small = MultilevelModel("/mlm_files/misc/standard-oc-small.xml", print_progress=False)
+    oc_example_model_small = FmmlxModel("/mlm_files/misc/standard-oc-small.xml", print_progress=False)
     mlm_analyzer = MultiLevelModelAnalyzer(oc_example_model_small)
     for i, flat_class in enumerate(oc_example_model_small.get_all_flat_classes(), start=0):
         print(f"------------------------------------------------------------------------------------------------\n"
-              f"ANALYZING ATTRIBUTE CO-DEPENDENCY FOR CLASS <{flat_class.name}>\n")
+              f"ANALYZING ATTRIBUTE CO-DEPENDENCY FOR CLASS <{flat_class.object_name}>\n")
         mlm_analyzer.analyze_attribute_precedence_for_class(flat_class)
 
 
 def custom_example(path_to_standard_fmmlx: str, all_classes: bool, single_class_name: str = "", is_csv: bool = False):
     if is_csv:
-        example_model = MultilevelModel(csv_file_path=path_to_standard_fmmlx)
+        example_model = FmmlxModel(csv_file_path=path_to_standard_fmmlx)
     else:
-        example_model = MultilevelModel(path_to_standard_fmmlx)
+        example_model = FmmlxModel(path_to_standard_fmmlx)
     mlm_analyzer = MultiLevelModelAnalyzer(example_model)
     mlm_analyzer.model_deepening(all_classes, single_class_name=single_class_name)
 
@@ -98,8 +96,8 @@ car_simple_v5 = "C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\CarSimpl
 car = "C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\MD_CarComplex.xml"
 csv_model = "C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\csv_files\\news_decline.csv"
 
-cars_to_path = "C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\type-object\\RentalCars_TypeObject.xml"
+cars_to_path = "/type-object/RentalCars_TypeObject.xml"
 
-print(MultilevelModel(cars_to_path))
+print(FmmlxModel(cars_to_path))
 #custom_example(car_simple_v5, True)
 

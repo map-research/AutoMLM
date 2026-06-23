@@ -287,7 +287,7 @@ class LexicalAnalysisHelper():
         for eleA in listA:
             labelA = ""
             if eleA[1] == LexicalSources.WORDNET:
-                labelA = eleA[0].name()
+                labelA = eleA[0].object_name()
                 labelA = labelA.split(".")[0]
             elif eleA[1] == LexicalSources.BABELNET:
                 try:
@@ -316,7 +316,7 @@ class LexicalAnalysisHelper():
             for eleB in listB:
                 labelB = ""
                 if eleB[1] == LexicalSources.WORDNET:
-                    labelB = eleB[0].name()
+                    labelB = eleB[0].object_name()
                     labelB = labelB.split(".")[0]
                 elif eleB[1] == LexicalSources.BABELNET:
                     try:
