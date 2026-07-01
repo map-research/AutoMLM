@@ -1,7 +1,8 @@
 from enum import EnumMeta
 from xml.dom.minidom import parse
 from src.fmmlx_mlm_structure import xml_export as export_xml
-from typing import List
+
+from typing import List, Optional
 import csv
 import keyword #für reservierten Wert
 import os #für Dateinamen aus Dateiendung
@@ -27,7 +28,7 @@ class FmmlxModel:
     All elements within a multi-level model are themselves instances of Python classes specified in mlm_helper_classes.py
     """
 
-    def __init__(self, file_path: str = "", print_progress: bool = False):
+    def __init__(self, file_path: str = "", print_progress: bool = False, selected_csv_columns: Optional[List[str]] = None):
         self.path_name = ""
         self.mlm_objects: List[FmmlxObject] = []
         self.enums: List[FmmlxEnumType] = []
@@ -41,19 +42,22 @@ class FmmlxModel:
             # Die Dateiendung entscheidet, wie die Datei gelesen wird.
             file_extension = os.path.splitext(file_path)[1].lower() #[1] für Dateiende
             if file_extension == ".csv":
-                self._import_csv(file_path)
+                self._import_csv(file_path, selected_csv_columns)
             elif file_extension == ".xml":
                 self._parse_xml(file_path)
             else:
                 raise ValueError(f"File '{file_path}' must be a CSV or XML file.")
 
-    def _import_csv(self, csv_file_path: str):
+    def _import_csv(self, csv_file_path: str, selected_csv_columns: Optional[List[str]] = None):
         """
         import CSV as MultiLevelModel. Note that CSV imports only account for classes and objects; relationships
         between classes and objects are not accounted for.
         """
         all_mlm_objects: List[FmmlxObject] = []
-        with open(csv_file_path, "r", newline="") as csv_file: #r = read
+        # CSV files can contain special characters such as umlauts or non-English names.
+        # On Windows, open() may otherwise use the local default encoding and fail while reading.
+        # utf-8-sig reads normal UTF-8 files and also ignores a possible BOM marker from Excel.
+        with open(csv_file_path, "r", newline="", encoding="utf-8-sig") as csv_file: #r = read
             # Das Trennzeichen wird erkannt, damit auch Dateien mit ; oder Tab funktionieren.
             csv_reader = csv.reader(csv_file, self._get_csv_dialect(csv_file), skipinitialspace=True)
             #mit strip vorne und hinten Leerzeichen und Anführungszeichen entfernen
@@ -78,6 +82,11 @@ class FmmlxModel:
             assert len(row) == number_of_columns, (
                 f"CSV row {row_number} has {len(row)} values, but the header has {number_of_columns} values."
             )
+
+        if selected_csv_columns is not None:
+            # The user can list the columns that should become attributes in the model.
+            header_row, data_rows = self._select_csv_columns(header_row, data_rows, selected_csv_columns)
+            number_of_columns = len(header_row)
 
         # Der Klassenname kommt aus dem Dateinamen.
         class_name = self._make_csv_class_name(csv_file_path)
@@ -132,7 +141,50 @@ class FmmlxModel:
         try:
             return csv.Sniffer().sniff(sample, delimiters=",;\t|")
         except csv.Error:
-            return csv.excel
+            # csv.Sniffer can fail when the first rows contain many empty cells or irregular values.
+            # Returning csv.excel directly would use "," as delimiter, which breaks semicolon CSV files.
+            # Therefore, we count the allowed delimiters in the sample and use the one that appears most often.
+            dialect = csv.excel
+            delimiter_counts = {delimiter: sample.count(delimiter) for delimiter in [",", ";", "\t", "|"]}
+            dialect.delimiter = max(delimiter_counts, key=delimiter_counts.get)
+            return dialect
+
+    def _select_csv_columns(self, header_row: List[str], data_rows: List[List[str]],
+                            selected_csv_columns: List[str]):
+        # Without at least one selected column, the CSV class would not have any attributes.
+        assert len(selected_csv_columns) > 0, "At least one CSV column must be selected."
+
+        selected_column_numbers = []
+        missing_column_names = []
+        for selected_column in selected_csv_columns:
+            # For every selected column name, we search the matching position in the CSV header.
+            matching_column_number = self._get_csv_column_number(header_row, selected_column)
+            if matching_column_number is None:
+                # Missing names are collected first, so the error can show all wrong column names at once.
+                missing_column_names.append(selected_column)
+            else:
+                # We store the column number because the data rows are selected by position later.
+                selected_column_numbers.append(matching_column_number)
+
+        assert not missing_column_names, f"Selected CSV columns were not found: {missing_column_names}"
+
+        # The header is reduced to the selected columns, so only these columns become attributes.
+        selected_header_row = [header_row[col_number] for col_number in selected_column_numbers]
+        # Every data row is reduced in the same order, so the slots still match the selected attributes.
+        selected_data_rows = [
+            [row[col_number] for col_number in selected_column_numbers]
+            for row in data_rows
+        ]
+        return selected_header_row, selected_data_rows
+
+    def _get_csv_column_number(self, header_row: List[str], selected_column: str):
+        for col_counter, raw_header_name in enumerate(header_row):
+            # The user may enter the original CSV name or the safe attribute name used in the model.
+            safe_header_name = self._make_safe_name(raw_header_name, "attribute", allow_first_char_digit=True)
+            if selected_column == raw_header_name or selected_column == safe_header_name:
+                return col_counter
+        # None means that this selected column does not exist in the CSV header.
+        return None
 
     #Wenn es keine Daten gibt, kann man nicht vergleichen. Dann wird die Kopfzeile akzeptiert.
     def _first_row_looks_like_header(self, header_row: List[str], data_rows: List[List[str]]) -> bool:
