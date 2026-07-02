@@ -61,7 +61,7 @@ class PrecedenceGraph:
             for attr in attr_list:
                 attr.set_proposed_inst_level(inst_level)
             inst_level += 1
-        self.max_level = inst_level
+        self.max_level = inst_level-1
 
     def has_deepening_potential(self) -> bool:
         return self.max_level > 0

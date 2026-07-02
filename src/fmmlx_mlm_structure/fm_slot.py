@@ -35,6 +35,9 @@ class FmmlxSlot:
     def get_owner_object(self):
         return self.owner
 
+    def get_value(self):
+        return self.value
+
     def _import_slot_value(self, slot_value: str) -> str:
         # IMPORT STR
         if slot_value[-10:] == "asString()":

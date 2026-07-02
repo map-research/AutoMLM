@@ -62,9 +62,21 @@ class FmmlxObject:
     def get_all_attributes(self) -> List[FmmlxAttribute]:
         return self.attr_list
 
+    def get_attributes_at_inst_level_x(self, inst_level: int) -> List[FmmlxAttribute]:
+        attr_list_at_inst_level = []
+        for attr in self.attr_list:
+            if attr.inst_level == inst_level:
+                attr_list_at_inst_level.append(attr)
+        return attr_list_at_inst_level
+
     def set_class_of_object(self, new_class_of_object):
         self.class_of_object = new_class_of_object
         self.level = int(new_class_of_object.level) - 1
+
+    def add_object_instance(self):
+        """This operation adds an instance to an existing class. It is required for performing the necessary change
+        operations in model deepening"""
+        assert self.level > 0, "new instances can only be created for objects on level > 0"
 
     def add_attr(self, attr: FmmlxAttribute):
         self.attr_list.append(attr)
@@ -137,7 +149,15 @@ class FmmlxObject:
         print(self.precedence_graph.get_static_order())
 
     def promote_to_level_x(self, new_level: int):
+        """This operation serves to promote a class to a higher level. Properties remain unchanged"""
+        assert new_level > self.level, "promotion requires higher classification level"
         self.level = new_level
+
+    def promote_attributes(self):
+        """This operation promotes all attributes of a class, should be preceded by promotion of class.
+        New instantiantion levels for attributes must be set before -- cannot be checked via assertion"""
+        for attr in self.attr_list:
+            attr.set_inst_level_to_proposed()
 
     def export(self, root):
         projectName = root.attrib['path']

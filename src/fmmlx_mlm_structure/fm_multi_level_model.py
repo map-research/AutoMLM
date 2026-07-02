@@ -556,6 +556,24 @@ class FmmlxModel:
                 instances_for_class.append(mlm_object)
         return instances_for_class
 
+    def perform_change_operations_for_precedence_analysis(self, fm_object: FmmlxObject):
+        assert fm_object.level == 1, "Change operations performed on L1 classes only"
+        assert fm_object.precedence_graph is not None, ("Precedence graph not detected, "
+                                                        "precedence analysis must be performed first")
+        flat_class: FmmlxObject = self.get_mlm_object_by_fullname(fm_object.full_name)
+        max_inst_level: int = flat_class.get_precedence_graph().get_max_level()
+        flat_class.promote_to_level_x(max_inst_level + 1)
+        flat_class.promote_attributes()
+        while max_inst_level > 0:
+            attrs_at_inst_level: [FmmlxAttribute] = flat_class.get_attributes_at_inst_level_x(max_inst_level)
+            print(attrs_at_inst_level[0].get_slots_for_unique_values())
+            for unique_value_slot in attrs_at_inst_level[0].get_slots_for_unique_values():
+                new_instance: FmmlxObject = FmmlxObject(flat_class.full_name, unique_value_slot.get_value().upper(),
+                                                        str(max_inst_level),flat_class, "false")
+                self.mlm_objects.append(new_instance)
+            print(max_inst_level)
+            max_inst_level -= max_inst_level
+
     def get_assoc_classification_indicators(self) -> List[FmmlxAssociation]:
         indicating_associations: List[FmmlxAssociation] = []
         for mlm_assoc in self.associations:

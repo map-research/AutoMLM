@@ -30,6 +30,9 @@ class FmmlxAttribute:
     def set_inst_level(self, new_inst_level: int):
         self.inst_level = new_inst_level
 
+    def set_inst_level_to_proposed(self):
+        self.inst_level = self.proposed_inst_level
+
     def get_owner(self):
         return self.owner
 
@@ -38,6 +41,12 @@ class FmmlxAttribute:
 
     def get_collective_slots(self) -> []:
         return self.slot_collectives
+
+    def get_slots_for_unique_values(self) -> []:
+        unique_value_slots = []
+        for sc in self.slot_collectives:
+            unique_value_slots.append(sc.get_slots()[0]) # sufficient to grap first slots, all are identical in value
+        return unique_value_slots
 
     def get_slot_collective_comparisons(self, other, print_progress: bool = False) -> [str]:
         """

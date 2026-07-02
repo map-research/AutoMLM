@@ -53,7 +53,7 @@ class ModelDeepening:
                                              print_slot_comparisons: bool = True):
         """
         The core of property precedence analysis lies in the specification of slot collectives. Accessing the
-        object sets of a slot collective allows comparing slot collectives. The built-in set comparisons from Python
+        scopes of a slot collective allows comparing slot collectives. The built-in set comparisons from Python
         here already return the precedence relation between two slot collectives.
 
         After having created the slot collectives, the main task is to compare all slot collectives of the
@@ -67,10 +67,12 @@ class ModelDeepening:
             flat_class.analyze_attribute_precedence(print_attr_relations=print_attribute_relations,
                                                     print_slots=print_slot_comparisons)
             precedence_graph: PrecedenceGraph = flat_class.get_precedence_graph()
-            precedence_graph.export_graph_as_png(flat_class.object_name)
+            #precedence_graph.export_graph_as_png(flat_class.object_name)
             precedence_graph.set_inst_levels_for_properties()
-            #if precedence_graph.has_deepening_potential():
-
+            if precedence_graph.has_deepening_potential():
+                self.output_model.perform_change_operations_for_precedence_analysis(flat_class)
+                print("\n---------------------OUTPUT MODEL------------------------")
+                print(self.output_model)
             if print_any:
                 print("\n-------------------------------------------------------------------\n")
 
@@ -85,9 +87,13 @@ class ModelDeepening:
         assert flat_class.level == 1, "Change operations performed on L1 classes only"
         assert flat_class.precedence_graph is not None, ("Precedence graph not detected, "
                                                          "precedence analysis must be performed first")
-        flat_class.promote_to_level_x(flat_class.get_precedence_graph().get_max_level() + 1)
-        # max level returns max inst level, class must be one level higher
-        for attr in flat_class.get_all_attributes():
-            attr.set_inst_level(attr.get_proposed_inst_level())
+        max_inst_level: int = flat_class.get_precedence_graph().get_max_level()
+        flat_class.promote_to_level_x(max_inst_level + 1)
+        flat_class.promote_attributes()
+        print(flat_class)
+        while max_inst_level >= 0:
+
+            max_inst_level -= max_inst_level
+
 
 

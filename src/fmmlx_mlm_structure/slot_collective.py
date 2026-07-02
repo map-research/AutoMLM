@@ -29,6 +29,9 @@ class SlotCollective:
     def add_slot(self, slot: FmmlxSlot):
         self.slots.append(slot)
 
+    def get_slots(self) -> [FmmlxSlot]:
+        return self.slots
+
     def get_scope_set(self) -> set:
         return set(self.scope_list)
 
@@ -49,7 +52,7 @@ class SlotCollective:
 
     def compare(self, other) -> str:
         """
-        the compare method compares two SlotCollective instances and returns whether the respective symbol
+        the compare method compares two SlotCollective instances and returns the respective comparison symbol
         """
         if self < other:
             return "<"
@@ -58,7 +61,7 @@ class SlotCollective:
         elif self >= other >= self:
             return "="
         else:
-            return "||"  # || in this context means disjoint, indicating incomaprability
+            return "||"  # || in this context means disjoint, indicating incomparability
 
     def pretty_print_scope(self) -> str:
         pp_scope: str = ""
