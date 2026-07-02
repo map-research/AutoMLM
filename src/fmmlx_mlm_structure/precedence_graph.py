@@ -3,6 +3,7 @@ Provides structure for precedence graphs, required for property-precedence analy
 The precedence graph is a directed graph, with the direction a -> b expressing reverse precedence (i.e., b < a)
 This allows interpreting the topological order of the graph as instantiation levels.
 """
+import datetime
 import os.path
 from graphlib import TopologicalSorter
 
@@ -20,6 +21,7 @@ class PrecedenceGraph:
         self.pydot_graph = None
         self.nx_digraph: DiGraph = None
         self.max_level: int = 0
+        self.output_folder: str = "test_file_outputs"
 
     def add_node_connection(self, node1: FmmlxAttribute, node2: FmmlxAttribute):
         if node1 in self.nodes:
@@ -70,12 +72,23 @@ class PrecedenceGraph:
     def export_graph_as_png(self, graph_name: str):
         if self.pydot_graph is None:
             self.create_pydot_graph()
-        self.pydot_graph.write_png(os.path.join("test_file_outputs", f"{graph_name}_PropertyPrecedenceGraph.png"))
+        self.pydot_graph.write_png(os.path.join(self.output_folder, self._get_image_file_name(graph_name, "png")))
 
     def export_graph_as_svg(self, graph_name: str):
         if self.pydot_graph is None:
             self.create_pydot_graph()
-        self.pydot_graph.write_png(os.path.join("test_file_outputs", f"{graph_name}_PropertyPrecedenceGraph.svg"))
+        self.pydot_graph.write_svg(os.path.join(self.output_folder, self._get_image_file_name(graph_name, "svg")))
+
+    def _get_image_file_name(self, graph_name: str, format: str) -> str:
+        today = datetime.datetime.now()
+        time_str: str = f"{today.year}{today.month}{today.day}"
+        suffix: int = 1
+        filename: str = f"{graph_name}_PropertyPrecedenceGraph_v{time_str}-v{str(suffix)}.{format}"
+        while os.path.exists(os.path.join(self.output_folder,filename)):
+            print("EXISTS")
+            suffix += 1
+            filename = f"{graph_name}_PropertyPrecedenceGraph_v{time_str}-v{str(suffix)}.{format}"
+        return filename
 
     def create_pydot_graph(self):
         self.pydot_graph = pydot.Dot("Proper Precedence Graph", graph_type='digraph')

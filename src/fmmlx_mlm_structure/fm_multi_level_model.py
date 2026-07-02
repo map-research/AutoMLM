@@ -230,6 +230,8 @@ class FmmlxModel:
 
     def _make_safe_name(self, name: str, fallback_name: str, allow_first_char_digit: bool = False) -> str:
         # Zeichen, die in Namen stören können, werden durch _ ersetzt.
+        # name attribute is occupied
+        # attribute names must be String
         safe_name = re.sub(r"\W", "_", name.strip())
         safe_name = re.sub(r"_+", "_", safe_name).strip("_")
         if safe_name == "":

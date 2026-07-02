@@ -1,3 +1,5 @@
+import datetime
+
 from src.fmmlx_mlm_structure.fm_multi_level_model import *
 from src.fmmlx_mlm_structure.precedence_graph import PrecedenceGraph
 
@@ -51,7 +53,7 @@ class ModelDeepening:
                                              print_slot_comparisons: bool = True):
         """
         The core of property precedence analysis lies in the specification of slot collectives. Accessing the
-        object sets of a slot collective, allows comparing slot collectives. The built-in set comparisons from Python
+        object sets of a slot collective allows comparing slot collectives. The built-in set comparisons from Python
         here already return the precedence relation between two slot collectives.
 
         After having created the slot collectives, the main task is to compare all slot collectives of the
@@ -65,6 +67,7 @@ class ModelDeepening:
             flat_class.analyze_attribute_precedence(print_attr_relations=print_attribute_relations,
                                                     print_slots=print_slot_comparisons)
             precedence_graph: PrecedenceGraph = flat_class.get_precedence_graph()
+            precedence_graph.export_graph_as_png(flat_class.object_name)
             precedence_graph.set_inst_levels_for_properties()
             #if precedence_graph.has_deepening_potential():
 
