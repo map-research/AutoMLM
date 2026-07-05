@@ -1,9 +1,11 @@
 from src.fmmlx_mlm_structure.fm_enum_type import FmmlxEnumType
+from src.fmmlx_mlm_structure.model_property import ModelProperty
 
 
-class FmmlxAttribute:
+class FmmlxAttribute(ModelProperty):
     def __init__(self, attr_name: str, attr_type: str, inst_level: int,
                  uses_enum: bool = False, uses_domain_specific_type: bool = False):
+        super().__init__(print_name=attr_name)
         self.attr_name = attr_name
         self.attr_type = attr_type
         self.attr_type_short = attr_type.split("::")[2]

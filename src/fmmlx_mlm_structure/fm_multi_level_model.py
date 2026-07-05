@@ -558,10 +558,10 @@ class FmmlxModel:
 
     def perform_change_operations_for_precedence_analysis(self, fm_object: FmmlxObject):
         assert fm_object.level == 1, "Change operations performed on L1 classes only"
-        assert fm_object.precedence_graph is not None, ("Precedence graph not detected, "
+        assert fm_object.attribute_precedence_graph is not None, ("Precedence graph not detected, "
                                                         "precedence analysis must be performed first")
         flat_class: FmmlxObject = self.get_mlm_object_by_fullname(fm_object.full_name)
-        max_inst_level: int = flat_class.get_precedence_graph().get_max_level()
+        max_inst_level: int = flat_class.get_attribute_precedence_graph().get_max_level()
         flat_class.promote_to_level_x(max_inst_level + 1)
         flat_class.promote_attributes()
         while max_inst_level > 0:

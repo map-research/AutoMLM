@@ -1,4 +1,4 @@
-from src.Tester import Tester
+from src.tester import Tester
 from src.fmmlx_mlm_structure.fm_multi_level_model import FmmlxModel
 
 
@@ -24,13 +24,13 @@ class PrecedenceAnalysisTester(Tester):
                 selected_columns_supermarket = ["Invoice_ID", "Branch", "City", "Customer_type", "Gender", "Product_line"]
                 self.init_test("supermarket_sales.csv", csv_columns=selected_columns_supermarket)
             case _:
-                raise Exception("Invalid test variant (variant number: " + str(self.variant) + ") specified")
-        self.md_instance.perform_property_precedence_analysis(print_attribute_relations=True,
-                                                              print_slot_comparisons=True)
+                raise Exception("Invalid test variant (variant number: " + str(self.variant) + ") unspecified")
+        self.md_instance.perform_property_precedence_analysis(print_attribute_relations=False,
+                                                              print_slot_comparisons=False)
         if self.export_model:
             self.export_model_xml()
 
-    def init_test(self, model_xml_name: str, csv_columns: [str] = []):
+    def init_test(self, model_xml_name: str, csv_columns: [str] = None):
         self.set_file_name(model_xml_name)
         self.md_instance.set_input_model(FmmlxModel(self.get_original_model_path(), csv_columns))
         if self.print_input_model:

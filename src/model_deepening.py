@@ -48,9 +48,9 @@ class ModelDeepening:
     3. perform inductive leap: apply precedence relation from slots to attributes
     """
 
-    def perform_property_precedence_analysis(self, print_slot_collectives: bool = True,
-                                             print_attribute_relations: bool = True,
-                                             print_slot_comparisons: bool = True):
+    def perform_property_precedence_analysis(self, print_slot_collectives: bool = False,
+                                             print_attribute_relations: bool = False,
+                                             print_slot_comparisons: bool = False):
         """
         The core of property precedence analysis lies in the specification of slot collectives. Accessing the
         scopes of a slot collective allows comparing slot collectives. The built-in set comparisons from Python
@@ -66,13 +66,13 @@ class ModelDeepening:
             flat_class.create_slot_collectives(ignore_case=True, print_progress=print_slot_collectives)
             flat_class.analyze_attribute_precedence(print_attr_relations=print_attribute_relations,
                                                     print_slots=print_slot_comparisons)
-            precedence_graph: PrecedenceGraph = flat_class.get_precedence_graph()
-            #precedence_graph.export_graph_as_png(flat_class.object_name)
-            precedence_graph.set_inst_levels_for_properties()
-            if precedence_graph.has_deepening_potential():
-                self.output_model.perform_change_operations_for_precedence_analysis(flat_class)
+            attr_precedence_graph: PrecedenceGraph = flat_class.get_attribute_precedence_graph()
+            attr_precedence_graph.export_graph_as_png(flat_class.object_name)
+            attr_precedence_graph.set_inst_levels_for_attributes()
+            if attr_precedence_graph.has_deepening_potential():
+                #self.output_model.perform_change_operations_for_precedence_analysis(flat_class)
                 print("\n---------------------OUTPUT MODEL------------------------")
-                print(self.output_model)
+                #print(self.output_model)
             if print_any:
                 print("\n-------------------------------------------------------------------\n")
 
@@ -85,9 +85,9 @@ class ModelDeepening:
         unchanged. Currently tailored to property-precedence analysis only, needs to be tailored to further
         deepening analysis techniques"""
         assert flat_class.level == 1, "Change operations performed on L1 classes only"
-        assert flat_class.precedence_graph is not None, ("Precedence graph not detected, "
+        assert flat_class.attribute_precedence_graph is not None, ("Precedence graph not detected, "
                                                          "precedence analysis must be performed first")
-        max_inst_level: int = flat_class.get_precedence_graph().get_max_level()
+        max_inst_level: int = flat_class.get_attribute_precedence_graph().get_max_level()
         flat_class.promote_to_level_x(max_inst_level + 1)
         flat_class.promote_attributes()
         print(flat_class)

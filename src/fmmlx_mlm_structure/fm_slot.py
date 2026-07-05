@@ -1,4 +1,6 @@
 from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
+from src.fmmlx_mlm_structure.model_property import ModelProperty
+
 # from src.fmmlx_mlm_structure.fm_object import FmmlxObject
 
 '''
@@ -8,8 +10,10 @@ Thus the method set_attribute() can call "class_of_object".
 You MAY NOT import FmmlxObject, though. This causes a circular import.
 '''
 
-class FmmlxSlot:
+
+class FmmlxSlot(ModelProperty):
     def __init__(self, slot_name: str, value: str):
+        super().__init__(print_name=f"{slot_name}:{value}")
         self.attribute = None
         self.slot_name = slot_name
         self.value = value # self._import_slot_value(value) # parsing done in FmmlxModel class

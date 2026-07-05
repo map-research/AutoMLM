@@ -22,7 +22,8 @@ class FmmlxObject:
         self.parent_classes = []
         self.instances = []
         self.slot_collectives: [SlotCollective] = []
-        self.precedence_graph: PrecedenceGraph = PrecedenceGraph()
+        self.attribute_precedence_graph: PrecedenceGraph = PrecedenceGraph()
+        self.slot_precedence_graph: PrecedenceGraph = PrecedenceGraph()
 
     def __repr__(self):
         # class_str = f"[CLASS] {self.name}"
@@ -99,8 +100,8 @@ class FmmlxObject:
     def get_slot_collectives(self):
         return self.slot_collectives
 
-    def get_precedence_graph(self):
-        return self.precedence_graph
+    def get_attribute_precedence_graph(self):
+        return self.attribute_precedence_graph
 
     def get_slot_collective_by_attribute_and_value(self, attribute: FmmlxAttribute, value: str):
         for slot_collective in self.slot_collectives:
@@ -137,16 +138,13 @@ class FmmlxObject:
             for inner_in in range(outer_i+1, len(self.attr_list)):
                 inner_attr: FmmlxAttribute = self.attr_list[inner_in]
                 attr_comparison_symbol: str = outer_attr.get_attribute_comparison_symbol(inner_attr)
-                self.precedence_graph.add_attribute_relation(
+                self.attribute_precedence_graph.add_property_relation(
                     outer_attr, inner_attr, attr_comparison_symbol)
                 if print_attr_relations:
                     print(f"[Attr Relation] {outer_attr.attr_name} to {inner_attr.attr_name}: {attr_comparison_symbol}")
                     if print_slots:
                         print(f"{outer_attr.get_attribute_comparison_symbol(inner_attr, print_slots=True)}")
                         print("\n--------------------------------------------------------------\n")
-
-        print(self.precedence_graph)
-        print(self.precedence_graph.get_static_order())
 
     def promote_to_level_x(self, new_level: int):
         """This operation serves to promote a class to a higher level. Properties remain unchanged"""
