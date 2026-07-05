@@ -1,3 +1,4 @@
+from src.fmmlx_mlm_structure.model_property_enum import ModelPropertyEnum
 from src.fmmlx_mlm_structure.precedence_graph import PropertyPrecedenceGraph
 
 
@@ -5,7 +6,9 @@ class AttributePrecedenceGraph(PropertyPrecedenceGraph):
 
     def __init__(self):
         super().__init__()
+        self.property_type = ModelPropertyEnum.ATTRIBUTE
         self.max_level: int = 0
+
 
     def set_inst_levels_for_attributes(self):
         inst_level: int = 0

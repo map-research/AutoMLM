@@ -15,6 +15,7 @@ from networkx import DiGraph
 
 from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
 from src.fmmlx_mlm_structure.model_property import ModelProperty
+from src.fmmlx_mlm_structure.model_property_enum import ModelPropertyEnum
 from src.fmmlx_mlm_structure.property_group import PropertyGroup
 
 
@@ -30,6 +31,7 @@ class PropertyPrecedenceGraph:
         # property groups with at least 2 model properties
         self.pydot_graph = None
         self.nx_digraph: DiGraph = None
+        self.property_type: ModelPropertyEnum = ModelPropertyEnum.UNDEFINED
         self.output_folder: str = "test_file_outputs"  # default folder used for generated images
 
     def _add_property_precedence_to_graph(self, pg1: PropertyGroup, pg2: PropertyGroup):
@@ -159,10 +161,10 @@ class PropertyPrecedenceGraph:
         today = datetime.datetime.now()
         time_str: str = f"{today.year}{today.month}{today.day}"
         suffix: int = 1
-        filename: str = f"{graph_name}_PropertyPrecedenceGraph_v{time_str}-v{str(suffix)}.{format}"
+        filename: str = f"{graph_name}_{self.property_type.value}PrecedenceGraph_v{time_str}-v{str(suffix)}.{format}"
         while os.path.exists(os.path.join(self.output_folder, filename)):
             suffix += 1
-            filename = f"{graph_name}_PropertyPrecedenceGraph_v{time_str}-v{str(suffix)}.{format}"
+            filename = f"{graph_name}_{self.property_type.value}PrecedenceGraph_v{time_str}-v{str(suffix)}.{format}"
         return filename
 
     def create_pydot_graph(self):

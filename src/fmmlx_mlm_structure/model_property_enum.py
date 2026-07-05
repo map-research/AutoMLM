@@ -9,3 +9,4 @@ class ModelPropertyEnum(Enum):
     ASSOCIATION = "Association"
     LINK = "Link"
     CONSTRAINT = "Constraint"
+    UNDEFINED = "Undefined"

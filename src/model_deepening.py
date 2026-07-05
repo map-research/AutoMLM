@@ -67,7 +67,7 @@ class ModelDeepening:
             flat_class.analyze_attribute_precedence(print_attr_relations=print_attribute_relations,
                                                     print_slots=print_slot_comparisons)
             attr_precedence_graph: PropertyPrecedenceGraph = flat_class.get_attribute_precedence_graph()
-            #attr_precedence_graph.export_graph_as_png(flat_class.object_name)
+            attr_precedence_graph.export_graph_as_png(flat_class.object_name)
             attr_precedence_graph.set_inst_levels_for_attributes()
             if attr_precedence_graph.has_deepening_potential():
                 #self.output_model.perform_change_operations_for_precedence_analysis(flat_class)
