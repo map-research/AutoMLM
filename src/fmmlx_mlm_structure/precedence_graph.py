@@ -4,9 +4,10 @@ The precedence graph is a directed graph, with the direction a -> b expressing r
 This allows interpreting the topological order of the graph as instantiation levels.
 """
 import datetime
+import itertools
 import os.path
 from graphlib import TopologicalSorter
-from typing import Any
+from typing import Any, Iterable
 
 import networkx as nx
 import pydot
@@ -17,7 +18,7 @@ from src.fmmlx_mlm_structure.model_property import ModelProperty
 from src.fmmlx_mlm_structure.property_group import PropertyGroup
 
 
-class PrecedenceGraph:
+class PropertyPrecedenceGraph:
     """Property precedence graph used for property precedence analysis. The graph is implemented through an
     adjacency list via a dictionary. Additionally, a redundant list containing all edges is maintained.
     This is done in order to simplify the generation of graph images."""
@@ -29,8 +30,7 @@ class PrecedenceGraph:
         # property groups with at least 2 model properties
         self.pydot_graph = None
         self.nx_digraph: DiGraph = None
-        self.max_level: int = 0  # used for attribute precedence graphs
-        self.output_folder: str = "test_file_outputs"
+        self.output_folder: str = "test_file_outputs"  # default folder used for generated images
 
     def _add_property_precedence_to_graph(self, pg1: PropertyGroup, pg2: PropertyGroup):
         """All property groups received as input here should only include one model property"""
@@ -62,7 +62,10 @@ class PrecedenceGraph:
         pg_updated: bool = False
         for pg in connections:
             if pg in old_pg_groups:
-                self.nodes[key].remove(pg) # note that 'remove' exits after first occurence, but shouldn't be a problem
+                # TODO IMPORTANT!
+                # old_pg_groups may contain pgs with multiple property,
+                # causing an error in the implemented equality operator
+                self.nodes[key].remove(pg) # note that 'remove' exits after first occurrence, but shouldn't be a problem
                 if not pg_updated:
                     connections.append(new_p_group)
                     pg_updated = True
@@ -113,7 +116,6 @@ class PrecedenceGraph:
             if updated_edge:
                 self.edges[edge_index] = new_edge
 
-
     def add_property_relation(self, prop1: ModelProperty, prop2: ModelProperty, rel_symbol: str):
         pg1: PropertyGroup = PropertyGroup(prop1)
         pg2: PropertyGroup = PropertyGroup(prop2)
@@ -142,21 +144,6 @@ class PrecedenceGraph:
     def get_topological_generations(self) -> []:
         self.init_nx_graph()
         return [sorted(generation) for generation in nx.topological_generations(self.nx_digraph)]
-
-    def set_inst_levels_for_attributes(self):
-        inst_level: int = 0
-        for pg_list in self.get_topological_generations():
-            for pg in pg_list:
-                for attr in pg.get_model_properties():
-                    attr.set_proposed_inst_level(inst_level)
-            inst_level += 1
-        self.max_level = inst_level - 1
-
-    def has_deepening_potential(self) -> bool:
-        return self.max_level > 0
-
-    def get_max_level(self) -> int:
-        return self.max_level
 
     def export_graph_as_png(self, graph_name: str):
         if self.pydot_graph is None:

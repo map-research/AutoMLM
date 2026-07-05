@@ -1,10 +1,12 @@
 import xml.etree.ElementTree as ElementTree
 from typing import List
+
+from src.fmmlx_mlm_structure.attribute_precedence_graph import AttributePrecedenceGraph
 from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
 from src.fmmlx_mlm_structure.fm_constraint import FmmlxConstraint
 from src.fmmlx_mlm_structure.fm_operation import FmmlxOperation
 from src.fmmlx_mlm_structure.fm_slot import FmmlxSlot
-from src.fmmlx_mlm_structure.precedence_graph import PrecedenceGraph
+from src.fmmlx_mlm_structure.precedence_graph import PropertyPrecedenceGraph
 from src.fmmlx_mlm_structure.slot_collective import SlotCollective
 
 
@@ -22,8 +24,8 @@ class FmmlxObject:
         self.parent_classes = []
         self.instances = []
         self.slot_collectives: [SlotCollective] = []
-        self.attribute_precedence_graph: PrecedenceGraph = PrecedenceGraph()
-        self.slot_precedence_graph: PrecedenceGraph = PrecedenceGraph()
+        self.attribute_precedence_graph: AttributePrecedenceGraph = AttributePrecedenceGraph()
+        self.slot_precedence_graph: PropertyPrecedenceGraph = PropertyPrecedenceGraph()
 
     def __repr__(self):
         # class_str = f"[CLASS] {self.name}"
