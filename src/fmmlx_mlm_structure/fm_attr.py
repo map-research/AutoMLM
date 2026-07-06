@@ -50,6 +50,9 @@ class FmmlxAttribute(ModelProperty):
             unique_value_slots.append(sc.get_slots()[0]) # sufficient to grap first slots, all are identical in value
         return unique_value_slots
 
+    def get_owner_slot_precedence_graph(self):
+        return self.owner.get_slot_precedence_graph()
+
     def get_slot_collective_comparisons(self, other, print_progress: bool = False) -> [str]:
         """
         This method returns all comparison symbols between all slot collectives of each attribute,
@@ -61,6 +64,7 @@ class FmmlxAttribute(ModelProperty):
         for self_cs in self_collective_slots:
             for other_cs in other_collective_slots:
                 comparison_symbol = self_cs.compare(other_cs)
+                self.get_owner_slot_precedence_graph().add_property_relation(self_cs, other_cs, comparison_symbol)
                 if print_progress:
                     print(f"{self_cs} to {other_cs}: {comparison_symbol}")
                 if comparison_symbol != "||":

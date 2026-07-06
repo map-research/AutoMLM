@@ -48,7 +48,7 @@ class PropertyPrecedenceGraph:
                 # if pg2 is already part of a shared pg, the precedence must have been added already
                 pg2 = shared_pg
                 return
-        # print(f"To Graph we add: {pg1} precedes {pg2}")
+        print(f"->To Graph we add: {pg1} precedes {pg2}")
         if pg1 in self.nodes:
             current_connections: [] = self.nodes.get(pg1)
             current_connections.append(pg2)
@@ -121,8 +121,9 @@ class PropertyPrecedenceGraph:
     def add_property_relation(self, prop1: ModelProperty, prop2: ModelProperty, rel_symbol: str):
         pg1: PropertyGroup = PropertyGroup(prop1)
         pg2: PropertyGroup = PropertyGroup(prop2)
-        # print(f"We add the following: {pg1} {rel_symbol} {pg2}")
+        print(f"We add the following: {pg1} {rel_symbol} {pg2}")
         # This always creates new property groups even if identical in content!!!
+        # Thus, changed equality operator for model properties
         match rel_symbol:
             case "<" | "<=":
                 self._add_property_precedence_to_graph(pg1, pg2)
@@ -131,7 +132,9 @@ class PropertyPrecedenceGraph:
             case "=":
                 self._update_shared_property_group(pg1, pg2)
             case "?":
-                "s"  # ignore for now
+                return  # ignore for now
+            case "||":
+                return # disjoint sets, can be ignored
             case _:
                 raise ValueError(f"Unrecognized attribute relation: {rel_symbol}. Precedence graph couldn't be updated")
 
@@ -171,8 +174,10 @@ class PropertyPrecedenceGraph:
         self.pydot_graph = pydot.Dot("Precedence Graph", graph_type='digraph')
         for pg_node in self.nodes.keys():
             self.pydot_graph.add_node(pydot.Node(pg_node.get_print_name()))
+            #  print(f"PYDOT added NODE: {pg_node.get_print_name()}")
         for edge in self.edges:
             self.pydot_graph.add_edge(pydot.Edge(edge[0].get_print_name(), edge[1].get_print_name()))
+            #  print(f"PYDOT added EDGE: {edge[0].get_print_name()} TO {edge[1].get_print_name()}")
 
     def __repr__(self):
         rs: str = "[PRECEDENCE GRAPH]\n"
@@ -185,3 +190,4 @@ class PropertyPrecedenceGraph:
         for edge in self.edges:
             rs += f"\tEdge From {edge[0]} to {edge[1]}\n"
         return rs
+    

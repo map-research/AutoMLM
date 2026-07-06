@@ -8,6 +8,7 @@ from src.fmmlx_mlm_structure.fm_operation import FmmlxOperation
 from src.fmmlx_mlm_structure.fm_slot import FmmlxSlot
 from src.fmmlx_mlm_structure.precedence_graph import PropertyPrecedenceGraph
 from src.fmmlx_mlm_structure.slot_collective import SlotCollective
+from src.fmmlx_mlm_structure.slot_precedence_graph import SlotPrecedenceGraph
 
 
 class FmmlxObject:
@@ -25,7 +26,7 @@ class FmmlxObject:
         self.instances = []
         self.slot_collectives: [SlotCollective] = []
         self.attribute_precedence_graph: AttributePrecedenceGraph = AttributePrecedenceGraph()
-        self.slot_precedence_graph: PropertyPrecedenceGraph = PropertyPrecedenceGraph()
+        self.slot_precedence_graph: SlotPrecedenceGraph = SlotPrecedenceGraph()
 
     def __repr__(self):
         # class_str = f"[CLASS] {self.name}"
@@ -102,8 +103,14 @@ class FmmlxObject:
     def get_slot_collectives(self):
         return self.slot_collectives
 
-    def get_attribute_precedence_graph(self):
+    def get_attribute_precedence_graph(self) -> AttributePrecedenceGraph:
         return self.attribute_precedence_graph
+
+    def get_slot_precedence_graph(self) -> SlotPrecedenceGraph:
+        return self.slot_precedence_graph
+
+    def set_slot_precedence_graph(self, slot_precedence_graph: SlotPrecedenceGraph):
+        self.slot_precedence_graph = slot_precedence_graph
 
     def get_slot_collective_by_attribute_and_value(self, attribute: FmmlxAttribute, value: str):
         for slot_collective in self.slot_collectives:
@@ -130,7 +137,7 @@ class FmmlxObject:
         if print_progress:
             print(*self.slot_collectives, sep="\n")
 
-    def analyze_attribute_precedence(self, print_attr_relations: bool = False, print_slots: bool = False):
+    def create_property_precedence_graphs(self, print_attr_relations: bool = False, print_slots: bool = False):
         assert self.level == 1, "Attribute precedence can only be induced for L1 classes"
         assert len(self.attr_list) > 1, "Attribute precedence can only be induced when multiple attributes are present"
         assert len(self.attr_list[0].get_collective_slots()) > 0, ("Attribute precedence analysis "

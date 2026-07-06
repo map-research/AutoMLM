@@ -4,10 +4,14 @@ for unique values within a specific attribute.
 """
 from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
 from src.fmmlx_mlm_structure.fm_slot import FmmlxSlot
+from src.fmmlx_mlm_structure.model_property import ModelProperty
+from src.fmmlx_mlm_structure.slot_precedence_graph import SlotPrecedenceGraph
 
 
-class SlotCollective:
+class SlotCollective(ModelProperty):
     def __init__(self, value: str, attribute: FmmlxAttribute):
+        super().__init__(f"{value[:10]}")  # as a precaution only first 10 characters for printing,
+        # too long names cause unreadable graphs
         self.value: str = value
         self.attribute: FmmlxAttribute = attribute
         self.slots: [FmmlxSlot] = []
@@ -34,6 +38,10 @@ class SlotCollective:
 
     def get_scope_set(self) -> set:
         return set(self.scope_list)
+
+    def get_owner_object(self):
+        """returns an instance of FmmlxObject"""
+        return self.attribute.get_owner()
 
     def __le__(self, other):
         """

@@ -1,5 +1,6 @@
 import datetime
 
+from src.fmmlx_mlm_structure.attribute_precedence_graph import AttributePrecedenceGraph
 from src.fmmlx_mlm_structure.fm_multi_level_model import *
 from src.fmmlx_mlm_structure.precedence_graph import PropertyPrecedenceGraph
 
@@ -64,10 +65,16 @@ class ModelDeepening:
             if print_any:
                 print("PROPERTY PRECEDENCE ANALYSIS FOR " + flat_class.object_name + "\n")
             flat_class.create_slot_collectives(ignore_case=True, print_progress=print_slot_collectives)
-            flat_class.analyze_attribute_precedence(print_attr_relations=print_attribute_relations,
-                                                    print_slots=print_slot_comparisons)
-            attr_precedence_graph: PropertyPrecedenceGraph = flat_class.get_attribute_precedence_graph()
-            attr_precedence_graph.export_graph_as_png(flat_class.object_name)
+            flat_class.create_property_precedence_graphs(print_attr_relations=print_attribute_relations,
+                                                         print_slots=print_slot_comparisons)
+            attr_precedence_graph: AttributePrecedenceGraph = flat_class.get_attribute_precedence_graph()
+            #attr_precedence_graph.export_graph_as_png(flat_class.object_name)
+
+            spg = flat_class.get_slot_precedence_graph()
+            #print(spg)
+            #print(spg.return_edges_for_print())
+            #spg.export_graph_as_png(flat_class.object_name)
+
             attr_precedence_graph.set_inst_levels_for_attributes()
             if attr_precedence_graph.has_deepening_potential():
                 #self.output_model.perform_change_operations_for_precedence_analysis(flat_class)

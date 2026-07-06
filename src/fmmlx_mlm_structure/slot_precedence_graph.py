@@ -6,4 +6,3 @@ class SlotPrecedenceGraph(PropertyPrecedenceGraph):
     def __init__(self):
         super().__init__()
         self.property_type: ModelPropertyEnum = ModelPropertyEnum.SLOT
-        
