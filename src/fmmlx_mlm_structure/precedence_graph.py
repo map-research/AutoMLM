@@ -14,6 +14,7 @@ import pydot
 from networkx import DiGraph
 
 from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
+from src.fmmlx_mlm_structure.image_file_format_enum import ImageFileFormat
 from src.fmmlx_mlm_structure.model_property import ModelProperty
 from src.fmmlx_mlm_structure.model_property_enum import ModelPropertyEnum
 from src.fmmlx_mlm_structure.property_group import PropertyGroup
@@ -192,15 +193,22 @@ class PropertyPrecedenceGraph:
         self.init_nx_graph()
         return [sorted(generation) for generation in nx.topological_generations(self.nx_digraph)]
 
-    def export_graph_as_png(self, graph_name: str):
-        if self.pydot_graph is None:
-            self.create_pydot_graph()
-        self.pydot_graph.write_png(os.path.join(self.output_folder, self._get_image_file_name(graph_name, "png")))
-
-    def export_graph_as_svg(self, graph_name: str):
-        if self.pydot_graph is None:
-            self.create_pydot_graph()
-        self.pydot_graph.write_svg(os.path.join(self.output_folder, self._get_image_file_name(graph_name, "svg")))
+    def export_graph_as_image(self, graph_name: str, file_format: ImageFileFormat):
+        if not len(self.edges) > 0:
+            #  nothing to generate
+            return
+        else:
+            if self.pydot_graph is None:
+                self.create_pydot_graph()
+            match file_format:
+                case ImageFileFormat.PNG:
+                    self.pydot_graph.write_png(
+                        os.path.join(self.output_folder, self._get_image_file_name(graph_name, "png")))
+                case ImageFileFormat.SVG:
+                    self.pydot_graph.write_svg(
+                        os.path.join(self.output_folder, self._get_image_file_name(graph_name, "svg")))
+                case _:
+                    raise ValueError(f"Unrecognized file format {file_format}. Image not generated")
 
     def _get_image_file_name(self, graph_name: str, format: str) -> str:
         today = datetime.datetime.now()

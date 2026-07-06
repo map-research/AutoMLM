@@ -26,6 +26,8 @@ class PrecedenceAnalysisTester(Tester):
             case 4:
                 selected_columns_supermarket = ["Invoice_ID", "Branch", "City", "Customer_type", "Gender", "Product_line"]
                 self.init_test("supermarket_sales.csv", csv_columns=selected_columns_supermarket)
+            case 5:
+                self.init_test("Car_TO_1.xml")
             case _:
                 raise Exception("Invalid test variant (variant number: " + str(self.variant) + ") unspecified")
         self.md_instance.perform_property_precedence_analysis(print_attribute_relations=self.track_progress,

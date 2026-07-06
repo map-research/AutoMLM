@@ -2,6 +2,7 @@ import datetime
 
 from src.fmmlx_mlm_structure.attribute_precedence_graph import AttributePrecedenceGraph
 from src.fmmlx_mlm_structure.fm_multi_level_model import *
+from src.fmmlx_mlm_structure.image_file_format_enum import ImageFileFormat
 from src.fmmlx_mlm_structure.precedence_graph import PropertyPrecedenceGraph
 
 
@@ -69,12 +70,9 @@ class ModelDeepening:
             flat_class.create_property_precedence_graphs(print_attr_relations=print_attribute_relations,
                                                          print_slots=print_slot_comparisons)
             attr_precedence_graph: AttributePrecedenceGraph = flat_class.get_attribute_precedence_graph()
-            attr_precedence_graph.export_graph_as_png(flat_class.object_name)
-            print(attr_precedence_graph)
+            attr_precedence_graph.export_graph_as_image(flat_class.object_name, ImageFileFormat.PNG)
             spg = flat_class.get_slot_precedence_graph()
-            print(spg)
-            #print(spg.return_edges_for_print())
-            spg.export_graph_as_png(flat_class.object_name)
+            spg.export_graph_as_image(flat_class.object_name, ImageFileFormat.PNG)
 
             #  attr_precedence_graph.set_inst_levels_for_attributes()
             if attr_precedence_graph.has_deepening_potential():
