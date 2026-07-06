@@ -33,6 +33,14 @@ class PropertyPrecedenceGraph:
         self.nx_digraph: DiGraph = None
         self.property_type: ModelPropertyEnum = ModelPropertyEnum.UNDEFINED
         self.output_folder: str = "test_file_outputs"  # default folder used for generated images
+        self.update_graph_counter = 0
+
+    def _update_graph_adjacency_list(self, key: PropertyGroup, value: [], place: int = 0):
+        """Helper operation to centralize self.nodes.update calls.
+        Provides possibility to log each call for error tracing"""
+        self.nodes.update({key: value})
+        self.update_graph_counter += 1
+        print(self.update_graph_counter)
 
     def _add_property_precedence_to_graph(self, pg1: PropertyGroup, pg2: PropertyGroup):
         """All property groups received as input here should only include one model property"""
@@ -52,13 +60,13 @@ class PropertyPrecedenceGraph:
         if pg1 in self.nodes:
             current_connections: [] = self.nodes.get(pg1)
             current_connections.append(pg2)
-            self.nodes.update({pg1: current_connections})
+            self._update_graph_adjacency_list(pg1, current_connections, place=1)
         else:
-            self.nodes.update({pg1: [pg2]})
+            self._update_graph_adjacency_list(pg1, [pg2], place=2)
         if pg2 not in self.nodes:
             #  pg2 is also added as a node to the adjacency list so that every node can be accessed by traversing the
             # keys of the self.nodes dict
-            self.nodes.update({pg2: []})
+            self._update_graph_adjacency_list(pg2, [], place=3)
         self.edges.append((pg1, pg2))
 
     def _update_property_group(self, key, old_pg_groups: [PropertyGroup], new_p_group: PropertyGroup):
@@ -68,9 +76,6 @@ class PropertyPrecedenceGraph:
         pg_updated: bool = False
         for pg in connections:
             if pg in old_pg_groups:
-                # TODO IMPORTANT!
-                # old_pg_groups may contain pgs with multiple properties,
-                # causing an error in the implemented equality operator
                 self.nodes[key].remove(pg) # note that 'remove' exits after first occurrence, but shouldn't be a problem
                 if not pg_updated:
                     connections.append(new_p_group)
@@ -123,16 +128,17 @@ class PropertyPrecedenceGraph:
             if found_pg2_key:
                 prop_connections.append(self.nodes[pg2])
                 self.nodes.pop(pg2)
-            if prop_connections == [[]]:  # this odd case occurs when an empty node is being updated.
-                # it must be prevented here in order to avoid type error elsewhere
-                prop_connections = []
+
+            if any(isinstance(item, list) for item in prop_connections):
+                prop_connections = prop_connections[0]
             #  print(f"SHARED UPGRADE {shared_prop_group}: {prop_connections}")
-            self.nodes.update({shared_prop_group: prop_connections})
+            self._update_graph_adjacency_list(shared_prop_group, prop_connections, place=4)
 
         #  Step 3: check values
         # HERE: regardless of whether they have already been keys, all values mentioning either p1 or p2 must be updated
         self.poly_property_groups.append(shared_prop_group)
         for key, values in self.nodes.items():
+            #  TODO: values sometimes contains lists of lists (caused by what?) leading to errors here
             if pg1 in values or pg2 in values:
                 self._update_property_group(key=key, old_pg_groups=[pg1, pg2], new_p_group=shared_prop_group)
         self._update_shared_property_group_for_edges(pg1, pg2, shared_prop_group)

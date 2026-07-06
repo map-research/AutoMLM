@@ -9,7 +9,6 @@ class AttributePrecedenceGraph(PropertyPrecedenceGraph):
         self.property_type = ModelPropertyEnum.ATTRIBUTE
         self.max_level: int = 0
 
-
     def set_inst_levels_for_attributes(self):
         inst_level: int = 0
         for pg_list in self.get_topological_generations():
