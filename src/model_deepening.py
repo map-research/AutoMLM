@@ -51,7 +51,8 @@ class ModelDeepening:
 
     def perform_property_precedence_analysis(self, print_slot_collectives: bool = False,
                                              print_attribute_relations: bool = False,
-                                             print_slot_comparisons: bool = False):
+                                             print_slot_comparisons: bool = False,
+                                             export_graphs_as_png: bool = False):
         """
         The core of property precedence analysis lies in the specification of slot collectives. Accessing the
         scopes of a slot collective allows comparing slot collectives. The built-in set comparisons from Python
@@ -68,22 +69,20 @@ class ModelDeepening:
             flat_class.create_property_precedence_graphs(print_attr_relations=print_attribute_relations,
                                                          print_slots=print_slot_comparisons)
             attr_precedence_graph: AttributePrecedenceGraph = flat_class.get_attribute_precedence_graph()
-            #attr_precedence_graph.export_graph_as_png(flat_class.object_name)
-
+            attr_precedence_graph.export_graph_as_png(flat_class.object_name)
+            print(attr_precedence_graph)
             spg = flat_class.get_slot_precedence_graph()
-            #print(spg)
+            print(spg)
             #print(spg.return_edges_for_print())
-            #spg.export_graph_as_png(flat_class.object_name)
+            spg.export_graph_as_png(flat_class.object_name)
 
-            attr_precedence_graph.set_inst_levels_for_attributes()
+            #  attr_precedence_graph.set_inst_levels_for_attributes()
             if attr_precedence_graph.has_deepening_potential():
                 #self.output_model.perform_change_operations_for_precedence_analysis(flat_class)
                 print("\n---------------------OUTPUT MODEL------------------------")
                 #print(self.output_model)
             if print_any:
                 print("\n-------------------------------------------------------------------\n")
-
-
         print("DONE")
         return self.original_model
 
