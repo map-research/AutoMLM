@@ -10,8 +10,13 @@ from src.fmmlx_mlm_structure.slot_precedence_graph import SlotPrecedenceGraph
 
 class SlotCollective(ModelProperty):
     def __init__(self, value: str, attribute: FmmlxAttribute):
-        super().__init__(f"{value[:10]}")  # as a precaution only first 10 characters for printing,
+        if attribute.get_attr_type() == "Boolean":
+            print_value = "is " + attribute.get_attribute_name() if value == "true" \
+                else "is not " + attribute.get_attribute_name()
+        else:
+            print_value: str = value[:10]  # as a precaution only first 10 characters for printing,
         # too long names cause unreadable graphs
+        super().__init__(f"{print_value}")
         self.value: str = value
         self.attribute: FmmlxAttribute = attribute
         self.slots: [FmmlxSlot] = []

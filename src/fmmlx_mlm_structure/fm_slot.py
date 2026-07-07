@@ -18,6 +18,7 @@ class FmmlxSlot(ModelProperty):
         self.slot_name = slot_name
         self.value = value # self._import_slot_value(value) # parsing done in FmmlxModel class
         self.owner = None
+        self.slot_category: str = "SLOT"
 
     def set_attribute(self, attribute: FmmlxAttribute = None):
         # Beim CSV-Import kennen wir das passende Attribut schon.
@@ -56,4 +57,4 @@ class FmmlxSlot(ModelProperty):
         return slot_value
 
     def __repr__(self):
-        return f"[SLOT] {self.slot_name}:{self.value}"
+        return f"[{self.slot_category}] {self.slot_name}: {self.value}"

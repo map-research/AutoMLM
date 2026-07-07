@@ -25,7 +25,8 @@ class PropertyPrecedenceGraph:
     adjacency list via a dictionary. Additionally, a redundant list containing all edges is maintained.
     This is done in order to simplify the generation of graph images."""
 
-    def __init__(self):
+    def __init__(self, assigned_object):
+        self.assigned_object = assigned_object
         self.nodes: {} = {}
         self.edges: [] = []
         self.poly_property_groups: [PropertyGroup] = []  # used for quicker checks, items should be
@@ -34,6 +35,7 @@ class PropertyPrecedenceGraph:
         self.nx_digraph: DiGraph = None
         self.property_type: ModelPropertyEnum = ModelPropertyEnum.UNDEFINED
         self.output_folder: str = "test_file_outputs"  # default folder used for generated images
+        self.sub_folder_name: str = assigned_object.get_model_name()
         self.update_graph_counter = 0
 
     def _update_graph_adjacency_list(self, key: PropertyGroup, value: [], place: int = 0):
@@ -41,7 +43,7 @@ class PropertyPrecedenceGraph:
         Provides possibility to log each call for error tracing"""
         self.nodes.update({key: value})
         self.update_graph_counter += 1
-        print(self.update_graph_counter)
+        #  print(self.update_graph_counter)
 
     def _add_property_precedence_to_graph(self, pg1: PropertyGroup, pg2: PropertyGroup):
         """All property groups received as input here should only include one model property"""
@@ -200,22 +202,32 @@ class PropertyPrecedenceGraph:
         else:
             if self.pydot_graph is None:
                 self.create_pydot_graph()
+            self._create_subfolder()
             match file_format:
                 case ImageFileFormat.PNG:
                     self.pydot_graph.write_png(
-                        os.path.join(self.output_folder, self._get_image_file_name(graph_name, "png")))
+                        os.path.join(self.output_folder, self.sub_folder_name,
+                                     self._get_image_file_name(graph_name, "png")))
                 case ImageFileFormat.SVG:
                     self.pydot_graph.write_svg(
-                        os.path.join(self.output_folder, self._get_image_file_name(graph_name, "svg")))
+                        os.path.join(self.output_folder, self.sub_folder_name,
+                                     self._get_image_file_name(graph_name, "svg")))
                 case _:
                     raise ValueError(f"Unrecognized file format {file_format}. Image not generated")
+
+    def _create_subfolder(self):
+        try:
+            if not os.path.exists(os.path.join(self.output_folder, self.sub_folder_name)):
+                os.makedirs(os.path.join(self.output_folder, self.sub_folder_name))
+        except OSError:
+            print('Error: Creating directory ' + os.path.join(self.output_folder, self.sub_folder_name))
 
     def _get_image_file_name(self, graph_name: str, format: str) -> str:
         today = datetime.datetime.now()
         time_str: str = f"{today.year}{today.month}{today.day}"
         suffix: int = 1
         filename: str = f"{graph_name}_{self.property_type.value}PrecedenceGraph_v{time_str}-v{str(suffix)}.{format}"
-        while os.path.exists(os.path.join(self.output_folder, filename)):
+        while os.path.exists(os.path.join(self.output_folder, self.sub_folder_name, filename)):
             suffix += 1
             filename = f"{graph_name}_{self.property_type.value}PrecedenceGraph_v{time_str}-v{str(suffix)}.{format}"
         return filename

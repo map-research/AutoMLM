@@ -4,7 +4,7 @@ from src.fmmlx_mlm_structure.fm_multi_level_model import FmmlxModel
 
 class PrecedenceAnalysisTester(Tester):
     def __init__(self, variant: int = 1, track_progress: bool = True, export_precedence_graphs_as_png: bool = False,
-                 print_input_model: bool = False, export_model: bool = False):
+                 print_input_model: bool = False, export_model: bool = False, print_precedence_graph: bool = False):
         super().__init__()
         self.set_input_file_sub_path("prop-precedence\\")
         self.variant: int = variant
@@ -12,6 +12,7 @@ class PrecedenceAnalysisTester(Tester):
         self.export_precedence_graphs_as_png: bool = export_precedence_graphs_as_png
         self.print_input_model: bool = print_input_model
         self.export_model: bool = export_model
+        self.print_precedence_graph: bool = print_precedence_graph
         self.init_simple_precedence_test()
 
     def init_simple_precedence_test(self):
@@ -28,11 +29,14 @@ class PrecedenceAnalysisTester(Tester):
                 self.init_test("supermarket_sales.csv", csv_columns=selected_columns_supermarket)
             case 5:
                 self.init_test("Car_TO_1.xml")
+            case 6:
+                self.init_test("Car_TO_1_with_luxury.xml")
             case _:
                 raise Exception("Invalid test variant (variant number: " + str(self.variant) + ") unspecified")
         self.md_instance.perform_property_precedence_analysis(print_attribute_relations=self.track_progress,
                                                               print_slot_comparisons=self.track_progress,
-                                                              export_graphs_as_png=self.export_precedence_graphs_as_png)
+                                                              export_graphs_as_png=self.export_precedence_graphs_as_png,
+                                                              print_precedence_graph=self.print_precedence_graph)
         if self.export_model:
             self.export_model_xml()
 

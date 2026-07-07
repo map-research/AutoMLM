@@ -12,7 +12,7 @@ from src.fmmlx_mlm_structure.slot_precedence_graph import SlotPrecedenceGraph
 
 
 class FmmlxObject:
-    def __init__(self, full_name: str, object_name: str, level: str, class_of_object, is_abstract: str):
+    def __init__(self, full_name: str, object_name: str, level: str, class_of_object, is_abstract: str, model = None):
         self.full_name = full_name
         self.object_name = object_name
         self.level: int = int(level)
@@ -25,8 +25,9 @@ class FmmlxObject:
         self.parent_classes = []
         self.instances = []
         self.slot_collectives: [SlotCollective] = []
-        self.attribute_precedence_graph: AttributePrecedenceGraph = AttributePrecedenceGraph()
-        self.slot_precedence_graph: SlotPrecedenceGraph = SlotPrecedenceGraph()
+        self.attribute_precedence_graph: AttributePrecedenceGraph = AttributePrecedenceGraph(self)
+        self.slot_precedence_graph: SlotPrecedenceGraph = SlotPrecedenceGraph(self)
+        self.model = model
 
     def __repr__(self):
         # class_str = f"[CLASS] {self.name}"
@@ -51,6 +52,15 @@ class FmmlxObject:
     @classmethod
     def get_shell_class(cls, base_class):
         return cls(base_class.full_name, base_class.object_name, "0", cls.meta_class(), "false")
+
+    def get_model(self):
+        return self.model
+
+    def get_model_name(self) -> str:
+        try:
+            return self.full_name.split("::")[1]
+        except:
+            return "NO MODEL NAME"
 
     def get_object_name(self) -> str:
         return self.object_name

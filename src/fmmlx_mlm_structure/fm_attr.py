@@ -12,6 +12,7 @@ class FmmlxAttribute(ModelProperty):
         self.inst_level = inst_level
         self.uses_enum = False
         self.uses_domain_specific_type = False
+        self.attr_category: str = "ATTR"  # used for printing to distinguish with ASSOC ENDs
         self.owner = None  # Owner of attribute is instance of FmmlxObject, not specified here to avoid circular imports
         self.slot_collectives: [] = []  # used for property precedence analysis, types may not be used (circ imports)
         self.proposed_inst_level: int = 0
@@ -19,6 +20,12 @@ class FmmlxAttribute(ModelProperty):
     def set_enum_type(self, enum_type: FmmlxEnumType):
         self.attr_type_short = enum_type.enum_name
         self.uses_enum = True
+
+    def get_attribute_name(self) -> str:
+        return self.attr_name
+
+    def get_attr_type(self) -> str:
+        return self.attr_type_short
 
     def set_owner(self, owner):
         self.owner = owner
@@ -109,4 +116,4 @@ class FmmlxAttribute(ModelProperty):
         return True if self.get_attribute_comparison_symbol(other) == (">" or ">=") else False
 
     def __repr__(self):
-        return f"[ATTR-{self.inst_level}] {self.attr_name}:{self.attr_type_short}"
+        return f"[{self.attr_category}-{self.inst_level}] {self.attr_name}:{self.attr_type_short}"

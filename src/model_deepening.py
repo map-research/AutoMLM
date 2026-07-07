@@ -53,7 +53,8 @@ class ModelDeepening:
     def perform_property_precedence_analysis(self, print_slot_collectives: bool = False,
                                              print_attribute_relations: bool = False,
                                              print_slot_comparisons: bool = False,
-                                             export_graphs_as_png: bool = False):
+                                             export_graphs_as_png: bool = False,
+                                             print_precedence_graph: bool = False):
         """
         The core of property precedence analysis lies in the specification of slot collectives. Accessing the
         scopes of a slot collective allows comparing slot collectives. The built-in set comparisons from Python
@@ -70,9 +71,14 @@ class ModelDeepening:
             flat_class.create_property_precedence_graphs(print_attr_relations=print_attribute_relations,
                                                          print_slots=print_slot_comparisons)
             attr_precedence_graph: AttributePrecedenceGraph = flat_class.get_attribute_precedence_graph()
-            attr_precedence_graph.export_graph_as_image(flat_class.object_name, ImageFileFormat.PNG)
             spg = flat_class.get_slot_precedence_graph()
-            spg.export_graph_as_image(flat_class.object_name, ImageFileFormat.PNG)
+            if export_graphs_as_png:
+                attr_precedence_graph.export_graph_as_image(flat_class.object_name, ImageFileFormat.PNG)
+                spg.export_graph_as_image(flat_class.object_name, ImageFileFormat.PNG)
+
+            if print_precedence_graph:
+                print(attr_precedence_graph)
+                print(spg)
 
             #  attr_precedence_graph.set_inst_levels_for_attributes()
             if attr_precedence_graph.has_deepening_potential():
