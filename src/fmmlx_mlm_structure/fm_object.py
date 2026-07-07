@@ -95,8 +95,16 @@ class FmmlxObject:
     def add_attr(self, attr: FmmlxAttribute):
         self.attr_list.append(attr)
 
-    def add_slot(self, slot: FmmlxSlot):
-        self.slot_list.append(slot)
+    def add_slot(self, new_slot: FmmlxSlot):
+        """support fot multiplicity (for now only for slot links): This operation checks whether a slot with the
+        same name is already in the object and then adds the value to the slot"""
+        slot_found: bool = False
+        for slot in self.slot_list:
+            if slot.slot_name == new_slot.slot_name:
+                slot.value += "///" + new_slot.value
+                slot_found = True
+        if not slot_found:
+            self.slot_list.append(new_slot)
 
     def add_operation(self, operation: FmmlxOperation):
         self.operations_list.append(operation)

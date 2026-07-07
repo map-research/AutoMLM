@@ -20,6 +20,12 @@ class FmmlxSlot(ModelProperty):
         self.owner = None
         self.slot_category: str = "SLOT"
 
+    def is_multi_valued(self):
+        return "///" in self.value
+
+    def get_values_as_list(self) -> [str]:
+        return self.value.split("///")
+
     def set_attribute(self, attribute: FmmlxAttribute = None):
         # Beim CSV-Import kennen wir das passende Attribut schon.
         if attribute is not None:

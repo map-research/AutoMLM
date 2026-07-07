@@ -43,7 +43,12 @@ class PropertyPrecedenceGraph:
         Provides possibility to log each call for error tracing"""
         self.nodes.update({key: value})
         self.update_graph_counter += 1
-        #  print(self.update_graph_counter)
+        log_progress: bool = False
+        if log_progress:
+            print("\n" + str(self.update_graph_counter) + ".")
+            print(f"{len(self.poly_property_groups)}--{self.poly_property_groups}")
+            print(self.update_graph_counter)
+            print(f"UPDATE from {place} {key}: {value}")
 
     def _add_property_precedence_to_graph(self, pg1: PropertyGroup, pg2: PropertyGroup):
         """All property groups received as input here should only include one model property"""
@@ -110,6 +115,7 @@ class PropertyPrecedenceGraph:
             if pg1.get_model_properties() in poly_pg:
                 pg1_in_poly_pg = True
             if pg2.get_model_properties() in poly_pg:
+                #  print(f"FOUND: {pg1} and {pg2} in {poly_pg}")
                 pg2_in_poly_pg = True
             #  print(f"PG1 {pg1_in_poly_pg}, PG2 {pg2_in_poly_pg}")
             if pg1_in_poly_pg and pg2_in_poly_pg:
@@ -123,32 +129,33 @@ class PropertyPrecedenceGraph:
                     if pg2_in_poly_pg:
                         shared_prop_group.merge_other_property_groups(poly_pg, pg1)
 
-        print(f"NEW PROP: {shared_prop_group}")
         #  Step 2: check nodes
         key_to_update: PropertyGroup = PropertyGroup()
         for key in self.nodes:
-            print(f"{pg1} pr {pg2} in {key}")
             if pg1.get_model_properties() in key:
                 found_pg1_key = True
                 key_to_update = key
             if pg2.get_model_properties() in key:
                 found_pg2_key = True
                 key_to_update = key
-        if found_pg1_key or found_pg2_key:  # consequently, key_to_update must be set
+        if found_pg1_key or found_pg2_key:  # consequently, key_to_update is set
             prop_connections.append(self.nodes[key_to_update])
+            #  print(f"PROP HERE: {prop_connections}")
             self.nodes.pop(key_to_update)
-
             if any(isinstance(item, list) for item in prop_connections):
                 prop_connections = prop_connections[0]
-            #  print(f"SHARED UPGRADE {shared_prop_group}: {prop_connections}")
+            #  print(f"SHARED UPGRADE {key_to_update}: {prop_connections} OR {shared_prop_group}")
             self._update_graph_adjacency_list(shared_prop_group, prop_connections, place=4)
+        else:  # if we get here, both pgs are not added as nodes yet and thus should be
+            self._update_graph_adjacency_list(shared_prop_group, [], 6)  # key_to_update empty here
+        self.poly_property_groups.append(shared_prop_group)
 
         #  Step 3: check values
         # HERE: regardless of whether they have already been keys, all values mentioning either p1 or p2 must be updated
-        self.poly_property_groups.append(shared_prop_group)
         for key, values in self.nodes.items():
             #  TODO: values sometimes contains lists of lists (caused by what?) leading to errors here
             if pg1 in values or pg2 in values:
+                #  TODO: may values not include more than pg1 and pg2? then, Shared-property_group must be expanded
                 self._update_property_group(key=key, old_pg_groups=[pg1, pg2], new_p_group=shared_prop_group)
 
     def add_property_relation(self, prop1: ModelProperty, prop2: ModelProperty, rel_symbol: str):
@@ -262,7 +269,7 @@ class PropertyPrecedenceGraph:
 
     def return_edges_for_print(self):
         self._add_all_edges_to_edges_list()
-        rs: str = "[PRECEDENCE GRAPH EDGES]\n"
+        rs: str = f"[{self.property_type.value.upper()} PRECEDENCE GRAPH EDGES]\n"
         for edge in self.edges:
             rs += f"\tEdge From {edge[0]} to {edge[1]}\n"
         return rs
