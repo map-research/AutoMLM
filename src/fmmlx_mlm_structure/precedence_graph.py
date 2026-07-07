@@ -70,7 +70,7 @@ class PropertyPrecedenceGraph:
             #  pg2 is also added as a node to the adjacency list so that every node can be accessed by traversing the
             # keys of the self.nodes dict
             self._update_graph_adjacency_list(pg2, [], place=3)
-        self.edges.append((pg1, pg2))
+        #  self.edges.append((pg1, pg2))
 
     def _update_property_group(self, key, old_pg_groups: [PropertyGroup], new_p_group: PropertyGroup):
         """This function is primarily used in order to update connected nodes kept in value lists of the self.nodes
@@ -103,34 +103,40 @@ class PropertyPrecedenceGraph:
         #  Step1 : check for poly-property groups
         for poly_pg in self.poly_property_groups:
             poly_pg_properties = poly_pg.get_model_properties()
+            #  print(f"POLY PG {pg1} OR {pg2} in {poly_pg}")
             pg1_in_poly_pg = False
             pg2_in_poly_pg = False
+            #  print(f"{pg1.get_model_properties()}")
             if pg1.get_model_properties() in poly_pg:
                 pg1_in_poly_pg = True
             if pg2.get_model_properties() in poly_pg:
                 pg2_in_poly_pg = True
-            if pg1_in_poly_pg or pg2_in_poly_pg:
-                shared_prop_group: PropertyGroup = PropertyGroup()
-                if pg1_in_poly_pg:
-                    shared_prop_group.merge_other_property_groups(poly_pg, pg2)
-                if pg2_in_poly_pg:
-                    shared_prop_group.merge_other_property_groups(poly_pg, pg1)
-                if pg1_in_poly_pg and pg2_in_poly_pg:
-                    shared_prop_group.merge_other_property_groups(poly_pg)
+            #  print(f"PG1 {pg1_in_poly_pg}, PG2 {pg2_in_poly_pg}")
+            if pg1_in_poly_pg and pg2_in_poly_pg:
+                if shared_prop_group != poly_pg:
+                    shared_prop_group.merge_other_property_groups(poly_pg)  # TODO AVOID DUPLICATES IF POLY_PG SUPERSET
+            else:
+                if pg1_in_poly_pg or pg2_in_poly_pg:
+                    shared_prop_group: PropertyGroup = PropertyGroup()
+                    if pg1_in_poly_pg:
+                        shared_prop_group.merge_other_property_groups(poly_pg, pg2)
+                    if pg2_in_poly_pg:
+                        shared_prop_group.merge_other_property_groups(poly_pg, pg1)
 
+        print(f"NEW PROP: {shared_prop_group}")
         #  Step 2: check nodes
+        key_to_update: PropertyGroup = PropertyGroup()
         for key in self.nodes:
-            if key == pg1:
+            print(f"{pg1} pr {pg2} in {key}")
+            if pg1.get_model_properties() in key:
                 found_pg1_key = True
-            if key == pg2:
+                key_to_update = key
+            if pg2.get_model_properties() in key:
                 found_pg2_key = True
-        if found_pg1_key or found_pg2_key:
-            if found_pg1_key:
-                prop_connections.append(self.nodes[pg1])
-                self.nodes.pop(pg1)
-            if found_pg2_key:
-                prop_connections.append(self.nodes[pg2])
-                self.nodes.pop(pg2)
+                key_to_update = key
+        if found_pg1_key or found_pg2_key:  # consequently, key_to_update must be set
+            prop_connections.append(self.nodes[key_to_update])
+            self.nodes.pop(key_to_update)
 
             if any(isinstance(item, list) for item in prop_connections):
                 prop_connections = prop_connections[0]
@@ -144,24 +150,6 @@ class PropertyPrecedenceGraph:
             #  TODO: values sometimes contains lists of lists (caused by what?) leading to errors here
             if pg1 in values or pg2 in values:
                 self._update_property_group(key=key, old_pg_groups=[pg1, pg2], new_p_group=shared_prop_group)
-        self._update_shared_property_group_for_edges(pg1, pg2, shared_prop_group)
-
-    def _update_shared_property_group_for_edges(self, pg1: PropertyGroup, pg2: PropertyGroup, shared_pg: PropertyGroup):
-        """This is a surrogate function to _update_shared_property_group. It is required to keep the edges list in sync
-        with the dictionary"""
-        new_edge: () = ()  # tuples are immutable, if edge must be updated, new tuple is required
-        updated_edge: bool = False
-        for edge_index, edge in enumerate(self.edges):
-            new_edge = ()
-            updated_edge = False
-            if edge[0] == pg1 or edge[0] == pg2:
-                new_edge = (shared_pg, edge[1])
-                updated_edge = True
-            if edge[1] == pg1 or edge[1] == pg2:
-                new_edge = (edge[0], shared_pg)
-                updated_edge = True
-            if updated_edge:
-                self.edges[edge_index] = new_edge
 
     def add_property_relation(self, prop1: ModelProperty, prop2: ModelProperty, rel_symbol: str):
         pg1: PropertyGroup = PropertyGroup(prop1)
@@ -196,13 +184,14 @@ class PropertyPrecedenceGraph:
         return [sorted(generation) for generation in nx.topological_generations(self.nx_digraph)]
 
     def export_graph_as_image(self, graph_name: str, file_format: ImageFileFormat):
+        self._add_all_edges_to_edges_list()
         if not len(self.edges) > 0:
             #  nothing to generate
             return
         else:
             if self.pydot_graph is None:
                 self.create_pydot_graph()
-            self._create_subfolder()
+            self._create_sub_folder()
             match file_format:
                 case ImageFileFormat.PNG:
                     self.pydot_graph.write_png(
@@ -215,7 +204,7 @@ class PropertyPrecedenceGraph:
                 case _:
                     raise ValueError(f"Unrecognized file format {file_format}. Image not generated")
 
-    def _create_subfolder(self):
+    def _create_sub_folder(self):
         try:
             if not os.path.exists(os.path.join(self.output_folder, self.sub_folder_name)):
                 os.makedirs(os.path.join(self.output_folder, self.sub_folder_name))
@@ -242,6 +231,12 @@ class PropertyPrecedenceGraph:
             self.pydot_graph.add_edge(pydot.Edge(edge[0].get_print_name(), edge[1].get_print_name()))
             #  print(f"PYDOT added EDGE: {edge[0].get_print_name()} TO {edge[1].get_print_name()}")
 
+    def _add_all_edges_to_edges_list(self):
+        if len(self.edges) == 0:
+            for node in self.nodes:
+                for value in self.nodes[node]:  # values should always be a list
+                    self.edges.append((node, value))
+
     def _remove_edge(self, mp1: ModelProperty, mp2: ModelProperty):
         """This helper function only removes edges from the redundant edges list. This is done to support
         transitive reduction of PyDot Graphs, which visualize the edges in this list"""
@@ -266,6 +261,7 @@ class PropertyPrecedenceGraph:
         return rs
 
     def return_edges_for_print(self):
+        self._add_all_edges_to_edges_list()
         rs: str = "[PRECEDENCE GRAPH EDGES]\n"
         for edge in self.edges:
             rs += f"\tEdge From {edge[0]} to {edge[1]}\n"

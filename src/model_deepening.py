@@ -78,7 +78,9 @@ class ModelDeepening:
 
             if print_precedence_graph:
                 print(attr_precedence_graph)
+                print(attr_precedence_graph.return_edges_for_print())
                 print(spg)
+                print(spg.return_edges_for_print())
 
             #  attr_precedence_graph.set_inst_levels_for_attributes()
             if attr_precedence_graph.has_deepening_potential():
