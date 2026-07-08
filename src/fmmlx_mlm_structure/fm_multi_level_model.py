@@ -1,13 +1,14 @@
-from enum import EnumMeta
 from xml.dom.minidom import parse
 from src.fmmlx_mlm_structure import xml_export as export_xml
-from typing import List
+
+from typing import List, Optional
 import csv
-import keyword #für reservierten Wert
-import os #für Dateinamen aus Dateiendung
-import re #für Prüfung von Zeichen
+import keyword  # für reservierten Wert
+import os  # für Dateinamen aus Dateiendung
+import re  # für Prüfung von Zeichen
 
 from src.fmmlx_mlm_structure.fm_association import FmmlxAssociation
+from src.fmmlx_mlm_structure.fm_association_end import FmmlxAssociationEnd
 from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
 from src.fmmlx_mlm_structure.fm_constraint import FmmlxConstraint
 from src.fmmlx_mlm_structure.fm_enum_type import FmmlxEnumType
@@ -16,24 +17,31 @@ from src.fmmlx_mlm_structure.fm_object import FmmlxObject
 from src.fmmlx_mlm_structure.fm_operation import FmmlxOperation
 from src.fmmlx_mlm_structure.fm_slot import FmmlxSlot
 from src.fmmlx_mlm_structure.multiplicity import Multiplicity
+from src.fmmlx_mlm_structure.slot_link import FmmlxSlotLink
 
-metaClass = FmmlxObject("MetaClass", "MetaClass", "99", None, "false")
+metaClass = FmmlxObject("MetaClass",
+                        "MetaClass", "99",
+                        None, "false",
+                        None)
 
 
 class FmmlxModel:
     """
     This class serves to represent complete MultiLevelModels. It offers functions for importing standard FMMLx XML files
     into a Python representation and exporting them again to XML documents once processed as intended.
-    All elements within a multi-level model are themselves instances of Python classes specified in mlm_helper_classes.py
+    All elements within a multi-level model are themselves instances of
+    Python classes specified in mlm_helper_classes.py
     """
 
-    def __init__(self, file_path: str = "", print_progress: bool = False):
+    def __init__(self, file_path: str = "", print_progress: bool = False,
+                 selected_csv_columns: Optional[List[str]] = None):
         self.path_name = ""
         self.mlm_objects: List[FmmlxObject] = []
         self.enums: List[FmmlxEnumType] = []
         self.associations: List[FmmlxAssociation] = []
         self.links: List[FmmlxLink] = []
         self.parsed_xml = None
+        self.model_name: str = ""
         self.print_progress = print_progress
         if file_path != "":
             # Der Parameter heisst noch xml_file_path, weil er frueher nur fuer XML gedacht war.
@@ -41,20 +49,27 @@ class FmmlxModel:
             # Die Dateiendung entscheidet, wie die Datei gelesen wird.
             file_extension = os.path.splitext(file_path)[1].lower() #[1] für Dateiende
             if file_extension == ".csv":
-                self._import_csv(file_path)
+                self._import_csv(file_path, selected_csv_columns)
             elif file_extension == ".xml":
                 self._parse_xml(file_path)
             else:
                 raise ValueError(f"File '{file_path}' must be a CSV or XML file.")
 
-    def _import_csv(self, csv_file_path: str):
+    def get_model_name(self):
+        return self.model_name
+
+    def _import_csv(self, csv_file_path: str, selected_csv_columns: Optional[List[str]] = None):
         """
         import CSV as MultiLevelModel. Note that CSV imports only account for classes and objects; relationships
         between classes and objects are not accounted for.
         """
         all_mlm_objects: List[FmmlxObject] = []
-        with open(csv_file_path, "r", newline="") as csv_file: #r = read
+        # CSV files can contain special characters such as umlauts or non-English names.
+        # On Windows, open() may otherwise use the local default encoding and fail while reading.
+        # utf-8-sig reads normal UTF-8 files and also ignores a possible BOM marker from Excel.
+        with open(csv_file_path, "r", newline="", encoding="utf-8-sig") as csv_file: #r = read
             # Das Trennzeichen wird erkannt, damit auch Dateien mit ; oder Tab funktionieren.
+            self.model_name = os.path.basename(csv_file_path)
             csv_reader = csv.reader(csv_file, self._get_csv_dialect(csv_file), skipinitialspace=True)
             #mit strip vorne und hinten Leerzeichen und Anführungszeichen entfernen
             rows = [[value.strip().strip("\"") for value in row] for row in csv_reader if row]
@@ -79,6 +94,11 @@ class FmmlxModel:
                 f"CSV row {row_number} has {len(row)} values, but the header has {number_of_columns} values."
             )
 
+        if selected_csv_columns is not None:
+            # The user can list the columns that should become attributes in the model.
+            header_row, data_rows = self._select_csv_columns(header_row, data_rows, selected_csv_columns)
+            number_of_columns = len(header_row)
+
         # Der Klassenname kommt aus dem Dateinamen.
         class_name = self._make_csv_class_name(csv_file_path)
         project_name = f"Root::{class_name}"
@@ -87,8 +107,8 @@ class FmmlxModel:
         # Hier wird die eine Klasse gebaut, zu der alle CSV-Zeilen später gehören.
         # Beispiel: Aus der Datei news_decline.csv wird die Klasse NewsDecline.
         mlm_class: FmmlxObject = FmmlxObject(
-            f"{project_name}::{class_name}", class_name, "1", FmmlxObject.meta_class(), "false"
-        )
+            f"{project_name}::{class_name}", class_name, "1", FmmlxObject.meta_class(),
+            "false", self)
         all_mlm_objects.append(mlm_class) #speichert Klasse im Modell
 
         all_csv_attr = []
@@ -108,8 +128,8 @@ class FmmlxModel:
             # Aus jeder Datenzeile wird eine Instanz mit eindeutigem Namen.
             instance_name = f"{class_name.lower()}{row_counter}"
             mlm_instance: FmmlxObject = FmmlxObject(
-                f"{project_name}::{instance_name}", instance_name, "0", mlm_class, "false"
-            )
+                f"{project_name}::{instance_name}", instance_name, "0",
+                mlm_class, "false", self)
             mlm_class.add_instance(mlm_instance)
             all_mlm_objects.append(mlm_instance)
 
@@ -126,13 +146,56 @@ class FmmlxModel:
 
     # Ab hier kommen kleine Hilfsfunktionen, um den Import oben kuerzer zu halten.
     def _get_csv_dialect(self, csv_file):
-        # Es wird nur ein kleiner Anfang der Datei angeschaut, per Default "," .
+        # Es wird nur ein kleiner Anfang der Datei angeschaut, per Default ",".
         sample = csv_file.read(2048)
         csv_file.seek(0)
         try:
             return csv.Sniffer().sniff(sample, delimiters=",;\t|")
         except csv.Error:
-            return csv.excel
+            # csv.Sniffer can fail when the first rows contain many empty cells or irregular values.
+            # Returning csv.excel directly would use "," as delimiter, which breaks semicolon CSV files.
+            # Therefore, we count the allowed delimiters in the sample and use the one that appears most often.
+            dialect = csv.excel
+            delimiter_counts = {delimiter: sample.count(delimiter) for delimiter in [",", ";", "\t", "|"]}
+            dialect.delimiter = max(delimiter_counts, key=delimiter_counts.get)
+            return dialect
+
+    def _select_csv_columns(self, header_row: List[str], data_rows: List[List[str]],
+                            selected_csv_columns: List[str]):
+        # Without at least one selected column, the CSV class would not have any attributes.
+        assert len(selected_csv_columns) > 0, "At least one CSV column must be selected."
+
+        selected_column_numbers = []
+        missing_column_names = []
+        for selected_column in selected_csv_columns:
+            # For every selected column name, we search the matching position in the CSV header.
+            matching_column_number = self._get_csv_column_number(header_row, selected_column)
+            if matching_column_number is None:
+                # Missing names are collected first, so the error can show all wrong column names at once.
+                missing_column_names.append(selected_column)
+            else:
+                # We store the column number because the data rows are selected by position later.
+                selected_column_numbers.append(matching_column_number)
+
+        assert not missing_column_names, f"Selected CSV columns were not found: {missing_column_names}"
+
+        # The header is reduced to the selected columns, so only these columns become attributes.
+        selected_header_row = [header_row[col_number] for col_number in selected_column_numbers]
+        # Every data row is reduced in the same order, so the slots still match the selected attributes.
+        selected_data_rows = [
+            [row[col_number] for col_number in selected_column_numbers]
+            for row in data_rows
+        ]
+        return selected_header_row, selected_data_rows
+
+    def _get_csv_column_number(self, header_row: List[str], selected_column: str):
+        for col_counter, raw_header_name in enumerate(header_row):
+            # The user may enter the original CSV name or the safe attribute name used in the model.
+            safe_header_name = self._make_safe_name(raw_header_name, "attribute", allow_first_char_digit=True)
+            if selected_column == raw_header_name or selected_column == safe_header_name:
+                return col_counter
+        # None means that this selected column does not exist in the CSV header.
+        return None
 
     #Wenn es keine Daten gibt, kann man nicht vergleichen. Dann wird die Kopfzeile akzeptiert.
     def _first_row_looks_like_header(self, header_row: List[str], data_rows: List[List[str]]) -> bool:
@@ -146,7 +209,8 @@ class FmmlxModel:
         # Wenn die erste Zeile wie normale Daten aussieht, ist sie wahrscheinlich keine Kopfzeile.
         for col_counter, header_value in enumerate(header_row):
             column_values = [row[col_counter] for row in data_rows]
-            if self._get_simple_csv_value_type(header_value) not in self._get_simple_csv_column_types(column_values): #also wenn erste Zeile anders aussieht als die Daten dadrunter, ist es wahrsheinlich ein Header
+            if self._get_simple_csv_value_type(header_value) not in self._get_simple_csv_column_types(column_values):
+                # also wenn erste Zeile anders aussieht als die Daten darunter, ist es wahrscheinlich ein Header
                 return True
         return False
 
@@ -178,6 +242,8 @@ class FmmlxModel:
 
     def _make_safe_name(self, name: str, fallback_name: str, allow_first_char_digit: bool = False) -> str:
         # Zeichen, die in Namen stören können, werden durch _ ersetzt.
+        # name attribute is occupied
+        # attribute names must be String
         safe_name = re.sub(r"\W", "_", name.strip())
         safe_name = re.sub(r"_+", "_", safe_name).strip("_")
         if safe_name == "":
@@ -313,6 +379,7 @@ class FmmlxModel:
 
     def extract_mlm_from_xml(self):
         self.path_name = self.retrieve_path_name()
+        self.model_name = self.path_name.split("::")[1]
         if self.print_progress:
             print("BEGIN MLM EXTRACTION")
         self.mlm_objects = self.retrieve_all_mlm_objects()
@@ -335,6 +402,36 @@ class FmmlxModel:
         self.retrieve_all_constraints()
         self.retrieve_all_associations()
         self.retrieve_all_links()
+        self.add_association_ends()
+        self.add_slot_links()
+
+    def add_association_ends(self):
+        """For every association, this operation adds the respective association ends. It must be executed after
+        the associations and links have been retrieved"""
+        if len(self.associations) > 0:
+            for assoc in self.associations:
+                src_assoc_end: FmmlxAssociationEnd = FmmlxAssociationEnd(assoc.get_source_access_name(),
+                                                                         assoc.get_target_class().full_name,
+                                                                         assoc.get_source_inst_level(),
+                                                                         assoc, True)
+                tgt_assoc_end: FmmlxAssociationEnd = FmmlxAssociationEnd(assoc.get_target_access_name(),
+                                                                         assoc.get_source_class().full_name,
+                                                                         assoc.get_target_inst_level(),
+                                                                         assoc, False)
+                assoc.get_source_class().add_attr(src_assoc_end)
+                assoc.set_source_association_end(src_assoc_end)
+                assoc.get_target_class().add_attr(tgt_assoc_end)
+                assoc.set_target_association_end(tgt_assoc_end)
+
+    def add_slot_links(self):
+        """This operation adds slots for each link the attribute of each is an association end"""
+        for link in self.links:
+            src_slot_link: FmmlxSlotLink = FmmlxSlotLink(link.get_association().get_source_access_name(),
+                                                         link.get_target_object().full_name, link, True)
+            tgt_slot_link: FmmlxSlotLink = FmmlxSlotLink(link.get_association().get_target_access_name(),
+                                                         link.get_source_object().full_name, link, False)
+            link.get_source_object().add_slot(src_slot_link)
+            link.get_target_object().add_slot(tgt_slot_link)
 
     def retrieve_path_name(self) -> str:
         return self.parsed_xml.documentElement.getAttribute("path")
@@ -360,7 +457,7 @@ class FmmlxModel:
             mlm_object_long = object_element.getAttribute("package") + "::" + object_element.getAttribute("name")
             mlm_object = FmmlxObject(mlm_object_long, object_element.getAttribute("name"),
                                      object_element.getAttribute("level"), metaClass,
-                                     object_element.getAttribute("abstract"))
+                                     object_element.getAttribute("abstract"), self)
             mlm_objects.append(mlm_object)
 
         return mlm_objects
@@ -369,10 +466,10 @@ class FmmlxModel:
         mlm_objects = []
         for object_element in self.parsed_xml.getElementsByTagName("addInstance"):
             mlm_object_long = object_element.getAttribute("package") + "::" + object_element.getAttribute("name")
-            mlm_object = FmmlxObject(mlm_object_long, object_element.getAttribute("name"), 99,
+            mlm_object = FmmlxObject(mlm_object_long, object_element.getAttribute("name"), "99",
                                      FmmlxObject(object_element.getAttribute("of"),
-                                             "", 99, None, "false"),
-                                     object_element.getAttribute("abstract"))
+                                             "", "99", None, "false", self),
+                                     object_element.getAttribute("abstract"), self)
             mlm_objects.append(mlm_object)
 
         return mlm_objects
@@ -460,7 +557,9 @@ class FmmlxModel:
         for association_element in self.parsed_xml.getElementsByTagName("addAssociation"):
             new_association = FmmlxAssociation(association_element.getAttribute("fwName"),
                                                association_element.getAttribute("instLevelSource"),
-                                               association_element.getAttribute("instLevelTarget"))
+                                               association_element.getAttribute("instLevelTarget"),
+                                               association_element.getAttribute("accessTargetFromSourceName"),
+                                               association_element.getAttribute("accessSourceFromTargetName"))
             tgt_mult = association_element.getAttribute("multSourceToTarget")[4:-1].split(",")
             src_mult = association_element.getAttribute("multTargetToSource")[4:-1].split(",")
             new_association.set_source_multiplicity(int(src_mult[0]), int(src_mult[1]))
@@ -480,6 +579,12 @@ class FmmlxModel:
                     new_link.set_source_object(mlm_object)
                 if link_element.getAttribute("classTarget") == mlm_object.full_name:
                     new_link.set_target_object(mlm_object)
+                for assoc in self.associations:
+                    """We traverse the associations in order to reference the assoc from the link. 
+                    The following is a simplified implementation that fails 
+                    if the source access name is redundant within the context of a model."""
+                    if assoc.get_source_access_name() == link_element.getAttribute("name"):
+                        new_link.set_association(assoc)
             self.links.append(new_link)
 
     def get_mlm_object_by_fullname(self, full_name: str) -> FmmlxObject:
@@ -502,6 +607,24 @@ class FmmlxModel:
                 instances_for_class.append(mlm_object)
         return instances_for_class
 
+    def perform_change_operations_for_precedence_analysis(self, fm_object: FmmlxObject):
+        assert fm_object.level == 1, "Change operations performed on L1 classes only"
+        assert fm_object.attribute_precedence_graph is not None, ("Precedence graph not detected, "
+                                                                  "precedence analysis must be performed first")
+        flat_class: FmmlxObject = self.get_mlm_object_by_fullname(fm_object.full_name)
+        max_inst_level: int = flat_class.get_attribute_precedence_graph().get_max_level()
+        flat_class.promote_to_level_x(max_inst_level + 1)
+        flat_class.promote_attributes()
+        while max_inst_level > 0:
+            attrs_at_inst_level: [FmmlxAttribute] = flat_class.get_attributes_at_inst_level_x(max_inst_level)
+            print(attrs_at_inst_level[0].get_slots_for_unique_values())
+            for unique_value_slot in attrs_at_inst_level[0].get_slots_for_unique_values():
+                new_instance: FmmlxObject = FmmlxObject(flat_class.full_name, unique_value_slot.get_value().upper(),
+                                                        str(max_inst_level),flat_class, "false", self)
+                self.mlm_objects.append(new_instance)
+            print(max_inst_level)
+            max_inst_level -= max_inst_level
+
     def get_assoc_classification_indicators(self) -> List[FmmlxAssociation]:
         indicating_associations: List[FmmlxAssociation] = []
         for mlm_assoc in self.associations:
@@ -510,7 +633,7 @@ class FmmlxModel:
         return indicating_associations
 
     def __repr__(self):
-        print(f"Multilevel Model <{self.path_name}>")
+        print(f"Multilevel Model <{self.model_name}>")
         print(*self.enums, sep="Syntax Error at line: 38")#lmao opfer
         print("\n--------------------------------------------------------------\n")
         print(*self.mlm_objects, sep="----------------------------------------------\n")

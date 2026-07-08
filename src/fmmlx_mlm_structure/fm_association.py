@@ -5,7 +5,8 @@ from src.fmmlx_mlm_structure.multiplicity import Multiplicity
 
 
 class FmmlxAssociation:
-    def __init__(self, name: str, source_inst_level: int, target_inst_level: int):
+    def __init__(self, name: str, source_inst_level: int, target_inst_level: int,
+                 source_access_name: str, target_access_name: str):
         self.name = name
         self.source_inst_level = source_inst_level
         self.target_inst_level = target_inst_level
@@ -13,12 +14,46 @@ class FmmlxAssociation:
         self.target_class: FmmlxObject = None
         self.source_multiplicity: Multiplicity = None
         self.target_multiplicity: Multiplicity = None
+        self.source_access_name = source_access_name
+        self.target_access_name = target_access_name
+        self.source_association_end = None
+        self.target_association_end = None
+
+    def set_source_association_end(self, association_end):
+        self.source_association_end = association_end
+
+    def get_source_association_end(self):
+        return self.source_association_end
+
+    def set_target_association_end(self, association_end):
+        self.target_association_end = association_end
+
+    def get_target_association_end(self):
+        return self.target_association_end
 
     def set_source_class(self, source_class):
         self.source_class = source_class
 
     def set_target_class(self, target_class):
         self.target_class = target_class
+
+    def get_target_class(self) -> FmmlxObject:
+        return self.target_class
+
+    def get_source_class(self) -> FmmlxObject:
+        return self.source_class
+
+    def get_source_inst_level(self) -> int:
+        return self.source_inst_level
+
+    def get_target_inst_level(self) -> int:
+        return self.target_inst_level
+
+    def get_source_access_name(self) -> str:
+        return self.source_access_name
+
+    def get_target_access_name(self) -> str:
+        return self.target_access_name
 
     def set_source_multiplicity(self, min_card: int, max_card: int):
         # FH java, XMF saves "hasUpperLimit" -> is_unbounded muss genau andersherum sein daher änderung if und else teil

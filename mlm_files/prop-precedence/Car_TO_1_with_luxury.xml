@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XModelerPackage path="Root::Car_TO_1" version="4" xModelerVersion="3.2">
+    <Imports/>
+    <Model name="Root::Car_TO_1">
+        <addMetaClass abstract="false" isControlClass="false" level="1" maxLevel="1" name="Car" package="Root::Car_TO_1" singleton="false"/>
+        <addMetaClass abstract="false" isControlClass="false" level="1" maxLevel="1" name="CarModel" package="Root::Car_TO_1" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="car1" of="Root::Car_TO_1::Car" package="Root::Car_TO_1" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="car2" of="Root::Car_TO_1::Car" package="Root::Car_TO_1" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="car3" of="Root::Car_TO_1::Car" package="Root::Car_TO_1" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="car4" of="Root::Car_TO_1::Car" package="Root::Car_TO_1" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="car5" of="Root::Car_TO_1::Car" package="Root::Car_TO_1" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="car6" of="Root::Car_TO_1::Car" package="Root::Car_TO_1" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="car7" of="Root::Car_TO_1::Car" package="Root::Car_TO_1" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="car8" of="Root::Car_TO_1::Car" package="Root::Car_TO_1" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="carModel1" of="Root::Car_TO_1::CarModel" package="Root::Car_TO_1" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="carModel2" of="Root::Car_TO_1::CarModel" package="Root::Car_TO_1" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="carModel3" of="Root::Car_TO_1::CarModel" package="Root::Car_TO_1" singleton="false"/>
+        <addInstance abstract="false" level="0" maxLevel="0" name="carModel4" of="Root::Car_TO_1::CarModel" package="Root::Car_TO_1" singleton="false"/>
+        <addAttribute class="Root::Car_TO_1::Car" level="0" multiplicity="Seq{1,1,true,false}" name="licensePlateNumber" package="Root::Car_TO_1" type="Root::XCore::String"/>
+        <addAttribute class="Root::Car_TO_1::Car" level="0" multiplicity="Seq{1,1,true,false}" name="vin" package="Root::Car_TO_1" type="Root::XCore::String"/>
+        <addAttribute class="Root::Car_TO_1::CarModel" level="0" multiplicity="Seq{1,1,true,false}" name="brandName" package="Root::Car_TO_1" type="Root::XCore::String"/>
+        <addAttribute class="Root::Car_TO_1::CarModel" level="0" multiplicity="Seq{1,1,true,false}" name="luxuryCar" package="Root::Car_TO_1" type="Root::XCore::Boolean"/>
+        <addAttribute class="Root::Car_TO_1::CarModel" level="0" multiplicity="Seq{1,1,true,false}" name="modelName" package="Root::Car_TO_1" type="Root::XCore::String"/>
+        <changeSlotValue class="Root::Car_TO_1::car1" package="Root::Car_TO_1" slotName="licensePlateNumber" valueToBeParsed="[48,52,45,82,79,84].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::car1" package="Root::Car_TO_1" slotName="vin" valueToBeParsed="[51,67,54,85,82,53,80,76,48,68,71,53,53,49,53,57,49].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::car2" package="Root::Car_TO_1" slotName="licensePlateNumber" valueToBeParsed="[65,78,65,45,49,50,67].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::car2" package="Root::Car_TO_1" slotName="vin" valueToBeParsed="[49,70,77,74,75,49,70,84,49,72,69,65,53,57,57,55,55].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::car3" package="Root::Car_TO_1" slotName="licensePlateNumber" valueToBeParsed="[68,82,83,45,57,53,48].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::car3" package="Root::Car_TO_1" slotName="vin" valueToBeParsed="[49,67,51,66,67,53,54,68,56,72,70,50,48,57,53,54,57].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::car4" package="Root::Car_TO_1" slotName="licensePlateNumber" valueToBeParsed="[67,65,66,45,50,49,51].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::car4" package="Root::Car_TO_1" slotName="vin" valueToBeParsed="[49,70,68,83,87,50,49,80,49,55,69,65,48,51,52,55,56].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::car5" package="Root::Car_TO_1" slotName="licensePlateNumber" valueToBeParsed="[68,72,73,45,55,56,48].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::car5" package="Root::Car_TO_1" slotName="vin" valueToBeParsed="[49,72,84,83,68,90,55,80,50,78,72,49,57,48,50,48,54].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::car6" package="Root::Car_TO_1" slotName="licensePlateNumber" valueToBeParsed="[56,48,45,72,81,68].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::car6" package="Root::Car_TO_1" slotName="vin" valueToBeParsed="[87,68,68,71,70,53,67,66,52,66,70,53,54,57,57,54,52].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::car7" package="Root::Car_TO_1" slotName="licensePlateNumber" valueToBeParsed="[84,83,65,45,55,51,48].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::car7" package="Root::Car_TO_1" slotName="vin" valueToBeParsed="[49,88,80,72,68,66,57,88,48,57,78,55,55,56,57,48,49].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::car8" package="Root::Car_TO_1" slotName="licensePlateNumber" valueToBeParsed="[66,67,45,51,49,51].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::car8" package="Root::Car_TO_1" slotName="vin" valueToBeParsed="[49,70,68,88,75,55,50,67,55,80,86,65,51,54,48,49,50].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::carModel1" package="Root::Car_TO_1" slotName="brandName" valueToBeParsed="[67,104,101,118,114,111,108,101,116].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::carModel1" package="Root::Car_TO_1" slotName="luxuryCar" valueToBeParsed="true"/>
+        <changeSlotValue class="Root::Car_TO_1::carModel1" package="Root::Car_TO_1" slotName="modelName" valueToBeParsed="[83,105,108,118,101,114,97,100,111].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::carModel2" package="Root::Car_TO_1" slotName="brandName" valueToBeParsed="[84,111,121,111,116,97].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::carModel2" package="Root::Car_TO_1" slotName="luxuryCar" valueToBeParsed="false"/>
+        <changeSlotValue class="Root::Car_TO_1::carModel2" package="Root::Car_TO_1" slotName="modelName" valueToBeParsed="[84,97,99,111,109,97].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::carModel3" package="Root::Car_TO_1" slotName="brandName" valueToBeParsed="[83,117,98,97,114,117].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::carModel3" package="Root::Car_TO_1" slotName="luxuryCar" valueToBeParsed="false"/>
+        <changeSlotValue class="Root::Car_TO_1::carModel3" package="Root::Car_TO_1" slotName="modelName" valueToBeParsed="[70,111,114,101,115,116,101,114].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::carModel4" package="Root::Car_TO_1" slotName="brandName" valueToBeParsed="[84,101,115,108,97].asString()"/>
+        <changeSlotValue class="Root::Car_TO_1::carModel4" package="Root::Car_TO_1" slotName="luxuryCar" valueToBeParsed="true"/>
+        <changeSlotValue class="Root::Car_TO_1::carModel4" package="Root::Car_TO_1" slotName="modelName" valueToBeParsed="[77,111,100,101,108,32,89].asString()"/>
+        <addAssociation accessSourceFromTargetName="car" accessTargetFromSourceName="carModel" associationType="Root::Associations::DefaultAssociation" classSource="Root::Car_TO_1::Car" classTarget="Root::Car_TO_1::CarModel" fwName="is_of" instLevelSource="0" instLevelTarget="0" multSourceToTarget="Seq{1,1,true,false}" multTargetToSource="Seq{0,-1,false,false}" package="Root::Car_TO_1" reverseName="-1" sourceVisibleFromTarget="true" targetVisibleFromSource="true"/>
+        <addLink classSource="Root::Car_TO_1::car1" classTarget="Root::Car_TO_1::carModel1" name="carModel" package="Root::Car_TO_1"/>
+        <addLink classSource="Root::Car_TO_1::car2" classTarget="Root::Car_TO_1::carModel3" name="carModel" package="Root::Car_TO_1"/>
+        <addLink classSource="Root::Car_TO_1::car3" classTarget="Root::Car_TO_1::carModel4" name="carModel" package="Root::Car_TO_1"/>
+        <addLink classSource="Root::Car_TO_1::car4" classTarget="Root::Car_TO_1::carModel3" name="carModel" package="Root::Car_TO_1"/>
+        <addLink classSource="Root::Car_TO_1::car5" classTarget="Root::Car_TO_1::carModel1" name="carModel" package="Root::Car_TO_1"/>
+        <addLink classSource="Root::Car_TO_1::car6" classTarget="Root::Car_TO_1::carModel2" name="carModel" package="Root::Car_TO_1"/>
+        <addLink classSource="Root::Car_TO_1::car7" classTarget="Root::Car_TO_1::carModel4" name="carModel" package="Root::Car_TO_1"/>
+        <addLink classSource="Root::Car_TO_1::car8" classTarget="Root::Car_TO_1::carModel3" name="carModel" package="Root::Car_TO_1"/>
+    </Model>
+    <Diagrams>
+        <Diagram name="UMLppDiagram_1" umlMode="true">
+            <Instances>
+                <Instance hidden="false" path="Root::Car_TO_1::CarModel" xCoordinate="857" yCoordinate="163"/>
+                <Instance hidden="false" path="Root::Car_TO_1::car8" xCoordinate="977" yCoordinate="1006"/>
+                <Instance hidden="false" path="Root::Car_TO_1::car7" xCoordinate="1020" yCoordinate="494"/>
+                <Instance hidden="false" path="Root::Car_TO_1::Car" xCoordinate="583" yCoordinate="190"/>
+                <Instance hidden="false" path="Root::Car_TO_1::car6" xCoordinate="1014" yCoordinate="662"/>
+                <Instance hidden="false" path="Root::Car_TO_1::car5" xCoordinate="657" yCoordinate="491"/>
+                <Instance hidden="false" path="Root::Car_TO_1::car4" xCoordinate="959" yCoordinate="827"/>
+                <Instance hidden="false" path="Root::Car_TO_1::car3" xCoordinate="1193" yCoordinate="207"/>
+                <Instance hidden="false" path="Root::Car_TO_1::car2" xCoordinate="1574" yCoordinate="817"/>
+                <Instance hidden="false" path="Root::Car_TO_1::carModel1" xCoordinate="1043" yCoordinate="339"/>
+                <Instance hidden="false" path="Root::Car_TO_1::car1" xCoordinate="600" yCoordinate="360"/>
+                <Instance hidden="false" path="Root::Car_TO_1::carModel2" xCoordinate="1361" yCoordinate="674"/>
+                <Instance hidden="false" path="Root::Car_TO_1::carModel3" xCoordinate="1371" yCoordinate="950"/>
+                <Instance hidden="false" path="Root::Car_TO_1::carModel4" xCoordinate="1366" yCoordinate="461"/>
+            </Instances>
+            <Edges>
+                <Edge path="AssociationLinkMapping: Root::Car_TO_1::car3/Root::Car_TO_1::carModel4/AssociationMapping: Root::Car_TO_1::Car::carModel" sourcePort="EAST" targetPort="NORTH" type="AssociationLink">
+                    <IntermediatePoints>
+                        <IntermediatePoint xCoordinate="1472.6666" yCoordinate="249.90886"/>
+                        <IntermediatePoint xCoordinate="1472.6666" yCoordinate="431.0"/>
+                        <IntermediatePoint xCoordinate="1443.3721" yCoordinate="431.0"/>
+                    </IntermediatePoints>
+                    <Labels>
+                        <Label localID="0" ownerID="AssociationLinkMapping: Root::Car_TO_1::car3/Root::Car_TO_1::carModel4/AssociationMapping: Root::Car_TO_1::Car::carModel" xCoordinate="68.666664" yCoordinate="-152.59831"/>
+                    </Labels>
+                </Edge>
+                <Edge path="AssociationLinkMapping: Root::Car_TO_1::car5/Root::Car_TO_1::carModel1/AssociationMapping: Root::Car_TO_1::Car::carModel" sourcePort="EAST" targetPort="WEST" type="AssociationLink">
+                    <IntermediatePoints>
+                        <IntermediatePoint xCoordinate="963.3333" yCoordinate="534.2422"/>
+                        <IntermediatePoint xCoordinate="963.3333" yCoordinate="396.65625"/>
+                    </IntermediatePoints>
+                    <Labels>
+                        <Label localID="0" ownerID="AssociationLinkMapping: Root::Car_TO_1::car5/Root::Car_TO_1::carModel1/AssociationMapping: Root::Car_TO_1::Car::carModel" xCoordinate="32.0" yCoordinate="-56.59831"/>
+                    </Labels>
+                </Edge>
+                <Edge path="AssociationLinkMapping: Root::Car_TO_1::car7/Root::Car_TO_1::carModel4/AssociationMapping: Root::Car_TO_1::Car::carModel" sourcePort="EAST" targetPort="WEST" type="AssociationLink">
+                    <IntermediatePoints>
+                        <IntermediatePoint xCoordinate="1322.0" yCoordinate="537.2422"/>
+                        <IntermediatePoint xCoordinate="1322.0" yCoordinate="504.57553"/>
+                    </IntermediatePoints>
+                    <Labels>
+                        <Label localID="0" ownerID="AssociationLinkMapping: Root::Car_TO_1::car7/Root::Car_TO_1::carModel4/AssociationMapping: Root::Car_TO_1::Car::carModel" xCoordinate="-9.333333" yCoordinate="-8.598305"/>
+                    </Labels>
+                </Edge>
+                <Edge path="AssociationLinkMapping: Root::Car_TO_1::car1/Root::Car_TO_1::carModel1/AssociationMapping: Root::Car_TO_1::Car::carModel" sourcePort="EAST" targetPort="WEST" type="AssociationLink">
+                    <IntermediatePoints>
+                        <IntermediatePoint xCoordinate="934.6667" yCoordinate="403.2422"/>
+                        <IntermediatePoint xCoordinate="934.6667" yCoordinate="367.82812"/>
+                    </IntermediatePoints>
+                    <Labels>
+                        <Label localID="0" ownerID="AssociationLinkMapping: Root::Car_TO_1::car1/Root::Car_TO_1::carModel1/AssociationMapping: Root::Car_TO_1::Car::carModel" xCoordinate="-41.333336" yCoordinate="-17.93164"/>
+                    </Labels>
+                </Edge>
+                <Edge path="AssociationLinkMapping: Root::Car_TO_1::car6/Root::Car_TO_1::carModel2/AssociationMapping: Root::Car_TO_1::Car::carModel" sourcePort="EAST" targetPort="WEST" type="AssociationLink">
+                    <IntermediatePoints>
+                        <IntermediatePoint xCoordinate="1261.2617" yCoordinate="704.9089"/>
+                        <IntermediatePoint xCoordinate="1261.2617" yCoordinate="717.5755"/>
+                    </IntermediatePoints>
+                    <Labels/>
+                </Edge>
+                <Edge path="AssociationLinkMapping: Root::Car_TO_1::car8/Root::Car_TO_1::carModel3/AssociationMapping: Root::Car_TO_1::Car::carModel" sourcePort="EAST" targetPort="WEST" type="AssociationLink">
+                    <IntermediatePoints>
+                        <IntermediatePoint xCoordinate="1322.0" yCoordinate="1048.9088"/>
+                        <IntermediatePoint xCoordinate="1322.0" yCoordinate="1007.65625"/>
+                    </IntermediatePoints>
+                    <Labels>
+                        <Label localID="0" ownerID="AssociationLinkMapping: Root::Car_TO_1::car8/Root::Car_TO_1::carModel3/AssociationMapping: Root::Car_TO_1::Car::carModel" xCoordinate="14.0" yCoordinate="-0.5983073"/>
+                    </Labels>
+                </Edge>
+                <Edge path="AssociationMapping: Root::Car_TO_1::Car::carModel" sourcePort="EAST" targetPort="WEST" type="Association">
+                    <IntermediatePoints>
+                        <IntermediatePoint xCoordinate="807.3333" yCoordinate="236.24219"/>
+                        <IntermediatePoint xCoordinate="807.3333" yCoordinate="209.24219"/>
+                    </IntermediatePoints>
+                    <Labels>
+                        <Label localID="0" ownerID="AssociationMapping: Root::Car_TO_1::Car::carModel" xCoordinate="-3.3333335" yCoordinate="-42.59831"/>
+                    </Labels>
+                </Edge>
+                <Edge path="AssociationLinkMapping: Root::Car_TO_1::car2/Root::Car_TO_1::carModel3/AssociationMapping: Root::Car_TO_1::Car::carModel" sourcePort="SOUTH" targetPort="EAST" type="AssociationLink">
+                    <IntermediatePoints>
+                        <IntermediatePoint xCoordinate="1678.4271" yCoordinate="912.8177"/>
+                        <IntermediatePoint xCoordinate="1692.6666" yCoordinate="912.8177"/>
+                        <IntermediatePoint xCoordinate="1692.6666" yCoordinate="993.2422"/>
+                    </IntermediatePoints>
+                    <Labels>
+                        <Label localID="0" ownerID="AssociationLinkMapping: Root::Car_TO_1::car2/Root::Car_TO_1::carModel3/AssociationMapping: Root::Car_TO_1::Car::carModel" xCoordinate="158.0" yCoordinate="32.735027"/>
+                    </Labels>
+                </Edge>
+                <Edge path="AssociationLinkMapping: Root::Car_TO_1::car4/Root::Car_TO_1::carModel3/AssociationMapping: Root::Car_TO_1::Car::carModel" sourcePort="EAST" targetPort="WEST" type="AssociationLink">
+                    <IntermediatePoints>
+                        <IntermediatePoint xCoordinate="1340.6666" yCoordinate="870.2422"/>
+                        <IntermediatePoint xCoordinate="1340.6666" yCoordinate="993.2422"/>
+                    </IntermediatePoints>
+                    <Labels/>
+                </Edge>
+            </Edges>
+            <DiagramDisplayProperties>
+                <SLOTS>true</SLOTS>
+                <CONCRETESYNTAX>true</CONCRETESYNTAX>
+                <METACLASSNAME>false</METACLASSNAME>
+                <ISSUETABLE>false</ISSUETABLE>
+                <OPERATIONS>true</OPERATIONS>
+                <DERIVEDATTRIBUTES>true</DERIVEDATTRIBUTES>
+                <CONSTRAINTS>true</CONSTRAINTS>
+                <CONSTRAINTREPORTS>true</CONSTRAINTREPORTS>
+                <DERIVEDOPERATIONS>true</DERIVEDOPERATIONS>
+                <OPERATIONVALUES>true</OPERATIONVALUES>
+                <GETTERSANDSETTERS>true</GETTERSANDSETTERS>
+            </DiagramDisplayProperties>
+            <Notes/>
+            <Views>
+                <View name="Main View" tx="0.0" ty="0.0" xx="1.0"/>
+            </Views>
+        </Diagram>
+    </Diagrams>
+</XModelerPackage>

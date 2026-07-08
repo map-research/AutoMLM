@@ -4,10 +4,19 @@ for unique values within a specific attribute.
 """
 from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
 from src.fmmlx_mlm_structure.fm_slot import FmmlxSlot
+from src.fmmlx_mlm_structure.model_property import ModelProperty
+from src.fmmlx_mlm_structure.slot_precedence_graph import SlotPrecedenceGraph
 
 
-class SlotCollective:
+class SlotCollective(ModelProperty):
     def __init__(self, value: str, attribute: FmmlxAttribute):
+        if attribute.get_attr_type() == "Boolean":
+            print_value = "is " + attribute.get_attribute_name() if value == "true" \
+                else "is not " + attribute.get_attribute_name()
+        else:
+            print_value: str = value[:10]  # as a precaution only first 10 characters for printing,
+        # too long names cause unreadable graphs
+        super().__init__(f"{print_value}")
         self.value: str = value
         self.attribute: FmmlxAttribute = attribute
         self.slots: [FmmlxSlot] = []
@@ -29,8 +38,15 @@ class SlotCollective:
     def add_slot(self, slot: FmmlxSlot):
         self.slots.append(slot)
 
+    def get_slots(self) -> [FmmlxSlot]:
+        return self.slots
+
     def get_scope_set(self) -> set:
         return set(self.scope_list)
+
+    def get_owner_object(self):
+        """returns an instance of FmmlxObject"""
+        return self.attribute.get_owner()
 
     def __le__(self, other):
         """
@@ -49,7 +65,7 @@ class SlotCollective:
 
     def compare(self, other) -> str:
         """
-        the compare method compares two SlotCollective instances and returns whether the respective symbol
+        the compare method compares two SlotCollective instances and returns the respective comparison symbol
         """
         if self < other:
             return "<"
@@ -58,7 +74,7 @@ class SlotCollective:
         elif self >= other >= self:
             return "="
         else:
-            return "||"  # || in this context means disjoint, indicating incomaprability
+            return "||"  # || in this context means disjoint, indicating incomparability
 
     def pretty_print_scope(self) -> str:
         pp_scope: str = ""

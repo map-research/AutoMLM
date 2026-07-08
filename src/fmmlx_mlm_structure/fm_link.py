@@ -1,4 +1,6 @@
 from xml.etree.ElementTree import ElementTree
+
+from src.fmmlx_mlm_structure.fm_association import FmmlxAssociation
 from src.fmmlx_mlm_structure.fm_object import FmmlxObject
 
 
@@ -7,6 +9,7 @@ class FmmlxLink:
         self.name = name
         self.source_object: FmmlxObject = None
         self.target_object: FmmlxObject = None
+        self.association: FmmlxAssociation = None
 
     def export(self, root):
         projectName = root.attrib['path']
@@ -19,6 +22,18 @@ class FmmlxLink:
 
     def set_target_object(self, target_object: FmmlxObject):
         self.target_object = target_object
+
+    def get_source_object(self) -> FmmlxObject:
+        return self.source_object
+
+    def get_target_object(self) -> FmmlxObject:
+        return self.target_object
+
+    def get_association(self) -> FmmlxAssociation:
+        return self.association
+
+    def set_association(self, association: FmmlxAssociation):
+        self.association = association
 
     def __repr__(self):
         return f"[LINK {self.name}] From {self.source_object.object_name} to {self.target_object.object_name}"
