@@ -134,7 +134,6 @@ class PropertyPrecedenceGraph:
         #  Step 2: check nodes
         key_to_update: PropertyGroup = PropertyGroup()
         for key in self.nodes:
-            if self.update_graph_counter > 17:
             if pg1.get_model_properties() in key:
                 found_pg1_key = True
                 key_to_update = key
