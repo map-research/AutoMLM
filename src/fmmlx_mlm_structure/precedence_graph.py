@@ -64,7 +64,6 @@ class PropertyPrecedenceGraph:
                 # if pg2 is already part of a shared pg, the precedence must have been added already
                 pg2 = poly_pg
                 return
-        #  print(f"->To Graph we add: {pg1} precedes {pg2}")
         if pg1 in self.nodes:
             current_connections: [] = self.nodes.get(pg1)
             current_connections.append(pg2)
@@ -97,6 +96,7 @@ class PropertyPrecedenceGraph:
         The property groups received here as inputs are always single-property groups. Thus, it must be checked whether
         the contained properties are already part of other poly-property groups.
         """
+
         found_pg1_key: bool = False
         found_pg2_key: bool = False
         pg1_in_poly_pg: bool = False
@@ -119,6 +119,8 @@ class PropertyPrecedenceGraph:
                 pg2_in_poly_pg = True
             #  print(f"PG1 {pg1_in_poly_pg}, PG2 {pg2_in_poly_pg}")
             if pg1_in_poly_pg and pg2_in_poly_pg:
+                #  print(f"BOTH IN A POLY-PG {pg1} and {pg2}")
+                #  print(f"--Is{shared_prop_group} is {poly_pg}?")
                 if shared_prop_group != poly_pg:
                     shared_prop_group.merge_other_property_groups(poly_pg)  # TODO AVOID DUPLICATES IF POLY_PG SUPERSET
             else:
@@ -132,6 +134,7 @@ class PropertyPrecedenceGraph:
         #  Step 2: check nodes
         key_to_update: PropertyGroup = PropertyGroup()
         for key in self.nodes:
+            if self.update_graph_counter > 17:
             if pg1.get_model_properties() in key:
                 found_pg1_key = True
                 key_to_update = key
@@ -141,11 +144,14 @@ class PropertyPrecedenceGraph:
         if found_pg1_key or found_pg2_key:  # consequently, key_to_update is set
             prop_connections.append(self.nodes[key_to_update])
             #  print(f"PROP HERE: {prop_connections}")
-            self.nodes.pop(key_to_update)
             if any(isinstance(item, list) for item in prop_connections):
                 prop_connections = prop_connections[0]
             #  print(f"SHARED UPGRADE {key_to_update}: {prop_connections} OR {shared_prop_group}")
-            self._update_graph_adjacency_list(shared_prop_group, prop_connections, place=4)
+            #  print("\n------------------NOW WE UPDATE BECAUSE ONE IS INCLUDED -- BUT SHOULD WE")
+            #  print(f"{pg1} pr {pg2} is in found in {key_to_update}, changed to {shared_prop_group}")
+            if not (found_pg1_key and found_pg2_key):
+                self.nodes.pop(key_to_update)
+                self._update_graph_adjacency_list(shared_prop_group, prop_connections, place=4)
         else:  # if we get here, both pgs are not added as nodes yet and thus should be
             self._update_graph_adjacency_list(shared_prop_group, [], 6)  # key_to_update empty here
         self.poly_property_groups.append(shared_prop_group)

@@ -135,7 +135,8 @@ class FmmlxObject:
             if slot_collective.get_attribute() == attribute and slot_collective.get_value() == value:
                 return slot_collective
 
-    def create_slot_collectives(self, ignore_case: bool = True, print_progress: bool = False):
+    def _old_create_slot_collectives(self, ignore_case: bool = True, print_progress: bool = False):
+        # TODO DELETE IF NEW IMPLEMENTATION WORKS
         assert self.level == 1, "Slot collectives can currently only be created for L0 instances of L1 classes"
         for attr in self.attr_list:
             encountered_slot_values: [str] = []
@@ -152,6 +153,29 @@ class FmmlxObject:
                     slot_collective = self.get_slot_collective_by_attribute_and_value(attr, slot_value)
                 slot_collective.add_slot(slot)
                 slot_collective.add_object_to_scope(instance)
+        if print_progress:
+            print(*self.slot_collectives, sep="\n")
+
+    def create_slot_collectives(self, ignore_case: bool = True, print_progress: bool = False):
+        assert self.level == 1, "Slot collectives can currently only be created for L0 instances of L1 classes"
+        for attr in self.attr_list:
+            encountered_slot_values: [str] = []
+            for instance in self.instances:
+                slot: FmmlxSlot = instance.get_slot_by_attribute(attr)
+                slot_values: [str] = slot.get_values_as_list()
+                slot_collective: SlotCollective
+                for slot_value in slot_values:
+                    if ignore_case:
+                        slot_value = slot_value.lower()
+                    if slot_value not in encountered_slot_values:
+                        slot_collective = SlotCollective(slot_value, attr)
+                        encountered_slot_values.append(slot_value)
+                        self.slot_collectives.append(slot_collective)
+                        attr.add_collective_slot(slot_collective)
+                    else:
+                        slot_collective = self.get_slot_collective_by_attribute_and_value(attr, slot_value)
+                    slot_collective.add_slot(slot)
+                    slot_collective.add_object_to_scope(instance)
         if print_progress:
             print(*self.slot_collectives, sep="\n")
 
