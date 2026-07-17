@@ -87,7 +87,7 @@ def run_llm_example():
 
 user_path=""
 
-oc_small = "C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\mlm_files\\standard-oc-small.xml"
+oc_small = r"C:\Users\PierreM\git\MosaicFX\AutoMLM\mlm_files\standard-oc-small.xml"
 car_simple = "C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\MD_CarSimple.xml"
 car_simple_v2 = "C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\MD_CarSimple-cr.xml"
 car_simple_v3 = "C:\\Users\\PierreM\\git\\MosaicFX\\AutoMLM\\mlm_files\\MD_CarSimple_v3.xml"
@@ -100,4 +100,3 @@ cars_to_path = "/type-object/RentalCars_TypeObject.xml"
 
 print(FmmlxModel(cars_to_path))
 #custom_example(car_simple_v5, True)
-

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from xml.etree.ElementTree import ElementTree
 
 from src.fmmlx_mlm_structure.fm_object import FmmlxObject

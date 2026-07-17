@@ -21,3 +21,4 @@ class PrecedenceAnalysis:
         # TODO
 
     def create_slot_collectives_for_class(self):
+        pass
