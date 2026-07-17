@@ -73,8 +73,8 @@ class ModelDeepening:
             attr_precedence_graph: AttributePrecedenceGraph = flat_class.get_attribute_precedence_graph()
             spg = flat_class.get_slot_precedence_graph()
             if export_graphs_as_png:
-                attr_precedence_graph.export_graph_as_image(flat_class.object_name, ImageFileFormat.PNG)
-                spg.export_graph_as_image(flat_class.object_name, ImageFileFormat.PNG)
+                attr_precedence_graph.export_graph_as_image(flat_class.object_name, ImageFileFormat.SVG)
+                spg.export_graph_as_image(flat_class.object_name, ImageFileFormat.SVG)
 
             if print_precedence_graph:
                 print(attr_precedence_graph)

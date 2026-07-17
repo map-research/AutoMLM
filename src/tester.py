@@ -1,4 +1,4 @@
-from src.model_deepening import ModelDeepening
+from src.ModelDeepening import ModelDeepening
 
 
 # class Tester is currently dummy class, serves as a shell for more specific Tester classes
