@@ -18,6 +18,7 @@ from typing import Any, Dict, List, Optional
 
 
 from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
+from src.fmmlx_mlm_structure.fm_enum_type import FmmlxEnumType
 from src.fmmlx_mlm_structure.fm_multi_level_model import FmmlxModel
 from src.fmmlx_mlm_structure.fm_object import FmmlxObject
 from src.fmmlx_mlm_structure.fm_slot import FmmlxSlot
@@ -54,6 +55,7 @@ class LoadedModel:
     selected_columns: List[str] = field(default_factory=list)
     uploaded: str = ""
     last_worked_on: str = ""
+    last_action: str = "Imported"
 
 
 # noinspection PyAttributeOutsideInit,PyUnresolvedReferences,PyTypeChecker,SpellCheckingInspection
@@ -70,26 +72,11 @@ class AutoMLMApp(ctk.CTk):
     VALIDATION_VALUE_WIDTH = 170
     VALIDATION_ROW_HEIGHT = 42
 
-    STEP_TITLES = {
+    ACTION_TITLES = {
         1: "Upload File or Select Example",
         2: "Inspect Model",
         3: "Conduct Model Deepening Analysis",
         4: "Apply Change Operations",
-        5: "Export Model",
-    }
-
-    LOCKED_DESCRIPTIONS = {
-        3: "Planned analysis step. Locked in this prototype.",
-        4: "Planned operation step. Locked in this prototype.",
-        5: "Export is available from Inspect Model for now.",
-    }
-
-    STEP_DESCRIPTIONS = {
-        1: "Upload a CSV or XML file. This will be the source for your model.",
-        2: "Review the imported or generated model structure and content.",
-        3: "Analyze the model to identify abstraction and deepening opportunities.",
-        4: "Apply selected operations to refine and update the model.",
-        5: "Export the final model to XML or other formats.",
     }
 
     def __init__(self):
@@ -122,15 +109,18 @@ class AutoMLMApp(ctk.CTk):
 
         self.current_model: Optional[FmmlxModel] = None
         self.current_file_path: Optional[str] = None
+        self.current_file_type: str = ""
+        self.current_selected_columns: List[str] = []
         self.csv_preview: Optional[CsvImportPreview] = None
         self.xml_preview: Optional[XmlImportPreview] = None
         self.selected_csv_columns: Dict[str, tk.BooleanVar] = {}
         self.tree_item_payload: Dict[str, object] = {}
+        self.tree_item_view: Dict[str, str] = {}
         self.loaded_models: List[LoadedModel] = []
         self.loaded_models_store_path = os.path.join(os.getcwd(), "mlm_files", "loaded_models.json")
-        self.step_unlocked = {1: True, 2: False, 3: False, 4: False, 5: False}
-        self.step_completed = {1: False, 2: False, 3: False, 4: False, 5: False}
-        self.current_step = 1
+        self.action_unlocked = {1: True, 2: False, 3: False, 4: False}
+        self.action_completed = {1: False, 2: False, 3: False, 4: False}
+        self.current_action = 1
         self.active_top_tab = "new"
         self._detail_load_token = 0
         self._detail_batch_after_id = None
@@ -142,6 +132,11 @@ class AutoMLMApp(ctk.CTk):
         self._configure_ttk_style()
         self._build_layout()
         self._show_import_page()
+
+    # ------------------------------------------------------------------
+    # Main Window and Sidebar
+    # Builds the app frame, top navigation, and left action list.
+    # ------------------------------------------------------------------
 
     def _configure_ttk_style(self):
         self.style = ttk.Style(self)
@@ -253,14 +248,11 @@ class AutoMLMApp(ctk.CTk):
         )
         self.workflow_title.pack(fill="x", padx=20, pady=(24, 14))
 
-        self.step_cards: Dict[int, ctk.CTkFrame] = {}
-        self.step_number_labels: Dict[int, ctk.CTkLabel] = {}
-        self.step_title_labels: Dict[int, ctk.CTkLabel] = {}
-        self.step_description_labels: Dict[int, ctk.CTkLabel] = {}
-        self.step_state_labels: Dict[int, ctk.CTkLabel] = {}
+        self.action_cards: Dict[int, ctk.CTkFrame] = {}
+        self.action_title_labels: Dict[int, ctk.CTkLabel] = {}
 
-        for step in self.STEP_TITLES:
-            self._build_step_card(step)
+        for action in self.ACTION_TITLES:
+            self._build_action_card(action)
 
         sidebar_note = ctk.CTkFrame(self.sidebar, fg_color="transparent")
         sidebar_note.pack(fill="x", side="bottom", padx=20, pady=24)
@@ -275,9 +267,9 @@ class AutoMLMApp(ctk.CTk):
         ctk.CTkLabel(
             sidebar_note,
             text=(
-                "Steps are completed in order.\n"
-                "The next step becomes available after\n"
-                "the current step is finished successfully."
+                "Upload a file first.\n"
+                "Then switch between the available\n"
+                "model actions whenever needed."
             ),
             justify="left",
             anchor="w",
@@ -294,73 +286,38 @@ class AutoMLMApp(ctk.CTk):
         self.content.grid_columnconfigure(0, weight=1)
         self.content.grid_rowconfigure(1, weight=1)
 
-    def _build_step_card(self, step: int):
+    def _build_action_card(self, action: int):
         card = ctk.CTkFrame(
             self.sidebar,
             fg_color=self.colors["surface"],
             corner_radius=10,
             border_width=1,
             border_color=self.colors["border"],
-            height=112,
+            height=58,
         )
         card.pack(fill="x", padx=14, pady=6)
         card.pack_propagate(False)
-        card.grid_columnconfigure(1, weight=1)
-
-        number = ctk.CTkLabel(
-            card,
-            text=str(step),
-            width=30,
-            height=30,
-            corner_radius=15,
-            fg_color="#94a3b8",
-            text_color="#ffffff",
-            font=ctk.CTkFont(family="Segoe UI", size=14, weight="bold"),
-        )
-        number.grid(row=0, column=0, rowspan=2, padx=(14, 10), pady=(15, 0), sticky="n")
+        card.grid_columnconfigure(0, weight=1)
 
         title = ctk.CTkLabel(
             card,
-            text=self.STEP_TITLES[step],
+            text=self.ACTION_TITLES[action],
             justify="left",
             anchor="w",
-            wraplength=205,
+            wraplength=250,
             text_color=self.colors["text"],
             font=ctk.CTkFont(family="Segoe UI", size=14, weight="bold"),
         )
-        title.grid(row=0, column=1, sticky="ew", padx=(0, 12), pady=(14, 2))
+        title.grid(row=0, column=0, sticky="ew", padx=16, pady=16)
 
-        description = ctk.CTkLabel(
-            card,
-            text=self.STEP_DESCRIPTIONS[step],
-            justify="left",
-            anchor="nw",
-            wraplength=205,
-            text_color=self.colors["muted"],
-            font=ctk.CTkFont(family="Segoe UI", size=12),
-        )
-        description.grid(row=1, column=1, sticky="new", padx=(0, 12), pady=(0, 2))
-
-        state = ctk.CTkLabel(
-            card,
-            text="Locked",
-            anchor="w",
-            text_color="#94a3b8",
-            font=ctk.CTkFont(family="Segoe UI", size=12),
-        )
-        state.grid(row=2, column=1, sticky="w", padx=(0, 12), pady=(0, 10))
-
-        for widget in (card, number, title, description, state):
+        for widget in (card, title):
             widget.bind(
                 "<Button-1>",
-                lambda _event, selected_step=step: self._try_open_step(selected_step),
+                lambda _event, selected_action=action: self._try_open_action(selected_action),
             )
 
-        self.step_cards[step] = card
-        self.step_number_labels[step] = number
-        self.step_title_labels[step] = title
-        self.step_description_labels[step] = description
-        self.step_state_labels[step] = state
+        self.action_cards[action] = card
+        self.action_title_labels[action] = title
 
     def _clear_content(self):
         for child in self.content.winfo_children():
@@ -388,11 +345,10 @@ class AutoMLMApp(ctk.CTk):
                 border_color="#bfdbfe" if is_active else self.colors["surface"],
             )
 
-    def _refresh_steps(self):
-        for step, card in self.step_cards.items():
-            is_current = step == self.current_step
-            is_unlocked = self.step_unlocked.get(step, False)
-            is_completed = self.step_completed.get(step, False)
+    def _refresh_actions(self):
+        for action, card in self.action_cards.items():
+            is_current = action == self.current_action
+            is_unlocked = self._is_navigation_item_available(action)
 
             if is_current:
                 card.configure(
@@ -400,86 +356,48 @@ class AutoMLMApp(ctk.CTk):
                     border_color=self.colors["primary"],
                     border_width=1,
                 )
-                self.step_number_labels[step].configure(
-                    text=str(step),
-                    fg_color=self.colors["primary"],
-                    text_color="#ffffff",
-                )
-                self.step_title_labels[step].configure(text_color=self.colors["primary"])
-                self.step_description_labels[step].configure(text_color="#475569")
-                self.step_state_labels[step].configure(
-                    text="Current",
-                    text_color=self.colors["primary"],
-                )
-            elif is_completed:
-                card.configure(
-                    fg_color=self.colors["surface"],
-                    border_color="#bbf7d0",
-                    border_width=1,
-                )
-                self.step_number_labels[step].configure(
-                    text="Done",
-                    fg_color=self.colors["success"],
-                    text_color="#ffffff",
-                )
-                self.step_title_labels[step].configure(text_color=self.colors["text"])
-                self.step_description_labels[step].configure(text_color=self.colors["muted"])
-                self.step_state_labels[step].configure(
-                    text="Completed",
-                    text_color=self.colors["success"],
-                )
+                self.action_title_labels[action].configure(text_color=self.colors["primary"])
             elif is_unlocked:
                 card.configure(
                     fg_color=self.colors["surface"],
                     border_color=self.colors["border"],
                     border_width=1,
                 )
-                self.step_number_labels[step].configure(
-                    text=str(step),
-                    fg_color="#64748b",
-                    text_color="#ffffff",
-                )
-                self.step_title_labels[step].configure(text_color=self.colors["text"])
-                self.step_description_labels[step].configure(text_color=self.colors["muted"])
-                self.step_state_labels[step].configure(
-                    text="Available",
-                    text_color=self.colors["primary"],
-                )
+                self.action_title_labels[action].configure(text_color=self.colors["text"])
             else:
                 card.configure(
                     fg_color=self.colors["disabled_bg"],
                     border_color=self.colors["border"],
                     border_width=1,
                 )
-                self.step_number_labels[step].configure(
-                    text=str(step),
-                    fg_color="#cbd5e1",
-                    text_color="#ffffff",
-                )
-                self.step_title_labels[step].configure(text_color="#94a3b8")
-                self.step_description_labels[step].configure(text_color="#a8b2c1")
-                self.step_state_labels[step].configure(
-                    text="Locked",
-                    text_color="#94a3b8",
-                )
+                self.action_title_labels[action].configure(text_color="#94a3b8")
 
-    def _try_open_step(self, step: int):
-        if not self.step_unlocked.get(step):
+    def _try_open_action(self, action: int):
+        if not self._is_navigation_item_available(action):
             return
-        if step == 1:
+        if action == 1:
             self._show_import_page()
-        elif step == 2:
+        elif action == 2:
             self._show_model_page()
+        else:
+            self._open_placeholder_action(action)
+
+    def _is_navigation_item_available(self, action: int) -> bool:
+        if action != 1:
+            return self.current_model is not None
+        return True
 
     def _show_import_page(self):
-        self.current_step = 1
+        self._reset_current_import_state()
+        self.current_action = 1
+        self._set_last_action(1)
         self._show_workflow_sidebar()
         self._set_top_tab("new")
-        self._refresh_steps()
+        self._refresh_actions()
         self._clear_content()
 
         self._page_header(
-            "Step 1 of 5: Upload File or Select Example",
+            "Upload File or Select Example",
             "Import a CSV or FMMLx/XML file. Validation starts automatically after a file is selected.",
         )
 
@@ -711,25 +629,36 @@ class AutoMLMApp(ctk.CTk):
         else:
             self._render_empty_preview("Select a CSV or XML file to start.")
 
+    def _reset_current_import_state(self):
+        self.current_model = None
+        self.current_file_path = None
+        self.current_file_type = ""
+        self.current_selected_columns = []
+        self.csv_preview = None
+        self.xml_preview = None
+        self.selected_csv_columns.clear()
+        self.action_completed = {1: False, 2: False, 3: False, 4: False}
+
     def _show_model_page(self):
         if self.current_model is None:
             return
+        self._set_last_action(2)
         self._touch_loaded_model(self.current_model)
 
-        self.current_step = 2
-        self.step_completed[2] = True
-        self.step_unlocked[3] = True
+        self.current_action = 2
+        self.action_completed[2] = True
         self._show_workflow_sidebar()
         self._set_top_tab("new")
-        self._refresh_steps()
+        self._refresh_actions()
         self._clear_content()
 
         self._page_header(
-            "Step 2 of 5: Inspect Model",
+            "Inspect Model",
             "Review the imported or generated model structure and content.",
         )
 
         model = self.current_model
+        self._attach_active_model_reference(model)
 
         body = ctk.CTkFrame(self.content, fg_color="transparent")
         body.grid(row=1, column=0, sticky="nsew")
@@ -747,6 +676,8 @@ class AutoMLMApp(ctk.CTk):
             ("Classes", len(model.get_all_flat_classes()), "#2563EB"),
             ("Attributes", self._count_attributes(model), "#7C3AED"),
             ("Enumerations", len(model.enums), "#F59E0B"),
+            ("Operations", self._count_operations(model), "#0D9488"),
+            ("Generalizations", self._count_generalizations(model), "#E11D48"),
             ("Associations", len(model.associations), "#64748B"),
             ("Objects", len(model.get_all_pure_objects()), "#16A34A"),
             ("Slots", self._count_slots(model), "#EA580C"),
@@ -869,7 +800,17 @@ class AutoMLMApp(ctk.CTk):
             foreground="#16A34A",
         )
         self.model_tree.tag_configure(
+            "enum_group",
+            font=("Segoe UI", 11, "bold"),
+            foreground="#F59E0B",
+        )
+        self.model_tree.tag_configure(
             "class_item",
+            font=("Segoe UI", 10),
+            foreground="#0F172A",
+        )
+        self.model_tree.tag_configure(
+            "enum_item",
             font=("Segoe UI", 10),
             foreground="#0F172A",
         )
@@ -907,7 +848,7 @@ class AutoMLMApp(ctk.CTk):
         )
 
         # -------------------------------------------------------------
-        # Details panel in the same visual language as Step 1.
+        # Details panel in the same visual language as the Upload page.
         # -------------------------------------------------------------
         detail_card = self._card(body)
         self.detail_card = detail_card
@@ -1066,15 +1007,15 @@ class AutoMLMApp(ctk.CTk):
 
         ctk.CTkButton(
             actions,
-            text="Continue to Next Step",
-            width=230,
+            text="Export Model",
+            width=170,
             height=42,
             corner_radius=8,
             fg_color=self.colors["primary"],
             hover_color=self.colors["primary_hover"],
             text_color="#FFFFFF",
             font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
-            command=lambda: self._open_placeholder_step(3),
+            command=self._export_current_model_placeholder,
         ).grid(
             row=0,
             column=2,
@@ -1082,7 +1023,7 @@ class AutoMLMApp(ctk.CTk):
         )
 
         self._populate_model_tree(model)
-        self._render_empty_detail_state()
+        self._render_model_structure_overview(model)
 
     def _bind_detail_scroll_events(self, _event=None):
         self.bind_all("<MouseWheel>", self._on_detail_mousewheel)
@@ -1180,72 +1121,148 @@ class AutoMLMApp(ctk.CTk):
         return "Model"
 
 
-    def _open_placeholder_step(self, step: int):
-        self.step_unlocked[step] = True
-        self.current_step = step
-        self._refresh_steps()
-        messagebox.showinfo(
-            "Step not implemented yet",
-            f"{self.STEP_TITLES[step]} will be implemented next.",
+    def _open_placeholder_action(self, action: int):
+        self.current_action = action
+        self._set_last_action(action)
+        self._refresh_actions()
+        self._clear_content()
+        self._page_header(
+            self.ACTION_TITLES[action],
+            "This action will be implemented next.",
         )
+        body = ctk.CTkFrame(self.content, fg_color="transparent")
+        body.grid(row=1, column=0, sticky="nsew")
+        body.grid_columnconfigure(0, weight=1)
+        body.grid_rowconfigure(0, weight=1)
 
-    def _metric_card_no_icon(
-            self,
-            parent,
-            label: str,
-            value: int,
-            value_color: str,
-    ) -> ctk.CTkFrame:
-        card = self._card(parent)
-        card.configure(height=104)
-        card.grid_propagate(False)
+        panel = self._card(body)
+        panel.grid(row=0, column=0, sticky="nsew")
+        panel.grid_columnconfigure(0, weight=1)
+        panel.grid_rowconfigure(0, weight=1)
+        ctk.CTkLabel(
+            panel,
+            text="Action area not implemented yet.",
+            text_color=self.colors["muted"],
+            font=ctk.CTkFont(family="Segoe UI", size=14, weight="bold"),
+        ).grid(row=0, column=0, sticky="nsew", padx=24, pady=24)
 
-        is_zero = value == 0
-        muted_color = "#A8B2C1"
-        label_color = muted_color if is_zero else self.colors["text"]
-        number_color = muted_color if is_zero else value_color
+        actions = ctk.CTkFrame(self.content, fg_color="transparent")
+        actions.grid(row=2, column=0, sticky="ew", pady=(14, 0))
+        actions.grid_columnconfigure(0, weight=1)
+        if action == 3 and self.current_model is not None:
+            ctk.CTkButton(
+                actions,
+                text="Inspect Model",
+                width=150,
+                height=42,
+                corner_radius=8,
+                fg_color="#FFFFFF",
+                hover_color="#EEF2FF",
+                border_width=1,
+                border_color="#C7D2E3",
+                text_color=self.colors["text"],
+                font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
+                command=self._show_model_page,
+            ).grid(row=0, column=1, sticky="e", padx=(0, 10))
+        ctk.CTkButton(
+            actions,
+            text="Export Model",
+            width=170,
+            height=42,
+            corner_radius=8,
+            fg_color=self.colors["primary"],
+            hover_color=self.colors["primary_hover"],
+            text_color="#FFFFFF",
+            font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
+            command=self._export_current_model_placeholder,
+        ).grid(row=0, column=2, sticky="e")
 
-        value_text = str(value)
-        if len(value_text) >= 7:
-            value_size = 17
-        elif len(value_text) >= 6:
-            value_size = 18
-        elif len(value_text) >= 5:
-            value_size = 20
+    def _export_current_model_placeholder(self):
+        if self.current_model is None:
+            messagebox.showinfo("Export Model", "Create or open a model before exporting.")
+            return
+        file_type = (self.current_file_type or os.path.splitext(self.current_file_path or "")[1].lstrip(".")).upper()
+        if file_type == "XML":
+            self._export_current_xml_model()
+        elif file_type == "CSV":
+            self._export_current_csv_model()
         else:
-            value_size = 22
+            messagebox.showerror("Export Model", "Only CSV and XML models can be exported.")
 
-        ctk.CTkLabel(
-            card,
-            text=label,
-            text_color=label_color,
-            font=ctk.CTkFont(
-                family="Segoe UI",
-                size=13,
-                weight="bold",
-            ),
-        ).place(
-            relx=0.5,
-            y=29,
-            anchor="center",
+    def _export_current_xml_model(self):
+        if not self.current_file_path or not os.path.exists(self.current_file_path):
+            messagebox.showerror("Export Model", "The source XML file is missing.")
+            return
+        source_name = os.path.basename(self.current_file_path)
+        target_path = filedialog.asksaveasfilename(
+            title="Export Model",
+            initialfile=source_name,
+            defaultextension=".xml",
+            filetypes=[("XML files", "*.xml"), ("All files", "*.*")],
         )
+        if not target_path:
+            return
+        try:
+            shutil.copyfile(self.current_file_path, target_path)
+            os.utime(target_path, None)
+        except OSError as exc:
+            messagebox.showerror("Export Model", f"Could not export XML: {exc}")
+            return
+        messagebox.showinfo("Export Model", f"Model exported to:\n{target_path}")
 
-        ctk.CTkLabel(
-            card,
-            text=value_text,
-            text_color=number_color,
-            font=ctk.CTkFont(
-                family="Segoe UI",
-                size=value_size,
-                weight="bold",
-            ),
-        ).place(
-            relx=0.5,
-            y=69,
-            anchor="center",
+    def _export_current_csv_model(self):
+        if not self.current_file_path or not os.path.exists(self.current_file_path):
+            messagebox.showerror("Export Model", "The source CSV file is missing.")
+            return
+        selected_columns = self.current_selected_columns or [
+            column
+            for column, selected in self.selected_csv_columns.items()
+            if selected.get()
+        ]
+        if not selected_columns:
+            messagebox.showerror("Export Model", "No CSV columns were selected.")
+            return
+        source_name = os.path.basename(self.current_file_path)
+        target_path = filedialog.asksaveasfilename(
+            title="Export Model",
+            initialfile=source_name,
+            defaultextension=".csv",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
         )
+        if not target_path:
+            return
+        try:
+            self._write_selected_csv_columns(self.current_file_path, target_path, selected_columns)
+        except (OSError, csv.Error, ValueError) as exc:
+            messagebox.showerror("Export Model", f"Could not export CSV: {exc}")
+            return
+        messagebox.showinfo("Export Model", f"Model exported to:\n{target_path}")
 
-        return card
+    def _write_selected_csv_columns(self, source_path: str, target_path: str, selected_columns: List[str]):
+        with open(source_path, "r", newline="", encoding="utf-8-sig") as source_file:
+            dialect = self._detect_csv_dialect(source_file)
+            reader = csv.reader(source_file, dialect, skipinitialspace=True)
+            rows = [[value.strip().strip('"') for value in row] for row in reader if row]
+        if not rows:
+            raise ValueError("CSV file is empty.")
+        header = rows[0]
+        selected_indexes = []
+        missing_columns = []
+        for selected_column in selected_columns:
+            try:
+                selected_indexes.append(header.index(selected_column))
+            except ValueError:
+                missing_columns.append(selected_column)
+        if missing_columns:
+            raise ValueError(f"Selected columns were not found: {missing_columns}")
+        with open(target_path, "w", newline="", encoding="utf-8-sig") as target_file:
+            writer = csv.writer(target_file, dialect)
+            for row in rows:
+                writer.writerow([
+                    row[index] if index < len(row) else ""
+                    for index in selected_indexes
+                ])
+        os.utime(target_path, None)
 
     def _show_models_overview_page(self):
         self._hide_workflow_sidebar()
@@ -1333,10 +1350,10 @@ class AutoMLMApp(ctk.CTk):
             height=44,
             corner_radius=7,
             fg_color="#FFFFFF",
-            button_color="#F8FAFC",
+            button_color="#FFFFFF",
             button_hover_color="#EEF4FF",
             border_color="#CBD8EA",
-            border_width=2,
+            border_width=1,
             text_color=self.colors["text"],
             dropdown_fg_color="#FFFFFF",
             dropdown_hover_color="#EEF4FF",
@@ -1399,107 +1416,129 @@ class AutoMLMApp(ctk.CTk):
         self._populate_models_table()
         self._render_overview_details(None)
 
-    def _page_header(self, title: str, subtitle: str):
-        header = ctk.CTkFrame(self.content, fg_color="transparent")
-        header.grid(row=0, column=0, sticky="ew", pady=(0, 18))
-        header.grid_columnconfigure(1, weight=1)
-
-        step_number = None
-        display_title = title
-        match = re.match(r"Step\s+(\d+)\s+of\s+\d+:\s*(.*)", title)
-        if match:
-            step_number = match.group(1)
-            display_title = f"Step {step_number} of 5: {match.group(2)}"
-
-        if step_number:
-            ctk.CTkLabel(
-                header,
-                text=step_number,
-                width=46,
-                height=self.TABLE_HEADER_HEIGHT,
-                corner_radius=23,
-                fg_color=self.colors["primary_soft"],
-                text_color=self.colors["primary"],
-                font=ctk.CTkFont(size=19, weight="bold"),
-            ).grid(row=0, column=0, rowspan=2, sticky="nw", padx=(0, 16))
-
-        ctk.CTkLabel(
-            header,
-            text=display_title,
-            anchor="w",
-            text_color=self.colors["text"],
-            font=ctk.CTkFont(size=24, weight="bold"),
-        ).grid(row=0, column=1, sticky="w")
-
-        ctk.CTkLabel(
-            header,
-            text=subtitle,
-            anchor="w",
-            text_color=self.colors["muted"],
-            font=ctk.CTkFont(size=12),
-        ).grid(row=1, column=1, sticky="w", pady=(3, 0))
-
-    def _card(self, parent) -> ctk.CTkFrame:
-        return ctk.CTkFrame(
-            parent,
-            fg_color=self.colors["surface"],
-            corner_radius=12,
-            border_width=1,
-            border_color=self.colors["border"],
-        )
-
-    def _card_title(self, parent, text: str) -> ctk.CTkLabel:
-        return ctk.CTkLabel(
-            parent,
-            text=text,
-            anchor="w",
-            text_color=self.colors["text"],
-            font=ctk.CTkFont(family="Segoe UI", size=16, weight="bold"),
-        )
-
-    @staticmethod
-    def _tree(parent, **kwargs) -> ttk.Treeview:
-        tree = ttk.Treeview(parent, **kwargs)
-        tree.tag_configure("even", background="#ffffff")
-        tree.tag_configure("odd", background="#f8fafc")
-        return tree
+    # ------------------------------------------------------------------
+    # Upload File or Select Example
+    # Handles file picking, validation results, and CSV column selection.
+    # ------------------------------------------------------------------
 
     def _select_example_file(self):
-        """Open a project folder that contains ready-to-use example files."""
-        project_root = os.getcwd()
-        has_supported_file = False
-        skipped_folders = {".git", ".idea", ".venv", ".venv312", "__pycache__"}
-        for _folder, subfolders, file_names in os.walk(project_root):
-            subfolders[:] = [
-                folder
-                for folder in subfolders
-                if folder not in skipped_folders
-            ]
-            if any(file_name.lower().endswith((".csv", ".xml")) for file_name in file_names):
-                has_supported_file = True
-                break
-
-        if not has_supported_file:
+        """Open a tree dialog with files from mlm_files."""
+        examples_root = os.path.join(os.getcwd(), "mlm_files")
+        if not os.path.isdir(examples_root):
             messagebox.showinfo(
                 "No examples found",
-                "Place CSV or XML files in any project folder.",
+                "Place XML files in mlm_files.",
             )
             return
 
-        file_path = filedialog.askopenfilename(
-            initialdir=project_root,
-            title="Select Example",
-            filetypes=[
-                ("Supported files", "*.csv *.xml"),
-                ("CSV files", "*.csv"),
-                ("XML files", "*.xml"),
-                ("All files", "*.*"),
-            ],
-        )
-        if file_path:
-            self.file_path_var.set(file_path)
-            self.current_file_path = file_path
+        example_files = self._collect_example_files(examples_root)
+        if not example_files:
+            messagebox.showinfo(
+                "No examples found",
+                "No XML files were found in mlm_files.",
+            )
+            return
+
+        dialog = ctk.CTkToplevel(self)
+        dialog.title("Select Example")
+        dialog.geometry("620x520")
+        dialog.transient(self)
+        dialog.grab_set()
+        dialog.grid_columnconfigure(0, weight=1)
+        dialog.grid_rowconfigure(1, weight=1)
+
+        ctk.CTkLabel(
+            dialog,
+            text="Select an example from mlm_files",
+            anchor="w",
+            text_color=self.colors["text"],
+            font=ctk.CTkFont(family="Segoe UI", size=16, weight="bold"),
+        ).grid(row=0, column=0, sticky="ew", padx=18, pady=(18, 10))
+
+        tree_frame = ctk.CTkFrame(dialog, fg_color="#FFFFFF", corner_radius=0)
+        tree_frame.grid(row=1, column=0, sticky="nsew", padx=18, pady=(0, 14))
+        tree_frame.grid_columnconfigure(0, weight=1)
+        tree_frame.grid_rowconfigure(0, weight=1)
+
+        tree = self._tree(tree_frame, show="tree")
+        tree.grid(row=0, column=0, sticky="nsew")
+        scrollbar = ctk.CTkScrollbar(tree_frame, orientation="vertical", command=tree.yview)
+        scrollbar.grid(row=0, column=1, sticky="ns", padx=(4, 0))
+        tree.configure(yscrollcommand=scrollbar.set)
+
+        path_by_item = {}
+        root_id = tree.insert("", "end", text="mlm_files", open=True)
+        folder_ids = {examples_root: root_id}
+        for folder_path, file_names in example_files:
+            parent_path = os.path.dirname(folder_path)
+            if folder_path == examples_root:
+                folder_id = root_id
+            else:
+                parent_id = folder_ids.get(parent_path, root_id)
+                folder_id = tree.insert(parent_id, "end", text=os.path.basename(folder_path), open=False)
+                folder_ids[folder_path] = folder_id
+            for file_name in file_names:
+                full_path = os.path.join(folder_path, file_name)
+                item_id = tree.insert(folder_id, "end", text=file_name, open=False)
+                path_by_item[item_id] = full_path
+
+        def choose_selected():
+            selected = tree.selection()
+            if not selected:
+                return
+            selected_path = path_by_item.get(selected[0])
+            if not selected_path:
+                return
+            self.file_path_var.set(selected_path)
+            self.current_file_path = selected_path
+            dialog.destroy()
             self._validate_current_file()
+
+        tree.bind("<Double-1>", lambda _event: choose_selected())
+
+        actions = ctk.CTkFrame(dialog, fg_color="transparent")
+        actions.grid(row=2, column=0, sticky="ew", padx=18, pady=(0, 18))
+        actions.grid_columnconfigure(0, weight=1)
+        ctk.CTkButton(
+            actions,
+            text="Cancel",
+            width=100,
+            height=36,
+            fg_color="#FFFFFF",
+            hover_color="#EEF2F7",
+            border_width=1,
+            border_color=self.colors["border"],
+            text_color=self.colors["text"],
+            command=dialog.destroy,
+        ).grid(row=0, column=1, padx=(0, 8))
+        ctk.CTkButton(
+            actions,
+            text="Select",
+            width=100,
+            height=36,
+            fg_color=self.colors["primary"],
+            hover_color=self.colors["primary_hover"],
+            text_color="#FFFFFF",
+            command=choose_selected,
+        ).grid(row=0, column=2)
+
+    @staticmethod
+    def _collect_example_files(examples_root: str):
+        rows = []
+        for folder_path, subfolders, file_names in os.walk(examples_root):
+            subfolders[:] = sorted(
+                folder
+                for folder in subfolders
+                if folder not in {"__pycache__"}
+            )
+            supported_files = sorted(
+                file_name
+                for file_name in file_names
+                if file_name.lower().endswith((".xml", ".csv"))
+            )
+            if supported_files or folder_path == examples_root:
+                rows.append((folder_path, supported_files))
+        return rows
 
     def _browse_file(self):
         file_path = filedialog.askopenfilename(
@@ -1578,7 +1617,7 @@ class AutoMLMApp(ctk.CTk):
 
     def _update_expand_columns_button(self):
         # The arrow shows whether the column table can be opened larger or folded back.
-        label = "Collapse ↑" if self.column_selection_expanded else "Expand ↓"
+        label = "Collapse ↓" if self.column_selection_expanded else "Expand ↑"
         self.expand_columns_button.configure(text=label)
 
     @staticmethod
@@ -1586,7 +1625,20 @@ class AutoMLMApp(ctk.CTk):
         # Empty cells are easier to read as "-" than as a blank space.
         if value is None or value == "":
             return "-"
-        return str(value)
+        return AutoMLMApp._clean_display_value(value)
+
+    @staticmethod
+    def _clean_display_value(value) -> str:
+        text = str(value)
+        date_match = re.search(r"(?:Root::)?Auxiliary::Date::createDate\(([^)]*)\)", text)
+        if date_match:
+            return ", ".join(part.strip() for part in date_match.group(1).split(","))
+        datetime_match = re.search(r"(?:Root::)?Auxiliary::DateTime::createDateTime\(([^)]*)\)", text)
+        if datetime_match:
+            return ", ".join(part.strip() for part in datetime_match.group(1).split(","))
+        if "::" in text:
+            return text.split("::")[-1]
+        return text
 
     @staticmethod
     def _detect_csv_dialect(csv_file):
@@ -1733,7 +1785,7 @@ class AutoMLMApp(ctk.CTk):
 
     @staticmethod
     def _build_xml_preview(file_path: str) -> XmlImportPreview:
-        # Try to open the XML model once so the GUI can report problems before the real import step.
+        # Try to open the XML model once so the GUI can report problems before the real import.
         try:
             model = FmmlxModel(file_path=file_path)
             warnings = []
@@ -1743,7 +1795,7 @@ class AutoMLMApp(ctk.CTk):
                     "or its attribute class names may not match the class names in the model."
                 )
             return XmlImportPreview(file_path=file_path, errors=[], warnings=warnings, model=model)
-        except (OSError, ValueError, TypeError, AttributeError, AssertionError) as exc:
+        except Exception as exc:
             # Expected import problems are kept as readable messages for the user.
             return XmlImportPreview(file_path=file_path, errors=[str(exc)], model=None)
 
@@ -1765,26 +1817,11 @@ class AutoMLMApp(ctk.CTk):
 
     def _render_xml_validation(self, preview: XmlImportPreview):
         is_ready = not preview.errors
-        model = preview.model
         rows = [
             ("File type", "XML"),
-            ("Status", "Ready" if is_ready else "Blocked"),
+            ("Status", "Not Validated" if is_ready else "Blocked"),
+            ("Errors", "; ".join(preview.errors) if preview.errors else "None"),
         ]
-        if model is not None:
-            rows.extend(
-                [
-                    ("Path", model.path_name or "-"),
-                    ("Classes", self._display_table_value(len(model.get_all_flat_classes()))),
-                    ("Objects", self._display_table_value(len(model.get_all_pure_objects()))),
-                    ("Attributes", self._display_table_value(self._count_attributes(model))),
-                    ("Slots", self._display_table_value(self._count_slots(model))),
-                    ("Associations", self._display_table_value(len(model.associations))),
-                    ("Links", self._display_table_value(len(model.links))),
-                    ("Enums", self._display_table_value(len(model.enums))),
-                ]
-            )
-        rows.append(("Warnings", "; ".join(preview.warnings) if preview.warnings else "None"))
-        rows.append(("Errors", "; ".join(preview.errors) if preview.errors else "None"))
         self._set_validation_rows(rows)
 
     def _bind_column_scroll_events(self, _event=None):
@@ -1870,6 +1907,7 @@ class AutoMLMApp(ctk.CTk):
             )
 
             status_is_ready = key == "Status" and str(value) == "Ready"
+            status_is_not_validated = key == "Status" and str(value) == "Not Validated"
             status_is_blocked = key == "Status" and str(value) == "Blocked"
 
             ctk.CTkLabel(
@@ -1878,6 +1916,8 @@ class AutoMLMApp(ctk.CTk):
                 text_color=(
                     self.colors["success"]
                     if status_is_ready
+                    else self.colors["muted"]
+                    if status_is_not_validated
                     else self.colors["danger"]
                     if status_is_blocked
                     else self.colors["primary"]
@@ -1959,6 +1999,8 @@ class AutoMLMApp(ctk.CTk):
                     if is_error or status_is_blocked
                     else self.colors["success"]
                     if status_is_ready
+                    else self.colors["muted"]
+                    if status_is_not_validated
                     else self.colors["text"]
                 ),
                 font=ctk.CTkFont(
@@ -2403,74 +2445,32 @@ class AutoMLMApp(ctk.CTk):
         return any(var.get() for var in self.selected_csv_columns.values())
 
     def _render_xml_preview(self, preview: XmlImportPreview):
+        total_height = 118
+        self._reset_column_table(total_height)
+
         for child in self.column_table.winfo_children():
             child.destroy()
 
-        self._build_column_table_header()
+        self.column_table.grid_columnconfigure(0, weight=1)
+        self.column_table.grid_rowconfigure(0, weight=1, minsize=118)
+        ctk.CTkLabel(
+            self.column_table,
+            text="Columns cannot be selected for XML files.",
+            anchor="w",
+            justify="left",
+            text_color=self.colors["muted"],
+            font=ctk.CTkFont(family="Segoe UI", size=13, weight="bold"),
+        ).grid(row=0, column=0, sticky="new", padx=0, pady=18)
 
-        model = preview.model
-        if model is None:
-            return
-
-        xml_rows = [
-            ("Model path", model.path_name or "-"),
-            ("Classes", len(model.get_all_flat_classes())),
-            ("Objects", len(model.get_all_pure_objects())),
-            ("Attributes", self._count_attributes(model)),
-            ("Slots", self._count_slots(model)),
-            ("Associations", len(model.associations)),
-            ("Links", len(model.links)),
-            ("Enums", len(model.enums)),
-        ]
-
-        for index, (label, value) in enumerate(xml_rows, start=1):
-            row_color = "#FFFFFF" if index % 2 else "#F3F7FD"
-
-            label_cell = ctk.CTkFrame(
-                self.column_table,
-                fg_color=row_color,
-                corner_radius=0,
-                height=48,
-            )
-            label_cell.grid(row=index, column=0, columnspan=3, sticky="nsew")
-            label_cell.grid_propagate(False)
-            label_cell.grid_rowconfigure(0, weight=1)
-            label_cell.grid_columnconfigure(0, weight=1)
-
-            ctk.CTkLabel(
-                label_cell,
-                text=str(label),
-                anchor="center",
-                justify="center",
-                text_color=self.colors["text"],
-                font=ctk.CTkFont(
-                    family="Segoe UI",
-                    size=12,
-                    weight="bold",
-                ),
-            ).grid(row=0, column=0, sticky="nsew", padx=14)
-
-            self._add_column_separator(index, 3)
-
-            value_cell = ctk.CTkFrame(
-                self.column_table,
-                fg_color=row_color,
-                corner_radius=0,
-                height=48,
-            )
-            value_cell.grid(row=index, column=4, columnspan=3, sticky="nsew")
-            value_cell.grid_propagate(False)
-            value_cell.grid_rowconfigure(0, weight=1)
-            value_cell.grid_columnconfigure(0, weight=1)
-
-            ctk.CTkLabel(
-                value_cell,
-                text=self._display_table_value(value),
-                anchor="center",
-                justify="center",
-                text_color="#334155",
-                font=ctk.CTkFont(family="Segoe UI", size=12),
-            ).grid(row=0, column=0, sticky="nsew", padx=14)
+    @staticmethod
+    def _level_summary(model: FmmlxModel) -> str:
+        counts = {}
+        for obj in model.mlm_objects:
+            counts[obj.level] = counts.get(obj.level, 0) + 1
+        return ", ".join(
+            f"Level {level}: {counts[level]}"
+            for level in sorted(counts, reverse=True)
+        ) or "-"
 
     def _render_empty_preview(self, text: str):
         if not hasattr(self, "column_canvas"):
@@ -2513,6 +2513,11 @@ class AutoMLMApp(ctk.CTk):
             ),
         ).place(relx=0.5, rely=0.5, anchor="center")
 
+    # ------------------------------------------------------------------
+    # Create, Save, and Export Model
+    # Creates the working model, remembers imported models, and writes exports.
+    # ------------------------------------------------------------------
+
     def _create_model(self):
         if not self.current_file_path:
             messagebox.showerror("Import blocked", "Select a file first.")
@@ -2538,24 +2543,27 @@ class AutoMLMApp(ctk.CTk):
                     file_path=self.current_file_path,
                     selected_csv_columns=selected_columns,
                 )
+                self.current_selected_columns = selected_columns
             elif extension == ".xml":
                 self.current_model = self.xml_preview.model if self.xml_preview and self.xml_preview.model else FmmlxModel(
                     file_path=self.current_file_path
                 )
+                self.current_selected_columns = []
             else:
                 raise ValueError("Only CSV and XML files are supported.")
-        except (OSError, ValueError, TypeError, AttributeError, AssertionError) as exc:
+        except Exception as exc:
             messagebox.showerror("Import failed", str(exc))
-            self.step_unlocked[2] = False
-            self._refresh_steps()
+            self.action_unlocked[2] = False
+            self._refresh_actions()
             return
 
-        self.step_completed[1] = True
-        self.step_unlocked[2] = True
+        self.action_completed[1] = True
+        self.action_unlocked[2] = True
         self.current_file_path = self._persist_imported_source_file(
             self.current_file_path,
             extension,
         )
+        self.current_file_type = extension.lstrip(".").upper()
         self._store_loaded_model(extension)
         self._show_model_page()
 
@@ -2614,6 +2622,7 @@ class AutoMLMApp(ctk.CTk):
                 selected_columns=selected_columns,
                 uploaded=uploaded,
                 last_worked_on=now_text,
+                last_action=self.ACTION_TITLES[2],
             )
         )
         self._save_loaded_models()
@@ -2633,6 +2642,7 @@ class AutoMLMApp(ctk.CTk):
                     "selected_columns": loaded.selected_columns,
                     "uploaded": loaded.uploaded,
                     "last_worked_on": loaded.last_worked_on,
+                    "last_action": loaded.last_action,
                 }
             )
         with open(self.loaded_models_store_path, "w", encoding="utf-8") as file:
@@ -2666,7 +2676,7 @@ class AutoMLMApp(ctk.CTk):
                     model = FmmlxModel(file_path=source_path)
                 else:
                     continue
-            except (OSError, ValueError, TypeError, AttributeError, AssertionError):
+            except Exception:
                 continue
             self.loaded_models.append(
                 LoadedModel(
@@ -2678,6 +2688,7 @@ class AutoMLMApp(ctk.CTk):
                     selected_columns=selected_columns,
                     uploaded=record.get("uploaded", ""),
                     last_worked_on=record.get("last_worked_on", ""),
+                    last_action=record.get("last_action", "Imported"),
                 )
             )
 
@@ -2694,19 +2705,35 @@ class AutoMLMApp(ctk.CTk):
                 self._save_loaded_models()
                 break
 
+    def _set_last_action(self, action: int):
+        self.last_action_label = self.ACTION_TITLES.get(action, "Imported")
+        if self.current_model is None:
+            return
+        for loaded in self.loaded_models:
+            if loaded.model is self.current_model:
+                loaded.last_action = self.last_action_label
+                self._save_loaded_models()
+                break
+
+    # ------------------------------------------------------------------
+    # Inspect Model: Model Tree and Search
+    # Fills the tree on the left and opens the matching details on the right.
+    # ------------------------------------------------------------------
+
     def _populate_model_tree(
             self,
             model: FmmlxModel,
             query: str = "",
     ):
         self.tree_item_payload.clear()
+        self.tree_item_view.clear()
         self._clear_tree(self.model_tree)
 
         normalized_query = query.strip().lower()
 
-        root_text = model.path_name or os.path.basename(
+        root_text = self._display_table_value(model.path_name or os.path.basename(
             self.current_file_path or "Model"
-        )
+        ))
         root_id = self.model_tree.insert(
             "",
             "end",
@@ -2715,74 +2742,210 @@ class AutoMLMApp(ctk.CTk):
             tags=("model_root",),
         )
         self.tree_item_payload[root_id] = model
+        self.tree_item_view[root_id] = "model"
 
-        level_1_objects = [
-            obj
-            for obj in model.mlm_objects
-            if obj.level == 1
-               and (
-                       not normalized_query
-                       or normalized_query in obj.object_name.lower()
-               )
-        ]
-        level_0_objects = [
-            obj
-            for obj in model.mlm_objects
-            if obj.level == 0
-               and (
-                       not normalized_query
-                       or normalized_query in obj.object_name.lower()
-               )
+        enumerations = [
+            enum
+            for enum in model.enums
+            if self._enum_matches_search(enum, normalized_query)
         ]
 
-        level_1_id = self.model_tree.insert(
+        enum_id = self.model_tree.insert(
             root_id,
             "end",
-            text=f"Level 1 ({len(level_1_objects)})",
+            text=f"Enumerations ({len(enumerations)})",
             open=True,
-            tags=("level_class",),
+            tags=("enum_group",),
         )
-        self.tree_item_payload[level_1_id] = None
+        self.tree_item_payload[enum_id] = None
+        self.tree_item_view[enum_id] = "group"
 
-        for obj in sorted(
-                level_1_objects,
-                key=lambda item: self._natural_sort_key(item.object_name),
-        ):
-            obj_id = self.model_tree.insert(
-                level_1_id,
+        for enum in sorted(enumerations, key=lambda item: self._natural_sort_key(item.enum_name)):
+            item_id = self.model_tree.insert(
+                enum_id,
                 "end",
-                text=obj.object_name,
+                text=enum.enum_name,
                 open=False,
-                tags=("class_item",),
+                tags=("enum_item",),
             )
-            self.tree_item_payload[obj_id] = obj
+            self.tree_item_payload[item_id] = enum
+            self.tree_item_view[item_id] = "enumeration"
+            self._insert_enum_search_hits(item_id, enum, normalized_query)
 
-        level_0_id = self.model_tree.insert(
-            root_id,
-            "end",
-            text=f"Level 0 ({len(level_0_objects)})",
-            open=True,
-            tags=("level_object",),
-        )
-        self.tree_item_payload[level_0_id] = None
-
-        for obj in sorted(
-                level_0_objects,
-                key=lambda item: self._natural_sort_key(item.object_name),
-        ):
-            obj_id = self.model_tree.insert(
-                level_0_id,
+        levels = sorted({obj.level for obj in model.mlm_objects}, reverse=True)
+        for level in levels:
+            level_objects = [
+                obj
+                for obj in model.mlm_objects
+                if obj.level == level and self._object_matches_search(model, obj, normalized_query)
+            ]
+            level_id = self.model_tree.insert(
+                root_id,
                 "end",
-                text=obj.object_name,
-                open=False,
-                tags=("object_item",),
+                text=f"Level {level} ({len(level_objects)})",
+                open=True,
+                tags=("level_object" if level == 0 else "level_class",),
             )
-            self.tree_item_payload[obj_id] = obj
+            self.tree_item_payload[level_id] = None
+            self.tree_item_view[level_id] = "group"
+
+            for obj in sorted(
+                    level_objects,
+                    key=lambda item: self._natural_sort_key(item.object_name),
+            ):
+                obj_id = self.model_tree.insert(
+                    level_id,
+                    "end",
+                    text=obj.object_name,
+                    open=bool(normalized_query),
+                    tags=("object_item" if level == 0 else "class_item",),
+                )
+                self.tree_item_payload[obj_id] = obj
+                self.tree_item_view[obj_id] = "object" if level == 0 else "class"
+                self._insert_object_search_hits(obj_id, model, obj, normalized_query)
 
         self.model_tree.selection_remove(
             self.model_tree.selection()
         )
         self.model_tree.yview_moveto(0)
+
+    def _object_matches_search(self, model: FmmlxModel, obj: FmmlxObject, query: str) -> bool:
+        if not query:
+            return True
+        values = [obj.object_name, obj.full_name]
+        values.extend(attr.attr_name for attr in obj.attr_list)
+        values.extend(attr.attr_type_short for attr in obj.attr_list)
+        object_operations = self._operations_for_object(obj)
+        values.extend(operation.operation_name for operation in object_operations)
+        values.extend(operation.return_type for operation in object_operations)
+        values.extend(slot.slot_name for slot in obj.slot_list)
+        values.extend(str(slot.value) for slot in obj.slot_list)
+        values.extend(parent.object_name for parent in obj.parent_classes)
+        values.extend(
+            candidate.object_name
+            for candidate in model.mlm_objects
+            if obj in candidate.parent_classes
+        )
+        for association in self._associations_for_class(model, obj):
+            values.append("association")
+            values.extend(
+                [
+                    association.name,
+                    self._object_name(association.source_class),
+                    self._object_name(association.target_class),
+                    self._association_multiplicity_text(association),
+                ]
+            )
+        for link in self._links_for_object(model, obj):
+            values.append("link")
+            values.extend(
+                [
+                    link.name,
+                    self._object_name(link.source_object),
+                    self._object_name(link.target_object),
+                ]
+            )
+        if object_operations:
+            values.append("operation")
+        if self._generalization_rows(obj):
+            values.extend(["generalization", "superclass", "subclass"])
+        return any(query in str(value).lower() for value in values if value is not None)
+
+    def _insert_object_search_hits(self, parent_id: str, model: FmmlxModel, obj: FmmlxObject, query: str):
+        if not query:
+            return
+        hit_groups = [
+            ("Attributes", "attribute", [
+                attr for attr in obj.attr_list
+                if self._query_matches_values(query, attr.attr_name, attr.attr_type_short, attr.inst_level)
+            ]),
+            ("Values", "slot", [
+                slot for slot in obj.slot_list
+                if self._query_matches_values(query, slot.slot_name, slot.value, self._slot_type(slot))
+            ]),
+            ("Associations", "association", [
+                association for association in self._associations_for_class(model, obj)
+                if query == "association" or self._query_matches_values(
+                    query,
+                    association.name,
+                    self._object_name(association.source_class),
+                    self._object_name(association.target_class),
+                    self._association_multiplicity_text(association),
+                )
+            ]),
+            ("Links", "link", [
+                link for link in self._links_for_object(model, obj)
+                if query == "link" or self._query_matches_values(
+                    query,
+                    link.name,
+                    self._object_name(link.source_object),
+                    self._object_name(link.target_object),
+                )
+            ]),
+            ("Operations", "operation", [
+                operation for operation in self._operations_for_object(obj)
+                if query == "operation" or self._query_matches_values(query, operation.operation_name, operation.return_type)
+            ]),
+            ("Generalization", "generalization", [
+                row for row in self._generalization_rows(obj)
+                if query in {"generalization", "superclass", "subclass"} or self._query_matches_values(query, *row)
+            ]),
+        ]
+        for group_label, view_name, hits in hit_groups:
+            if not hits:
+                continue
+            group_id = self.model_tree.insert(parent_id, "end", text=f"{group_label} ({len(hits)})", open=True)
+            self.tree_item_payload[group_id] = None
+            self.tree_item_view[group_id] = "group"
+            for hit in hits:
+                text = self._search_hit_text(view_name, hit)
+                item_id = self.model_tree.insert(group_id, "end", text=text, open=False)
+                self.tree_item_payload[item_id] = (view_name, obj, hit)
+                self.tree_item_view[item_id] = view_name
+
+    def _insert_enum_search_hits(self, parent_id: str, enum: FmmlxEnumType, query: str):
+        if not query:
+            return
+        matching_values = [
+            value
+            for value in enum.enum_values
+            if self._query_matches_values(query, value)
+        ]
+        if not matching_values:
+            return
+        group_id = self.model_tree.insert(parent_id, "end", text=f"Values ({len(matching_values)})", open=True)
+        self.tree_item_payload[group_id] = None
+        self.tree_item_view[group_id] = "group"
+        for value in matching_values:
+            item_id = self.model_tree.insert(group_id, "end", text=str(value), open=False)
+            self.tree_item_payload[item_id] = ("enum_value", enum, value)
+            self.tree_item_view[item_id] = "enum_value"
+
+    @staticmethod
+    def _query_matches_values(query: str, *values) -> bool:
+        return any(query in str(value).lower() for value in values if value is not None)
+
+    def _search_hit_text(self, view_name: str, hit) -> str:
+        if view_name == "attribute":
+            return f"{hit.attr_name}: {hit.attr_type_short}"
+        if view_name == "slot":
+            return f"{hit.slot_name}: {self._display_table_value(hit.value)}"
+        if view_name == "association":
+            return f"{hit.name}: {self._object_name(hit.source_class)} → {self._object_name(hit.target_class)}"
+        if view_name == "link":
+            return f"{hit.name}: {self._object_name(hit.source_object)} → {self._object_name(hit.target_object)}"
+        if view_name == "operation":
+            return f"{hit.operation_name}: {self._short_type_name(hit.return_type)}"
+        if view_name == "generalization":
+            return f"{hit[0]} → {hit[1]}"
+        return str(hit)
+
+    @staticmethod
+    def _enum_matches_search(enum: FmmlxEnumType, query: str) -> bool:
+        if not query:
+            return True
+        values = [enum.enum_name] + list(enum.enum_values)
+        return any(query in str(value).lower() for value in values)
 
     def _filter_model_tree(self, _event=None):
         if self.current_model is None:
@@ -2804,22 +2967,93 @@ class AutoMLMApp(ctk.CTk):
             return
 
         payload = self.tree_item_payload.get(selected[0])
+        selected_view = self.tree_item_view.get(selected[0], "")
         self._cancel_detail_loading()
 
         if isinstance(payload, FmmlxModel):
             self._start_model_overview_loading(payload)
         elif isinstance(payload, FmmlxObject):
-            if payload.level > 0:
+            if selected_view == "class":
                 self._render_class_details(payload)
-            else:
+            elif selected_view == "object":
                 self._render_object_details(payload)
+            else:
+                self._render_empty_detail_state()
+        elif isinstance(payload, FmmlxEnumType):
+            self._render_enum_details(payload)
+        elif isinstance(payload, tuple):
+            self._render_search_hit_details(payload)
+        else:
+            self._render_empty_detail_state()
+
+    def _render_search_hit_details(self, payload: tuple):
+        view_name = payload[0] if payload else ""
+        if view_name == "attribute":
+            _view, obj, attr = payload
+            self.detail_title.configure(text=f"Attribute: {attr.attr_name}", text_color="#7C3AED")
+            self.detail_subtitle.configure(text=f"Defined on {obj.object_name}.")
+            self._render_detail_table(
+                ("Attribute", "Type", "Value"),
+                [(attr.attr_name, attr.attr_type_short, "-")],
+            )
+        elif view_name == "slot":
+            _view, obj, slot = payload
+            self.detail_title.configure(text=f"Value: {slot.slot_name}", text_color="#16A34A")
+            self.detail_subtitle.configure(text=f"Defined on {obj.object_name}.")
+            self._render_detail_table(
+                ("Attribute", "Type", "Value"),
+                [(slot.slot_name, self._slot_type(slot), slot.value)],
+            )
+        elif view_name == "association":
+            _view, _obj, association = payload
+            self.detail_title.configure(text=f"Association: {association.name}", text_color="#64748B")
+            self.detail_subtitle.configure(text="Matching association.")
+            self._render_detail_table(
+                ("Associationname", "Source", "Target", "Multiplicity"),
+                [(
+                    association.name,
+                    self._object_name(association.source_class),
+                    self._object_name(association.target_class),
+                    self._association_multiplicity_text(association),
+                )],
+                highlight_column=3,
+            )
+        elif view_name == "link":
+            _view, _obj, link = payload
+            self.detail_title.configure(text=f"Link: {link.name}", text_color="#0891B2")
+            self.detail_subtitle.configure(text="Matching link.")
+            self._render_detail_table(
+                ("Linkname", "Source", "Target", "Multiplicity"),
+                [(link.name, self._object_name(link.source_object), self._object_name(link.target_object), "-")],
+                highlight_column=3,
+            )
+        elif view_name == "operation":
+            _view, obj, operation = payload
+            self.detail_title.configure(text=f"Operation: {operation.operation_name}", text_color="#0D9488")
+            self.detail_subtitle.configure(text=f"Defined for {obj.object_name}.")
+            slot_by_name = {slot.slot_name: slot.value for slot in obj.slot_list}
+            self._render_detail_table(
+                ("Operation", "Type", "Value"),
+                [(operation.operation_name, self._short_type_name(operation.return_type), slot_by_name.get(operation.operation_name, "-"))],
+            )
+        elif view_name == "generalization":
+            _view, _obj, row = payload
+            self.detail_title.configure(text="Generalization", text_color="#E11D48")
+            self.detail_subtitle.configure(text="Matching generalization.")
+            self._render_detail_table(("Superclass", "Subclass"), [row])
+        elif view_name == "enum_value":
+            _view, enum, value = payload
+            self.detail_title.configure(text=f"Enumeration: {enum.enum_name}", text_color="#F59E0B")
+            self.detail_subtitle.configure(text="Matching enumeration value.")
+            self._render_detail_table(("Enumeration", "Value", "Index"), [(enum.enum_name, value, enum.enum_values.index(value) + 1)])
         else:
             self._render_empty_detail_state()
 
     def _cancel_detail_loading(self):
         # Stop any background-like loading work that is still scheduled in Tk.
-        # This prevents old loading steps from drawing into a view the user has already left.
+        # This prevents old loading jobs from drawing into a view the user has already left.
         self._detail_load_token = getattr(self, "_detail_load_token", 0) + 1
+        self._clear_detail_option_bar()
 
         batch_id = getattr(self, "_detail_batch_after_id", None)
         if batch_id is not None:
@@ -2829,6 +3063,14 @@ class AutoMLMApp(ctk.CTk):
                 # Tk can complain if the scheduled job has already disappeared. That is harmless here.
                 pass
             self._detail_batch_after_id = None
+
+        progress_id = getattr(self, "_detail_progress_after_id", None)
+        if progress_id is not None:
+            try:
+                self.after_cancel(progress_id)
+            except tk.TclError:
+                pass
+            self._detail_progress_after_id = None
 
         staging_table = getattr(self, "_detail_staging_table", None)
         staging_was_current = (
@@ -2880,8 +3122,18 @@ class AutoMLMApp(ctk.CTk):
             return
         self._detail_batch_after_id = self.after(delay_ms, callback)
 
+    # ------------------------------------------------------------------
+    # Inspect Model: Model Overview Table
+    # Loads and draws the large object/value overview inside Inspect Model.
+    # ------------------------------------------------------------------
+
     def _start_model_overview_loading(self, model: FmmlxModel):
-        self._show_model_overview_load_options(model)
+        self._render_model_structure_overview(model)
+
+    @staticmethod
+    def _attach_active_model_reference(model: FmmlxModel):
+        for obj in model.mlm_objects:
+            obj._active_model = model
 
     def _show_model_overview_load_options(self, model: FmmlxModel):
         self._detail_load_token = getattr(self, "_detail_load_token", 0) + 1
@@ -2909,6 +3161,9 @@ class AutoMLMApp(ctk.CTk):
             objects,
             key=lambda item: self._natural_sort_key(item.object_name),
         )
+        if not objects:
+            self._render_model_structure_overview(model)
+            return
 
         self._reset_detail_canvas_table()
         for child in self.detail_table.winfo_children():
@@ -2951,34 +3206,34 @@ class AutoMLMApp(ctk.CTk):
             font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
         ).grid(row=2, column=0, sticky="w", padx=(18, 14), pady=(0, 12))
 
-        self.model_overview_count_var = tk.StringVar(
-            value=str(min(total_objects, 200))
-        )
-        count_entry = ctk.CTkEntry(
+        self.model_overview_count_var = tk.StringVar(value="")
+        count_buttons = ctk.CTkFrame(
             panel,
-            textvariable=self.model_overview_count_var,
-            width=120,
-            height=34,
-            corner_radius=7,
-            border_color="#BBD0F4",
-            fg_color="#FFFFFF",
-            font=ctk.CTkFont(family="Segoe UI", size=12),
+            fg_color="transparent",
         )
-        count_entry.grid(row=2, column=1, sticky="w", padx=(0, 18), pady=(0, 12))
-        ctk.CTkButton(
-            panel,
-            text="All",
-            width=72,
-            height=32,
-            corner_radius=7,
-            border_width=1,
-            fg_color="#FFFFFF",
-            hover_color="#EEF4FF",
-            border_color="#BBD0F4",
-            text_color=self.colors["text"],
-            font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
-            command=lambda count=total_objects: self._set_model_overview_count_all(count),
-        ).grid(row=2, column=2, sticky="w", padx=(0, 18), pady=(0, 12))
+        count_buttons.grid(row=2, column=1, sticky="w", padx=(0, 18), pady=(0, 12))
+        self._model_overview_count_buttons = {}
+        object_count_options = (5, 10, 15, 20, 50, 100)
+        default_count = next((count for count in object_count_options if total_objects >= count), None)
+        for index, count in enumerate(object_count_options):
+            enabled = total_objects >= count
+            button = ctk.CTkButton(
+                count_buttons,
+                text=str(count),
+                width=54,
+                height=32,
+                corner_radius=7,
+                border_width=1,
+                font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
+                state="normal" if enabled else "disabled",
+                command=lambda value=count: self._set_model_overview_count(value),
+            )
+            button.grid(row=0, column=index, padx=(0 if index == 0 else 8, 0))
+            self._model_overview_count_buttons[count] = button
+        if default_count is not None:
+            self._set_model_overview_count(default_count)
+        else:
+            self._refresh_model_overview_count_buttons()
 
         ctk.CTkLabel(
             panel,
@@ -3020,6 +3275,7 @@ class AutoMLMApp(ctk.CTk):
             hover_color=self.colors["primary_hover"],
             text_color="#FFFFFF",
             font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
+            state="normal" if default_count is not None else "disabled",
             command=lambda: self._start_model_overview_loading_with_options(
                 model=model,
                 attributes=attributes,
@@ -3037,9 +3293,73 @@ class AutoMLMApp(ctk.CTk):
         self.detail_canvas.xview_moveto(0)
         self.detail_canvas.yview_moveto(0)
 
-    def _set_model_overview_count_all(self, total_objects: int):
-        # "All" means the overview should include every object in the model.
-        self.model_overview_count_var.set(str(total_objects))
+    def _render_model_structure_overview(self, model: FmmlxModel):
+        self._clear_detail_option_bar()
+        self.detail_title.configure(
+            text="Model Overview",
+            text_color=self.colors["text"],
+        )
+        self.detail_subtitle.configure(
+            text="Complete model structure grouped by level."
+        )
+        rows = []
+        for obj in sorted(
+                model.mlm_objects,
+                key=lambda item: (-item.level, self._natural_sort_key(item.object_name)),
+        ):
+            rows.append(
+                (
+                    f"Level {obj.level}",
+                    obj.object_name,
+                    self._object_name(obj.class_of_object),
+                    self._model_structure_content_text(model, obj),
+                )
+            )
+        self._render_detail_table(
+            ("Level", "Element", "Type", "Content"),
+            rows,
+            highlight_column=0,
+            column_weights=[1, 2, 1, 5],
+            column_minsizes=[110, 180, 150, 520],
+        )
+
+    def _model_structure_content_text(self, model: FmmlxModel, obj: FmmlxObject) -> str:
+        operation_count = len(self._operations_for_object(obj)) if obj.level == 0 else len(obj.operations_list)
+        parts = [
+            f"{len(obj.attr_list)} attributes",
+            f"{operation_count} operations",
+        ]
+        associations = self._associations_for_class(model, obj)
+        if associations:
+            parts.append(f"{len(associations)} associations")
+        links = self._links_for_object(model, obj)
+        if links:
+            parts.append(f"{len(links)} links")
+        if obj.slot_list:
+            parts.append(f"{len(obj.slot_list)} values")
+        return ", ".join(parts)
+
+    def _set_model_overview_count(self, count: int):
+        self.model_overview_count_var.set(str(count))
+        self._refresh_model_overview_count_buttons()
+
+    def _refresh_model_overview_count_buttons(self):
+        selected = self.model_overview_count_var.get()
+        for count, button in getattr(self, "_model_overview_count_buttons", {}).items():
+            if str(count) == selected:
+                button.configure(
+                    fg_color=self.colors["primary"],
+                    hover_color=self.colors["primary_hover"],
+                    border_color=self.colors["primary"],
+                    text_color="#FFFFFF",
+                )
+            else:
+                button.configure(
+                    fg_color="#FFFFFF",
+                    hover_color="#EEF4FF",
+                    border_color="#BBD0F4",
+                    text_color=self.colors["text"],
+                )
 
     def _set_model_overview_selection_mode(self, value: str):
         self.model_overview_selection_var.set(value)
@@ -3118,10 +3438,14 @@ class AutoMLMApp(ctk.CTk):
             (len(selected_objects) + 1) * (len(attributes) + 1),
         )
         self._detail_progress_determinate = True
+        self._detail_progress_phase = "preparing"
 
-        self._show_model_loading_progress(
-            token=token,
-            total=self._detail_progress_work_total,
+        self._detail_progress_after_id = self.after(
+            1000,
+            lambda: self._show_model_loading_progress(
+                token=token,
+                total=self._detail_progress_work_total,
+            ),
         )
 
         self._schedule_detail_batch(
@@ -3153,6 +3477,7 @@ class AutoMLMApp(ctk.CTk):
     def _show_model_loading_progress(self, token: int, total: int):
         if token != getattr(self, "_detail_load_token", None):
             return
+        self._detail_progress_after_id = None
 
         existing = getattr(self, "_detail_loading_overlay", None)
         if existing is not None and existing.winfo_exists():
@@ -3297,6 +3622,7 @@ class AutoMLMApp(ctk.CTk):
 
         self._detail_loading_overlay = overlay
         overlay.lift()
+        self._refresh_determinate_progress_display(token)
 
         # Force Tk to paint the loading layer before the first data batch starts.
         self.update_idletasks()
@@ -3417,7 +3743,10 @@ class AutoMLMApp(ctk.CTk):
             loaded=end_index,
             total=len(objects),
             phase="preparing",
-            work_loaded=0,
+            work_loaded=min(
+                getattr(self, "_detail_progress_work_total", len(objects)),
+                (end_index + 1) * (len(attributes) + 1),
+            ),
             work_total=getattr(self, "_detail_progress_work_total", len(objects)),
         )
 
@@ -3548,42 +3877,6 @@ class AutoMLMApp(ctk.CTk):
                 state=state,
                 start_index=0,
             ),
-        )
-
-    def _draw_model_overview_cell(
-            self,
-            x: int,
-            y: int,
-            width: int,
-            height: int,
-            text: Any,
-            background: str,
-            foreground: str,
-            font,
-            tags=(),
-    ):
-        # Draw one cell in the large model overview table.
-        # "Any" is used because a cell may contain text, numbers, or empty values.
-        self.detail_canvas.create_rectangle(
-            x,
-            y,
-            x + width,
-            y + height,
-            fill=background,
-            outline="#E4EBF4",
-            width=1,
-            tags=tags,
-        )
-        self.detail_canvas.create_text(
-            x + (width / 2),
-            y + (height / 2),
-            text=self._display_table_value(text),
-            fill=foreground,
-            font=font,
-            anchor="center",
-            justify="center",
-            width=max(20, width - 18),
-            tags=tags,
         )
 
     def _wrapped_line_count(self, text: Any, width: int, font) -> int:
@@ -3738,6 +4031,14 @@ class AutoMLMApp(ctk.CTk):
         if token != getattr(self, "_detail_load_token", None):
             return
 
+        progress_id = getattr(self, "_detail_progress_after_id", None)
+        if progress_id is not None:
+            try:
+                self.after_cancel(progress_id)
+            except tk.TclError:
+                pass
+            self._detail_progress_after_id = None
+
         self.detail_canvas.configure(
             scrollregion=(
                 0,
@@ -3828,8 +4129,14 @@ class AutoMLMApp(ctk.CTk):
         self._detail_overview_toolbar = None
         self._show_model_overview_load_options(model)
 
+    # ------------------------------------------------------------------
+    # Inspect Model: Detail Tables
+    # Shows attributes, values, associations, links, operations, and enums.
+    # ------------------------------------------------------------------
+
 
     def _render_empty_detail_state(self):
+        self._clear_detail_option_bar()
         self.detail_title.configure(
             text="Details",
             text_color=self.colors["text"],
@@ -3845,20 +4152,20 @@ class AutoMLMApp(ctk.CTk):
             text_color="#2563EB",
         )
         self.detail_subtitle.configure(
-            text="Attributes defined for the selected class."
+            text="Select which class details should be shown."
         )
-
-        rows = []
-        for attr in obj.attr_list:
-            rows.append(
-                (
-                    attr.attr_name,
-                    attr.attr_type_short,
-                    "",
-                )
-            )
-
-        self._render_detail_rows(rows)
+        options = [
+            ("Attributes", bool(obj.attr_list), lambda: self._render_class_attribute_table(obj)),
+            ("Associations", bool(self._associations_for_class(self.current_model, obj)), lambda: self._render_class_association_table(obj)),
+            ("Operations", bool(obj.operations_list), lambda: self._render_class_operation_table(obj)),
+            ("Generalization", bool(self._generalization_rows(obj)), lambda: self._render_class_generalization_table(obj)),
+        ]
+        self._render_detail_option_buttons(options)
+        for _label, enabled, callback in options:
+            if enabled:
+                callback()
+                return
+        self._render_detail_table(("Name", "Type", "Value"), [])
 
     def _render_object_details(self, obj: FmmlxObject):
         self.detail_title.configure(
@@ -3866,33 +4173,249 @@ class AutoMLMApp(ctk.CTk):
             text_color="#16A34A",
         )
         self.detail_subtitle.configure(
-            text="Attribute values for the selected object."
+            text="Select whether values or links should be shown."
+        )
+        options = [
+            ("Values", bool(obj.slot_list), lambda: self._render_object_value_table(obj)),
+            ("Operations", bool(self._operations_for_object(obj)), lambda: self._render_object_operation_table(obj)),
+            ("Links", bool(self._links_for_object(self.current_model, obj)), lambda: self._render_object_link_table(obj)),
+        ]
+        self._render_detail_option_buttons(options)
+        for _label, enabled, callback in options:
+            if enabled:
+                callback()
+                return
+        self._render_detail_table(("Name", "Type", "Value"), [])
+
+    def _render_enum_details(self, enum: FmmlxEnumType):
+        self._clear_detail_option_bar()
+        self.detail_title.configure(
+            text=f"Enumeration: {enum.enum_name}",
+            text_color="#F59E0B",
+        )
+        self.detail_subtitle.configure(
+            text="Values defined for the selected enumeration."
+        )
+        self._render_detail_table(
+            ("Enumeration", "Value", "Index"),
+            [
+                (enum.enum_name, value, index)
+                for index, value in enumerate(enum.enum_values, start=1)
+            ],
         )
 
-        rows = []
-        for slot in obj.slot_list:
-            rows.append(
-                (
-                    slot.slot_name,
-                    self._slot_type(slot),
-                    slot.value,
-                )
-            )
+    def _render_detail_option_buttons(self, options):
+        self._clear_detail_option_bar()
 
-        self._render_detail_rows(rows)
+        bar = ctk.CTkFrame(self.detail_card, fg_color="transparent")
+        bar.grid(row=1, column=0, sticky="e", padx=16, pady=(0, 8))
+        for index, (label, enabled, callback) in enumerate(options):
+            ctk.CTkButton(
+                bar,
+                text=label,
+                width=118 if label == "Generalization" else 102,
+                height=30,
+                corner_radius=7,
+                border_width=1,
+                fg_color="#FFFFFF" if enabled else self.colors["disabled_bg"],
+                hover_color="#EEF4FF" if enabled else self.colors["disabled_bg"],
+                border_color="#BBD0F4" if enabled else self.colors["border"],
+                text_color=self.colors["primary"] if enabled else "#94A3B8",
+                font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
+                state="normal" if enabled else "disabled",
+                command=callback,
+            ).grid(row=0, column=index, padx=(0 if index == 0 else 8, 0))
+        self._detail_option_bar = bar
+
+    def _clear_detail_option_bar(self):
+        existing = getattr(self, "_detail_option_bar", None)
+        if existing is not None and existing.winfo_exists():
+            existing.destroy()
+        self._detail_option_bar = None
+
+    @staticmethod
+    def _object_name(obj) -> str:
+        return obj.object_name if obj is not None else "-"
+
+    @staticmethod
+    def _associations_for_class(model: Optional[FmmlxModel], obj: FmmlxObject):
+        if model is None:
+            return []
+        return [
+            association
+            for association in model.associations
+            if association.source_class is obj or association.target_class is obj
+        ]
+
+    @staticmethod
+    def _links_for_object(model: Optional[FmmlxModel], obj: FmmlxObject):
+        if model is None:
+            return []
+        return [
+            link
+            for link in model.links
+            if link.source_object is obj or link.target_object is obj
+        ]
+
+    @staticmethod
+    def _association_multiplicity_text(association) -> str:
+        source = association.source_multiplicity or "-"
+        target = association.target_multiplicity or "-"
+        return f"{source} → {target}"
+
+    @staticmethod
+    def _short_type_name(type_name: str) -> str:
+        if not type_name:
+            return "-"
+        return AutoMLMApp._clean_display_value(type_name)
+
+    @staticmethod
+    def _operations_for_object(obj: FmmlxObject):
+        operations = list(obj.operations_list)
+        if obj.class_of_object is not None:
+            operations.extend(
+                operation
+                for operation in obj.class_of_object.operations_list
+                if operation not in operations
+            )
+        return operations
+
+    def _generalization_rows(self, obj: FmmlxObject):
+        rows = [
+            (parent.object_name, obj.object_name)
+            for parent in obj.parent_classes
+        ]
+        if self.current_model is not None:
+            rows.extend(
+                (obj.object_name, candidate.object_name)
+                for candidate in self.current_model.mlm_objects
+                if obj in candidate.parent_classes
+            )
+        return rows
+
+    def _all_parent_classes(self, obj: FmmlxObject):
+        parents = []
+        pending = list(obj.parent_classes)
+        while pending:
+            parent = pending.pop(0)
+            if parent in parents:
+                continue
+            parents.append(parent)
+            pending.extend(parent.parent_classes)
+        return parents
+
+    def _render_class_attribute_table(self, obj: FmmlxObject):
+        rows = [
+            (attr.attr_name, attr.attr_type_short, attr.inst_level)
+            for attr in obj.attr_list
+        ]
+        inherited_rows = [
+            (attr.attr_name, attr.attr_type_short, f"Level {attr.inst_level}, inherited from {parent.object_name}")
+            for parent in self._all_parent_classes(obj)
+            for attr in parent.attr_list
+        ]
+        self._render_detail_table(
+            ("Attribute", "Type", "Level"),
+            rows + inherited_rows,
+            muted_row_indexes=set(range(len(rows), len(rows) + len(inherited_rows))),
+        )
+
+    def _render_class_association_table(self, obj: FmmlxObject):
+        self._render_detail_table(
+            ("Associationname", "Source", "Target", "Multiplicity"),
+            [
+                (
+                    association.name,
+                    self._object_name(association.source_class),
+                    self._object_name(association.target_class),
+                    self._association_multiplicity_text(association),
+                )
+                for association in self._associations_for_class(self.current_model, obj)
+            ],
+            highlight_column=3,
+        )
+
+    def _render_class_operation_table(self, obj: FmmlxObject):
+        self._render_detail_table(
+            ("Operation", "Type", "Value"),
+            [
+                (operation.operation_name, self._short_type_name(operation.return_type), "-")
+                for operation in obj.operations_list
+            ],
+        )
+
+    def _render_class_generalization_table(self, obj: FmmlxObject):
+        self._render_detail_table(
+            ("Superclass", "Subclass"),
+            self._generalization_rows(obj),
+        )
+
+    def _render_object_value_table(self, obj: FmmlxObject):
+        self._render_detail_table(
+            ("Attribute", "Type", "Value"),
+            [
+                (slot.slot_name, self._slot_type(slot), slot.value)
+                for slot in obj.slot_list
+            ],
+        )
+
+    def _render_object_link_table(self, obj: FmmlxObject):
+        self._render_detail_table(
+            ("Linkname", "Source", "Target", "Multiplicity"),
+            [
+                (
+                    link.name,
+                    self._object_name(link.source_object),
+                    self._object_name(link.target_object),
+                    "-",
+                )
+                for link in self._links_for_object(self.current_model, obj)
+            ],
+            highlight_column=3,
+        )
+
+    def _render_object_operation_table(self, obj: FmmlxObject):
+        slot_by_name = {
+            slot.slot_name: slot.value
+            for slot in obj.slot_list
+        }
+        self._render_detail_table(
+            ("Operation", "Type", "Value"),
+            [
+                (
+                    operation.operation_name,
+                    self._short_type_name(operation.return_type),
+                    slot_by_name.get(operation.operation_name, "-"),
+                )
+                for operation in self._operations_for_object(obj)
+            ],
+        )
 
     def _render_detail_rows(self, rows):
+        self._render_detail_table(("Attribute", "Type", "Value"), rows)
+
+    def _render_detail_table(
+            self,
+            headers,
+            rows,
+            highlight_column: int = 1,
+            muted_row_indexes=None,
+            column_weights=None,
+            column_minsizes=None,
+    ):
         self._reset_detail_canvas_table()
         for child in self.detail_table.winfo_children():
             child.destroy()
+        muted_row_indexes = muted_row_indexes or set()
 
-        # Shared columns for all rows.
-        self.detail_table.grid_columnconfigure(0, weight=2, minsize=240)
-        self.detail_table.grid_columnconfigure(1, weight=1, minsize=180)
-        self.detail_table.grid_columnconfigure(2, weight=2, minsize=280)
+        for column in range(len(headers)):
+            self.detail_table.grid_columnconfigure(
+                column,
+                weight=(column_weights[column] if column_weights and column < len(column_weights) else (2 if column == 0 else 1)),
+                minsize=(column_minsizes[column] if column_minsizes and column < len(column_minsizes) else (220 if column == 0 else 170)),
+            )
 
         header_bg = "#DCEAFF"
-        headers = ("Attribute", "Type", "Value")
 
         for column, text in enumerate(headers):
             cell = tk.Frame(
@@ -3942,7 +4465,7 @@ class AutoMLMApp(ctk.CTk):
             empty.grid(
                 row=1,
                 column=0,
-                columnspan=3,
+                columnspan=len(headers),
                 sticky="nsew",
             )
             empty.grid_propagate(False)
@@ -3954,15 +4477,14 @@ class AutoMLMApp(ctk.CTk):
                 font=ctk.CTkFont(family="Segoe UI", size=12),
             ).place(relx=0.5, rely=0.5, anchor="center")
         else:
-            for row_index, (attribute, attr_type, value) in enumerate(
-                    rows,
-                    start=1,
-            ):
+            for row_index, row_values in enumerate(rows, start=1):
                 row_bg = "#FFFFFF" if row_index % 2 else "#F3F7FD"
+                is_muted_row = (row_index - 1) in muted_row_indexes
+                normalized_values = list(row_values)[:len(headers)]
+                if len(normalized_values) < len(headers):
+                    normalized_values.extend([""] * (len(headers) - len(normalized_values)))
 
-                for column, cell_value in enumerate(
-                        (attribute, attr_type, value)
-                ):
+                for column, cell_value in enumerate(normalized_values):
                     cell = tk.Frame(
                         self.detail_table,
                         height=46,
@@ -3991,14 +4513,14 @@ class AutoMLMApp(ctk.CTk):
                             height=46,
                         )
 
-                    if column == 1 and cell_value:
+                    if column == highlight_column and cell_value:
                         ctk.CTkLabel(
                             cell,
                             text=self._display_table_value(cell_value),
                             height=24,
                             corner_radius=12,
-                            fg_color="#E7F0FF",
-                            text_color="#2457A6",
+                            fg_color="#E2E8F0" if is_muted_row else "#E7F0FF",
+                            text_color="#64748B" if is_muted_row else "#2457A6",
                             font=ctk.CTkFont(
                                 family="Segoe UI",
                                 size=11,
@@ -4015,7 +4537,7 @@ class AutoMLMApp(ctk.CTk):
                             text=self._display_table_value(cell_value),
                             anchor="center",
                             justify="center",
-                            text_color=self.colors["text"],
+                            text_color=self.colors["muted"] if is_muted_row else self.colors["text"],
                             font=ctk.CTkFont(
                                 family="Segoe UI",
                                 size=12,
@@ -4039,6 +4561,11 @@ class AutoMLMApp(ctk.CTk):
         self.detail_canvas.xview_moveto(0)
         self.detail_canvas.yview_moveto(0)
 
+    # ------------------------------------------------------------------
+    # Models Overview
+    # Shows all stored models, filters them, and opens a selected model.
+    # ------------------------------------------------------------------
+
     def _populate_models_table(self):
         if not hasattr(self, "models_canvas"):
             return
@@ -4053,7 +4580,7 @@ class AutoMLMApp(ctk.CTk):
             ("classes", "Classes", 0.08),
             ("attributes", "Attributes", 0.10),
             ("objects", "Objects", 0.10),
-            ("status", "Completed Step", 0.14),
+            ("status", "Last Action", 0.14),
             ("worked", "Last worked on", 0.12),
             ("overview", "Overview", 0.06),
         ]
@@ -4095,7 +4622,7 @@ class AutoMLMApp(ctk.CTk):
                 len(model.get_all_flat_classes()),
                 self._count_attributes(model),
                 len(model.get_all_pure_objects()),
-                self._model_completed_step_label(),
+                self._model_last_action_label(loaded),
                 loaded.last_worked_on or loaded.uploaded or "Unknown",
                 "Open",
             ]
@@ -4139,39 +4666,6 @@ class AutoMLMApp(ctk.CTk):
         self.models_canvas.xview_moveto(0)
         self.models_canvas.yview_moveto(0)
 
-    def _draw_models_table_cell(
-            self,
-            x: int,
-            y: int,
-            width: int,
-            height: int,
-            text: Any,
-            background: str,
-            foreground: str,
-            font,
-    ) -> List[int]:
-        # Draw one cell in the models overview list and return its canvas pieces.
-        rect = self.models_canvas.create_rectangle(
-            x,
-            y,
-            x + width,
-            y + height,
-            fill=background,
-            outline="#E4EBF4",
-            width=1,
-        )
-        label = self.models_canvas.create_text(
-            x + (width / 2),
-            y + (height / 2),
-            text=self._display_table_value(text),
-            fill=foreground,
-            font=font,
-            anchor="center",
-            justify="center",
-            width=max(20, width - 18),
-        )
-        return [rect, label]
-
     def _model_matches_overview_filters(self, loaded: LoadedModel) -> bool:
         query_var = getattr(self, "models_search_var", None)
         query = query_var.get().strip().lower() if query_var is not None else ""
@@ -4210,20 +4704,18 @@ class AutoMLMApp(ctk.CTk):
         except ValueError:
             return None
 
-    def _model_completed_step_label(self) -> str:
-        completed = [
-            step
-            for step, done in self.step_completed.items()
-            if done
-        ]
-        if not completed:
-            return "Imported"
-        return f"Step {max(completed)} completed"
+    @staticmethod
+    def _model_last_action_label(loaded: LoadedModel) -> str:
+        return loaded.last_action or "Imported"
 
     def _select_model_from_overview_index(self, index: int):
         self._highlight_models_canvas_row(index)
         loaded = self.loaded_models[index]
         self.current_model = loaded.model
+        self.current_file_path = loaded.source_path
+        self.current_file_type = loaded.file_type
+        self.current_selected_columns = list(loaded.selected_columns)
+        self.last_action_label = loaded.last_action or "Imported"
         self._touch_loaded_model(loaded.model)
         self._populate_models_table()
         self._highlight_models_canvas_row(index)
@@ -4332,6 +4824,8 @@ class AutoMLMApp(ctk.CTk):
             "Objects": "#16A34A",
             "Slots": "#EA580C",
             "Links": "#0891B2",
+            "Operations": "#0D9488",
+            "Generalizations": "#E11D48",
         }
         for index, (label, value) in enumerate(self._model_metrics(model)):
             metrics.grid_columnconfigure(index, weight=1)
@@ -4344,6 +4838,9 @@ class AutoMLMApp(ctk.CTk):
 
     def _open_loaded_model(self, loaded: LoadedModel):
         self.current_model = loaded.model
+        self.current_file_path = loaded.source_path
+        self.current_file_type = loaded.file_type
+        self.current_selected_columns = list(loaded.selected_columns)
         self._touch_loaded_model(loaded.model)
         self._show_model_page()
 
@@ -4366,6 +4863,8 @@ class AutoMLMApp(ctk.CTk):
             ("Classes", len(model.get_all_flat_classes())),
             ("Attributes", self._count_attributes(model)),
             ("Enumerations", len(model.enums)),
+            ("Operations", self._count_operations(model)),
+            ("Generalizations", self._count_generalizations(model)),
             ("Associations", len(model.associations)),
             ("Objects", len(model.get_all_pure_objects())),
             ("Slots", self._count_slots(model)),
@@ -4381,13 +4880,217 @@ class AutoMLMApp(ctk.CTk):
         return sum(len(obj.slot_list) for obj in model.mlm_objects)
 
     @staticmethod
-    def _slot_type(slot: FmmlxSlot) -> str:
-        if slot.attribute is not None:
-            return slot.attribute.attr_type_short
-        return type(slot.value).__name__
+    def _count_operations(model: FmmlxModel) -> int:
+        return sum(len(obj.operations_list) for obj in model.mlm_objects)
 
     @staticmethod
-    def _clear_tree(tree: ttk.Treeview):
+    def _count_generalizations(model: FmmlxModel) -> int:
+        return sum(len(obj.parent_classes) for obj in model.mlm_objects)
+
+    @staticmethod
+    def _slot_type(slot: FmmlxSlot) -> str:
+        if slot.attribute is not None:
+            return AutoMLMApp._clean_display_value(slot.attribute.attr_type_short)
+        owner = getattr(slot, "owner", None)
+        model = getattr(owner, "_active_model", None)
+        if model is not None:
+            matches = [
+                attr
+                for obj in model.mlm_objects
+                for attr in obj.attr_list
+                if attr.attr_name == slot.slot_name
+            ]
+            enum_matches = [
+                attr
+                for attr in matches
+                if any(enum.enum_name == AutoMLMApp._clean_display_value(attr.attr_type_short) for enum in model.enums)
+            ]
+            if enum_matches:
+                return AutoMLMApp._clean_display_value(enum_matches[0].attr_type_short)
+            if matches:
+                return AutoMLMApp._clean_display_value(matches[0].attr_type_short)
+        return AutoMLMApp._clean_display_value(type(slot.value).__name__)
+
+    # ------------------------------------------------------------------
+    # Shared Visual Building Blocks
+    # Reusable cards, headers, metric blocks, tree setup, and canvas cells.
+    # ------------------------------------------------------------------
+
+    def _metric_card_no_icon(
+            self,
+            parent,
+            label: str,
+            value: int,
+            value_color: str,
+    ) -> ctk.CTkFrame:
+        card = self._card(parent)
+        card.configure(height=104)
+        card.grid_propagate(False)
+
+        is_zero = value == 0
+        muted_color = "#A8B2C1"
+        label_color = muted_color if is_zero else self.colors["text"]
+        number_color = muted_color if is_zero else value_color
+
+        value_text = str(value)
+        if len(value_text) >= 7:
+            value_size = 17
+        elif len(value_text) >= 6:
+            value_size = 18
+        elif len(value_text) >= 5:
+            value_size = 20
+        else:
+            value_size = 22
+
+        ctk.CTkLabel(
+            card,
+            text=label,
+            text_color=label_color,
+            font=ctk.CTkFont(
+                family="Segoe UI",
+                size=13,
+                weight="bold",
+            ),
+        ).place(
+            relx=0.5,
+            y=29,
+            anchor="center",
+        )
+
+        ctk.CTkLabel(
+            card,
+            text=value_text,
+            text_color=number_color,
+            font=ctk.CTkFont(
+                family="Segoe UI",
+                size=value_size,
+                weight="bold",
+            ),
+        ).place(
+            relx=0.5,
+            y=69,
+            anchor="center",
+        )
+
+        return card
+
+    def _page_header(self, title: str, subtitle: str):
+        header = ctk.CTkFrame(self.content, fg_color="transparent")
+        header.grid(row=0, column=0, sticky="ew", pady=(0, 18))
+        header.grid_columnconfigure(0, weight=1)
+
+        ctk.CTkLabel(
+            header,
+            text=title,
+            anchor="w",
+            text_color=self.colors["text"],
+            font=ctk.CTkFont(size=24, weight="bold"),
+        ).grid(row=0, column=0, sticky="w")
+
+        ctk.CTkLabel(
+            header,
+            text=subtitle,
+            anchor="w",
+            text_color=self.colors["muted"],
+            font=ctk.CTkFont(size=12),
+        ).grid(row=1, column=0, sticky="w", pady=(3, 0))
+
+    def _card(self, parent) -> ctk.CTkFrame:
+        return ctk.CTkFrame(
+            parent,
+            fg_color=self.colors["surface"],
+            corner_radius=12,
+            border_width=1,
+            border_color=self.colors["border"],
+        )
+
+    def _card_title(self, parent, text: str) -> ctk.CTkLabel:
+        return ctk.CTkLabel(
+            parent,
+            text=text,
+            anchor="w",
+            text_color=self.colors["text"],
+            font=ctk.CTkFont(family="Segoe UI", size=16, weight="bold"),
+        )
+
+    @staticmethod
+
+    def _tree(parent, **kwargs) -> ttk.Treeview:
+        tree = ttk.Treeview(parent, **kwargs)
+        tree.tag_configure("even", background="#ffffff")
+        tree.tag_configure("odd", background="#f8fafc")
+        return tree
+
+    def _draw_model_overview_cell(
+            self,
+            x: int,
+            y: int,
+            width: int,
+            height: int,
+            text: Any,
+            background: str,
+            foreground: str,
+            font,
+            tags=(),
+    ):
+        # Draw one cell in the large model overview table.
+        # "Any" is used because a cell may contain text, numbers, or empty values.
+        self.detail_canvas.create_rectangle(
+            x,
+            y,
+            x + width,
+            y + height,
+            fill=background,
+            outline="#E4EBF4",
+            width=1,
+            tags=tags,
+        )
+        self.detail_canvas.create_text(
+            x + (width / 2),
+            y + (height / 2),
+            text=self._display_table_value(text),
+            fill=foreground,
+            font=font,
+            anchor="center",
+            justify="center",
+            width=max(20, width - 18),
+            tags=tags,
+        )
+
+    def _draw_models_table_cell(
+            self,
+            x: int,
+            y: int,
+            width: int,
+            height: int,
+            text: Any,
+            background: str,
+            foreground: str,
+            font,
+    ) -> List[int]:
+        # Draw one cell in the models overview list and return its canvas pieces.
+        rect = self.models_canvas.create_rectangle(
+            x,
+            y,
+            x + width,
+            y + height,
+            fill=background,
+            outline="#E4EBF4",
+            width=1,
+        )
+        label = self.models_canvas.create_text(
+            x + (width / 2),
+            y + (height / 2),
+            text=self._display_table_value(text),
+            fill=foreground,
+            font=font,
+            anchor="center",
+            justify="center",
+            width=max(20, width - 18),
+        )
+        return [rect, label]
+
+    def _clear_tree(self, tree: ttk.Treeview):
         for item in tree.get_children():
             tree.delete(item)
 
