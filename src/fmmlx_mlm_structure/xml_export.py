@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import xml.etree.ElementTree as ET
 from src.fmmlx_mlm_structure.fm_multi_level_model import *
 import datetime

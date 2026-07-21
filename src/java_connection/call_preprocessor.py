@@ -30,7 +30,7 @@ def import_XML(messageId):
     """
     transmitted path is send to Java and opened as Multi-Level Model
     """
-    path = "C:\Programme\XModeler-AutoMLM-v1\XModeler\AutoMLM\src\java_communication\dummy.xml"
+    path = r"C:\Programme\XModeler-AutoMLM-v1\XModeler\AutoMLM\src\java_communication\dummy.xml"
     message_manager.postResponse(messageId, path)
     return
   
