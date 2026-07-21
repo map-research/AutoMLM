@@ -3,12 +3,14 @@ from __future__ import annotations
 from xml.etree.ElementTree import ElementTree
 
 from src.fmmlx_mlm_structure.fm_object import FmmlxObject
+from src.fmmlx_mlm_structure.model_element import ModelElement
 from src.fmmlx_mlm_structure.multiplicity import Multiplicity
 
 
-class FmmlxAssociation:
-    def __init__(self, name: str, source_inst_level: int, target_inst_level: int,
-                 source_access_name: str, target_access_name: str):
+class FmmlxAssociation(ModelElement):
+    def __init__(self, name: str, source_inst_level: int, target_inst_level: int, source_access_name: str,
+                 target_access_name: str):
+        super().__init__()
         self.name = name
         self.source_inst_level = source_inst_level
         self.target_inst_level = target_inst_level

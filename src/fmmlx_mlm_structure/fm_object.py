@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ElementTree
 from typing import List
 
+from fmmlx_mlm_structure.model_element import ModelElement
 from src.model_deepening.attribute_precedence_graph import AttributePrecedenceGraph
 from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
 from src.fmmlx_mlm_structure.fm_constraint import FmmlxConstraint
@@ -10,8 +11,9 @@ from src.model_deepening.slot_collective import SlotCollective
 from src.model_deepening.slot_precedence_graph import SlotPrecedenceGraph
 
 
-class FmmlxObject:
-    def __init__(self, full_name: str, object_name: str, level: str, class_of_object, is_abstract: str, model = None):
+class FmmlxObject(ModelElement):
+    def __init__(self, full_name: str, object_name: str, level: str, class_of_object, is_abstract: str, model=None):
+        super().__init__()
         self.full_name = full_name
         self.object_name = object_name
         self.level: int = int(level)

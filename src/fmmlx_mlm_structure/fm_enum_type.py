@@ -1,8 +1,11 @@
 import xml.etree.ElementTree as ElementTree
 
+from fmmlx_mlm_structure.model_element import ModelElement
 
-class FmmlxEnumType:
+
+class FmmlxEnumType(ModelElement):
     def __init__(self, enum_name: str):
+        super().__init__()
         self.enum_name = enum_name
         self.enum_values = []
 

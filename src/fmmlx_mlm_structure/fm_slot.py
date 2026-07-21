@@ -1,17 +1,14 @@
 from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
 from src.fmmlx_mlm_structure.model_property import ModelProperty
 
-# from src.fmmlx_mlm_structure.fm_object import FmmlxObject
-
-'''
-FmmlxSlot serves as an implementation of slots in FMMLx. Note that the attribute "owner" is of type FmmlxObject.
-Thus the method set_attribute() can call "class_of_object".
-
-You MAY NOT import FmmlxObject, though. This causes a circular import.
-'''
-
 
 class FmmlxSlot(ModelProperty):
+    """
+    FmmlxSlot serves as an implementation of slots in FMMLx. Note that the attribute "owner" is of type FmmlxObject.
+    Thus, the method set_attribute() can call "class_of_object".
+
+    You MAY NOT import FmmlxObject, though. This causes a circular import.
+    """
     def __init__(self, slot_name: str, value: str):
         super().__init__(print_name=f"{slot_name}:{value}")
         self.attribute = None
