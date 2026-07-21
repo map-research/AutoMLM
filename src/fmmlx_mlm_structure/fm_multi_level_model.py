@@ -503,10 +503,26 @@ class FmmlxModel:
             if new_attr.attr_type.split("::")[1] != "XCore" and new_attr.attr_type.split("::")[1] != "Auxiliary":
                 if not self._is_custom_attribute_type_an_enum(new_attr):
                     print("TO-DO: Custom Data Type " + new_attr.attr_type_short + " Detected") #TODO CUSTOM CLASS AS OBJECT
-            for mlm_object in self.mlm_objects:
-                if attribute_element.getAttribute("class") == mlm_object.full_name:
-                    mlm_object.add_attr(new_attr)
-                    new_attr.set_owner(mlm_object)
+            owner_object = self._find_object_named_in_xml(attribute_element.getAttribute("class"))
+            if owner_object is not None:
+                owner_object.add_attr(new_attr)
+                new_attr.set_owner(owner_object)
+
+    def _find_object_named_in_xml(self, xml_object_name: str):
+        # XML files sometimes use the full model path and sometimes only the final class name.
+        # This finds the same class in both cases.
+        for mlm_object in self.mlm_objects:
+            if xml_object_name == mlm_object.full_name:
+                return mlm_object
+        short_name = xml_object_name.split("::")[-1]
+        matching_objects = [
+            mlm_object
+            for mlm_object in self.mlm_objects
+            if short_name == mlm_object.object_name
+        ]
+        if len(matching_objects) == 1:
+            return matching_objects[0]
+        return None
 
     def _is_custom_attribute_type_an_enum(self, mlm_attr: FmmlxAttribute) -> bool:
         # check 1: look if in list of enums
@@ -520,11 +536,11 @@ class FmmlxModel:
         for slot_element in self.parsed_xml.getElementsByTagName("changeSlotValue"):
             new_slot = FmmlxSlot(slot_element.getAttribute("slotName"),
                                  self._parse_slot_value(slot_element.getAttribute("valueToBeParsed")))
-            for mlm_object in self.mlm_objects:
-                if slot_element.getAttribute("class") == mlm_object.full_name:
-                    mlm_object.add_slot(new_slot)
-                    new_slot.set_owner_object(mlm_object)
-                    new_slot.set_attribute()
+            owner_object = self._find_object_named_in_xml(slot_element.getAttribute("class"))
+            if owner_object is not None:
+                owner_object.add_slot(new_slot)
+                new_slot.set_owner_object(owner_object)
+                new_slot.set_attribute()
 
     def _parse_slot_value(self, slot_value: str):
         if slot_value.endswith("asString()"):
