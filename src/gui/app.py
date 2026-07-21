@@ -59,7 +59,7 @@ class LoadedModel:
 
 
 # noinspection PyAttributeOutsideInit,PyUnresolvedReferences,PyTypeChecker,SpellCheckingInspection
-class AutoMLMApp(ctk.CTk):
+class ModelDeepenerApplication(ctk.CTk):
     COLUMN_WIDTH_INCLUDE = 100
     COLUMN_WIDTH_NAME = 280
     COLUMN_WIDTH_TYPE = 220
@@ -81,12 +81,20 @@ class AutoMLMApp(ctk.CTk):
 
     def __init__(self):
         super().__init__()
+        ctk_window = ctk.CTk()
         ctk.set_appearance_mode("light")
         ctk.set_default_color_theme("blue")
+        self.title("Model Deepener")
+        self.state("zoomed")  # does not work for some reason
+        width = 1220
+        height = 750
+        width_screen = ctk_window.winfo_screenwidth()
+        height_screen = ctk_window.winfo_screenheight()
+        x_cord = (width_screen/2) - (width/2)
+        y_cord = (height_screen/2) - (height/2)
+        self.geometry('%dx%d+%d+%d' % (width, height, x_cord, y_cord))
 
-        self.title("AutoMLM")
-        self.geometry("1500x900")
-        self.minsize(1220, 760)
+        #  self.minsize(1220, 760)
 
         self.colors = {
             "app_bg": "#f5f7fb",
@@ -606,8 +614,6 @@ class AutoMLMApp(ctk.CTk):
         self.column_table = None
         self.column_canvas_window = None
         self._reset_column_table(self.TABLE_HEADER_HEIGHT + 76)
-
-
         actions = ctk.CTkFrame(self.content, fg_color="transparent")
         actions.grid(row=2, column=0, sticky="ew", pady=(14, 0))
         actions.grid_columnconfigure(0, weight=1)
@@ -1597,7 +1603,6 @@ class AutoMLMApp(ctk.CTk):
 
         self._set_create_button_enabled(can_create and self._can_create_current_file())
 
-
     def _set_create_button_enabled(self, enabled: bool):
         self.create_button.configure(
             state="normal" if enabled else "disabled",
@@ -1625,7 +1630,7 @@ class AutoMLMApp(ctk.CTk):
         # Empty cells are easier to read as "-" than as a blank space.
         if value is None or value == "":
             return "-"
-        return AutoMLMApp._clean_display_value(value)
+        return ModelDeepenerApplication._clean_display_value(value)
 
     @staticmethod
     def _clean_display_value(value) -> str:
@@ -1789,7 +1794,7 @@ class AutoMLMApp(ctk.CTk):
         try:
             model = FmmlxModel(file_path=file_path)
             warnings = []
-            if AutoMLMApp._count_attributes(model) == 0:
+            if ModelDeepenerApplication._count_attributes(model) == 0:
                 warnings.append(
                     "No attributes were attached to model classes. The XML may not contain addAttribute entries, "
                     "or its attribute class names may not match the class names in the model."
@@ -1847,7 +1852,6 @@ class AutoMLMApp(ctk.CTk):
         delta = int(-1 * (event.delta / 120)) if event.delta else 0
         if delta:
             self.column_canvas.xview_scroll(delta, "units")
-
 
     def _set_validation_rows(self, rows: List[tuple]):
         for child in self.validation_rows_frame.winfo_children():
@@ -4267,7 +4271,7 @@ class AutoMLMApp(ctk.CTk):
     def _short_type_name(type_name: str) -> str:
         if not type_name:
             return "-"
-        return AutoMLMApp._clean_display_value(type_name)
+        return ModelDeepenerApplication._clean_display_value(type_name)
 
     @staticmethod
     def _operations_for_object(obj: FmmlxObject):
@@ -4890,7 +4894,7 @@ class AutoMLMApp(ctk.CTk):
     @staticmethod
     def _slot_type(slot: FmmlxSlot) -> str:
         if slot.attribute is not None:
-            return AutoMLMApp._clean_display_value(slot.attribute.attr_type_short)
+            return ModelDeepenerApplication._clean_display_value(slot.attribute.attr_type_short)
         owner = getattr(slot, "owner", None)
         model = getattr(owner, "_active_model", None)
         if model is not None:
@@ -4903,13 +4907,13 @@ class AutoMLMApp(ctk.CTk):
             enum_matches = [
                 attr
                 for attr in matches
-                if any(enum.enum_name == AutoMLMApp._clean_display_value(attr.attr_type_short) for enum in model.enums)
+                if any(enum.enum_name == ModelDeepenerApplication._clean_display_value(attr.attr_type_short) for enum in model.enums)
             ]
             if enum_matches:
-                return AutoMLMApp._clean_display_value(enum_matches[0].attr_type_short)
+                return ModelDeepenerApplication._clean_display_value(enum_matches[0].attr_type_short)
             if matches:
-                return AutoMLMApp._clean_display_value(matches[0].attr_type_short)
-        return AutoMLMApp._clean_display_value(type(slot.value).__name__)
+                return ModelDeepenerApplication._clean_display_value(matches[0].attr_type_short)
+        return ModelDeepenerApplication._clean_display_value(type(slot.value).__name__)
 
     # ------------------------------------------------------------------
     # Shared Visual Building Blocks
@@ -5094,7 +5098,3 @@ class AutoMLMApp(ctk.CTk):
         for item in tree.get_children():
             tree.delete(item)
 
-
-def run():
-    app = AutoMLMApp()
-    app.mainloop()

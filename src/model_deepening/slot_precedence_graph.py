@@ -1,5 +1,5 @@
 from src.fmmlx_mlm_structure.model_property_enum import ModelPropertyEnum
-from src.fmmlx_mlm_structure.precedence_graph import PropertyPrecedenceGraph
+from src.model_deepening.precedence_graph import PropertyPrecedenceGraph
 
 
 class SlotPrecedenceGraph(PropertyPrecedenceGraph):

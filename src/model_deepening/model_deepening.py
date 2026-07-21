@@ -1,9 +1,6 @@
-import datetime
-
-from src.fmmlx_mlm_structure.attribute_precedence_graph import AttributePrecedenceGraph
+from src.model_deepening.attribute_precedence_graph import AttributePrecedenceGraph
 from src.fmmlx_mlm_structure.fm_multi_level_model import *
-from src.fmmlx_mlm_structure.image_file_format_enum import ImageFileFormat
-from src.fmmlx_mlm_structure.precedence_graph import PropertyPrecedenceGraph
+from src.model_deepening.image_file_format_enum import ImageFileFormat
 
 
 class ModelDeepening:

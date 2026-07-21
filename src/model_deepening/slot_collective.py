@@ -5,7 +5,6 @@ for unique values within a specific attribute.
 from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
 from src.fmmlx_mlm_structure.fm_slot import FmmlxSlot
 from src.fmmlx_mlm_structure.model_property import ModelProperty
-from src.fmmlx_mlm_structure.slot_precedence_graph import SlotPrecedenceGraph
 
 
 class SlotCollective(ModelProperty):

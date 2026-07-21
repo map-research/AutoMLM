@@ -1,14 +1,13 @@
 import xml.etree.ElementTree as ElementTree
 from typing import List
 
-from src.fmmlx_mlm_structure.attribute_precedence_graph import AttributePrecedenceGraph
+from src.model_deepening.attribute_precedence_graph import AttributePrecedenceGraph
 from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
 from src.fmmlx_mlm_structure.fm_constraint import FmmlxConstraint
 from src.fmmlx_mlm_structure.fm_operation import FmmlxOperation
 from src.fmmlx_mlm_structure.fm_slot import FmmlxSlot
-from src.fmmlx_mlm_structure.precedence_graph import PropertyPrecedenceGraph
-from src.fmmlx_mlm_structure.slot_collective import SlotCollective
-from src.fmmlx_mlm_structure.slot_precedence_graph import SlotPrecedenceGraph
+from src.model_deepening.slot_collective import SlotCollective
+from src.model_deepening.slot_precedence_graph import SlotPrecedenceGraph
 
 
 class FmmlxObject:

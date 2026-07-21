@@ -1,4 +1,4 @@
-from src.tester import Tester
+from src.testing.tester import Tester
 from src.fmmlx_mlm_structure.fm_multi_level_model import FmmlxModel
 
 
@@ -6,7 +6,7 @@ class PrecedenceAnalysisTester(Tester):
     def __init__(self, variant: int = 1, track_progress: bool = True, export_precedence_graphs_as_png: bool = False,
                  print_input_model: bool = False, export_model: bool = False, print_precedence_graph: bool = False):
         super().__init__()
-        self.set_input_file_sub_path("prop-precedence\\")
+        self.set_input_file_sub_path("../../mlm_files/prop-precedence\\")
         self.variant: int = variant
         self.track_progress: bool = track_progress
         self.export_precedence_graphs_as_png: bool = export_precedence_graphs_as_png

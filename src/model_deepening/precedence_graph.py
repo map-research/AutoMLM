@@ -4,20 +4,17 @@ The precedence graph is a directed graph, with the direction a -> b expressing r
 This allows interpreting the topological order of the graph as instantiation levels.
 """
 import datetime
-import itertools
 import os.path
 from graphlib import TopologicalSorter
-from typing import Any, Iterable
 
 import networkx as nx
 import pydot
 from networkx import DiGraph
 
-from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
-from src.fmmlx_mlm_structure.image_file_format_enum import ImageFileFormat
+from src.model_deepening.image_file_format_enum import ImageFileFormat
 from src.fmmlx_mlm_structure.model_property import ModelProperty
 from src.fmmlx_mlm_structure.model_property_enum import ModelPropertyEnum
-from src.fmmlx_mlm_structure.property_group import PropertyGroup
+from src.model_deepening.property_group import PropertyGroup
 
 
 class PropertyPrecedenceGraph:
