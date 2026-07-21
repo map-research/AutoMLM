@@ -1,15 +1,18 @@
 import xml.etree.ElementTree as ElementTree
 from typing import List
+
+from src.fmmlx_mlm_structure.attribute_precedence_graph import AttributePrecedenceGraph
 from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
 from src.fmmlx_mlm_structure.fm_constraint import FmmlxConstraint
 from src.fmmlx_mlm_structure.fm_operation import FmmlxOperation
 from src.fmmlx_mlm_structure.fm_slot import FmmlxSlot
-from src.fmmlx_mlm_structure.precedence_graph import PrecedenceGraph
+from src.fmmlx_mlm_structure.precedence_graph import PropertyPrecedenceGraph
 from src.fmmlx_mlm_structure.slot_collective import SlotCollective
+from src.fmmlx_mlm_structure.slot_precedence_graph import SlotPrecedenceGraph
 
 
 class FmmlxObject:
-    def __init__(self, full_name: str, object_name: str, level: str, class_of_object, is_abstract: str):
+    def __init__(self, full_name: str, object_name: str, level: str, class_of_object, is_abstract: str, model = None):
         self.full_name = full_name
         self.object_name = object_name
         self.level: int = int(level)
@@ -22,7 +25,9 @@ class FmmlxObject:
         self.parent_classes = []
         self.instances = []
         self.slot_collectives: [SlotCollective] = []
-        self.precedence_graph: PrecedenceGraph = PrecedenceGraph()
+        self.attribute_precedence_graph: AttributePrecedenceGraph = AttributePrecedenceGraph(self)
+        self.slot_precedence_graph: SlotPrecedenceGraph = SlotPrecedenceGraph(self)
+        self.model = model
 
     def __repr__(self):
         # class_str = f"[CLASS] {self.name}"
@@ -48,6 +53,15 @@ class FmmlxObject:
     def get_shell_class(cls, base_class):
         return cls(base_class.full_name, base_class.object_name, "0", cls.meta_class(), "false")
 
+    def get_model(self):
+        return self.model
+
+    def get_model_name(self) -> str:
+        try:
+            return self.full_name.split("::")[1]
+        except:
+            return "NO MODEL NAME"
+
     def get_object_name(self) -> str:
         return self.object_name
 
@@ -62,15 +76,35 @@ class FmmlxObject:
     def get_all_attributes(self) -> List[FmmlxAttribute]:
         return self.attr_list
 
+    def get_attributes_at_inst_level_x(self, inst_level: int) -> List[FmmlxAttribute]:
+        attr_list_at_inst_level = []
+        for attr in self.attr_list:
+            if attr.inst_level == inst_level:
+                attr_list_at_inst_level.append(attr)
+        return attr_list_at_inst_level
+
     def set_class_of_object(self, new_class_of_object):
         self.class_of_object = new_class_of_object
         self.level = int(new_class_of_object.level) - 1
 
+    def add_object_instance(self):
+        """This operation adds an instance to an existing class. It is required for performing the necessary change
+        operations in model deepening"""
+        assert self.level > 0, "new instances can only be created for objects on level > 0"
+
     def add_attr(self, attr: FmmlxAttribute):
         self.attr_list.append(attr)
 
-    def add_slot(self, slot: FmmlxSlot):
-        self.slot_list.append(slot)
+    def add_slot(self, new_slot: FmmlxSlot):
+        """support fot multiplicity (for now only for slot links): This operation checks whether a slot with the
+        same name is already in the object and then adds the value to the slot"""
+        slot_found: bool = False
+        for slot in self.slot_list:
+            if slot.slot_name == new_slot.slot_name:
+                slot.value += "///" + new_slot.value
+                slot_found = True
+        if not slot_found:
+            self.slot_list.append(new_slot)
 
     def add_operation(self, operation: FmmlxOperation):
         self.operations_list.append(operation)
@@ -87,15 +121,22 @@ class FmmlxObject:
     def get_slot_collectives(self):
         return self.slot_collectives
 
-    def get_precedence_graph(self):
-        return self.precedence_graph
+    def get_attribute_precedence_graph(self) -> AttributePrecedenceGraph:
+        return self.attribute_precedence_graph
+
+    def get_slot_precedence_graph(self) -> SlotPrecedenceGraph:
+        return self.slot_precedence_graph
+
+    def set_slot_precedence_graph(self, slot_precedence_graph: SlotPrecedenceGraph):
+        self.slot_precedence_graph = slot_precedence_graph
 
     def get_slot_collective_by_attribute_and_value(self, attribute: FmmlxAttribute, value: str):
         for slot_collective in self.slot_collectives:
             if slot_collective.get_attribute() == attribute and slot_collective.get_value() == value:
                 return slot_collective
 
-    def create_slot_collectives(self, ignore_case: bool = True, print_progress: bool = False):
+    def _old_create_slot_collectives(self, ignore_case: bool = True, print_progress: bool = False):
+        # TODO DELETE IF NEW IMPLEMENTATION WORKS
         assert self.level == 1, "Slot collectives can currently only be created for L0 instances of L1 classes"
         for attr in self.attr_list:
             encountered_slot_values: [str] = []
@@ -115,7 +156,30 @@ class FmmlxObject:
         if print_progress:
             print(*self.slot_collectives, sep="\n")
 
-    def analyze_attribute_precedence(self, print_attr_relations: bool = False, print_slots: bool = False):
+    def create_slot_collectives(self, ignore_case: bool = True, print_progress: bool = False):
+        assert self.level == 1, "Slot collectives can currently only be created for L0 instances of L1 classes"
+        for attr in self.attr_list:
+            encountered_slot_values: [str] = []
+            for instance in self.instances:
+                slot: FmmlxSlot = instance.get_slot_by_attribute(attr)
+                slot_values: [str] = slot.get_values_as_list()
+                slot_collective: SlotCollective
+                for slot_value in slot_values:
+                    if ignore_case:
+                        slot_value = slot_value.lower()
+                    if slot_value not in encountered_slot_values:
+                        slot_collective = SlotCollective(slot_value, attr)
+                        encountered_slot_values.append(slot_value)
+                        self.slot_collectives.append(slot_collective)
+                        attr.add_collective_slot(slot_collective)
+                    else:
+                        slot_collective = self.get_slot_collective_by_attribute_and_value(attr, slot_value)
+                    slot_collective.add_slot(slot)
+                    slot_collective.add_object_to_scope(instance)
+        if print_progress:
+            print(*self.slot_collectives, sep="\n")
+
+    def create_property_precedence_graphs(self, print_attr_relations: bool = False, print_slots: bool = False):
         assert self.level == 1, "Attribute precedence can only be induced for L1 classes"
         assert len(self.attr_list) > 1, "Attribute precedence can only be induced when multiple attributes are present"
         assert len(self.attr_list[0].get_collective_slots()) > 0, ("Attribute precedence analysis "
@@ -125,7 +189,7 @@ class FmmlxObject:
             for inner_in in range(outer_i+1, len(self.attr_list)):
                 inner_attr: FmmlxAttribute = self.attr_list[inner_in]
                 attr_comparison_symbol: str = outer_attr.get_attribute_comparison_symbol(inner_attr)
-                self.precedence_graph.add_attribute_relation(
+                self.attribute_precedence_graph.add_property_relation(
                     outer_attr, inner_attr, attr_comparison_symbol)
                 if print_attr_relations:
                     print(f"[Attr Relation] {outer_attr.attr_name} to {inner_attr.attr_name}: {attr_comparison_symbol}")
@@ -133,11 +197,16 @@ class FmmlxObject:
                         print(f"{outer_attr.get_attribute_comparison_symbol(inner_attr, print_slots=True)}")
                         print("\n--------------------------------------------------------------\n")
 
-        print(self.precedence_graph)
-        print(self.precedence_graph.get_static_order())
-
     def promote_to_level_x(self, new_level: int):
+        """This operation serves to promote a class to a higher level. Properties remain unchanged"""
+        assert new_level > self.level, "promotion requires higher classification level"
         self.level = new_level
+
+    def promote_attributes(self):
+        """This operation promotes all attributes of a class, should be preceded by promotion of class.
+        New instantiantion levels for attributes must be set before -- cannot be checked via assertion"""
+        for attr in self.attr_list:
+            attr.set_inst_level_to_proposed()
 
     def export(self, root):
         projectName = root.attrib['path']
