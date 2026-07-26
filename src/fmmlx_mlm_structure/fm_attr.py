@@ -5,8 +5,7 @@ from src.fmmlx_mlm_structure.model_property import ModelProperty
 class FmmlxAttribute(ModelProperty):
     def __init__(self, attr_name: str, attr_type: str, inst_level: int,
                  uses_enum: bool = False, uses_domain_specific_type: bool = False):
-        super().__init__(print_name=attr_name)
-        self.attr_name = attr_name
+        super().__init__(name=attr_name, print_name=attr_name)
         self.attr_type = attr_type
         self.attr_type_short = attr_type.split("::")[2]
         self.inst_level = inst_level
@@ -18,11 +17,14 @@ class FmmlxAttribute(ModelProperty):
         self.proposed_inst_level: int = 0
 
     def set_enum_type(self, enum_type: FmmlxEnumType):
-        self.attr_type_short = enum_type.enum_name
+        self.attr_type_short = enum_type.name
         self.uses_enum = True
 
-    def get_attribute_name(self) -> str:
-        return self.attr_name
+    def get_attr_category(self) -> str:
+        if str(type(self)) == "FmmlxAssociationEnd":
+            return "ASSOC-END"
+        else:
+            return "ATTR"
 
     def get_attr_type(self) -> str:
         return self.attr_type_short
@@ -116,4 +118,4 @@ class FmmlxAttribute(ModelProperty):
         return True if self.get_attribute_comparison_symbol(other) == (">" or ">=") else False
 
     def __repr__(self):
-        return f"[{self.attr_category}-{self.inst_level}] {self.attr_name}:{self.attr_type_short}"
+        return f"[{self.attr_category}-{self.inst_level}] {self.name}:{self.attr_type_short}"

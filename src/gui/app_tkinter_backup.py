@@ -552,8 +552,8 @@ class AutoMLMApp(tk.Tk):
 
         for level in sorted(levels.keys(), reverse=True):
             level_id = self.model_tree.insert(root_id, "end", text=f"Level {level}", open=True)
-            for obj in sorted(levels[level], key=lambda item: item.object_name):
-                obj_id = self.model_tree.insert(level_id, "end", text=obj.object_name, open=level > 0)
+            for obj in sorted(levels[level], key=lambda item: item.name):
+                obj_id = self.model_tree.insert(level_id, "end", text=obj.name, open=level > 0)
                 self.tree_item_payload[obj_id] = obj
 
                 if obj.attr_list:
@@ -562,14 +562,14 @@ class AutoMLMApp(tk.Tk):
                         attr_id = self.model_tree.insert(
                             attrs_id,
                             "end",
-                            text=f"{attr.attr_name}: {attr.attr_type_short}",
+                            text=f"{attr.name}: {attr.attr_type_short}",
                         )
                         self.tree_item_payload[attr_id] = attr
 
                 if obj.slot_list:
                     slots_id = self.model_tree.insert(obj_id, "end", text=f"Slots ({len(obj.slot_list)})")
                     for slot in obj.slot_list[:20]:
-                        slot_id = self.model_tree.insert(slots_id, "end", text=f"{slot.slot_name}: {slot.value}")
+                        slot_id = self.model_tree.insert(slots_id, "end", text=f"{slot.name}: {slot.value}")
                         self.tree_item_payload[slot_id] = slot
                     if len(obj.slot_list) > 20:
                         self.model_tree.insert(slots_id, "end", text="...")
@@ -607,35 +607,35 @@ class AutoMLMApp(tk.Tk):
         )
 
     def _render_object_details(self, obj: FmmlxObject):
-        self.detail_title.configure(text=f"Object Details: {obj.object_name}")
+        self.detail_title.configure(text=f"Object Details: {obj.name}")
         rows = [
             ("Full name", obj.full_name, ""),
             ("Level", obj.level, ""),
-            ("Class", obj.class_of_object.object_name if obj.class_of_object else "", ""),
+            ("Class", obj.class_of_object.name if obj.class_of_object else "", ""),
             ("Abstract", obj.is_abstract, ""),
         ]
-        rows.extend((slot.slot_name, slot.value, self._slot_type(slot)) for slot in obj.slot_list)
+        rows.extend((slot.name, slot.value, self._slot_type(slot)) for slot in obj.slot_list)
         self._set_detail_rows(rows)
 
     def _render_attribute_details(self, attr: FmmlxAttribute):
-        self.detail_title.configure(text=f"Attribute Details: {attr.attr_name}")
+        self.detail_title.configure(text=f"Attribute Details: {attr.name}")
         self._set_detail_rows(
             [
-                ("Name", attr.attr_name, ""),
+                ("Name", attr.name, ""),
                 ("Type", attr.attr_type, attr.attr_type_short),
                 ("Instantiation level", attr.inst_level, ""),
-                ("Owner", attr.owner.object_name if attr.owner else "", ""),
+                ("Owner", attr.owner.name if attr.owner else "", ""),
             ]
         )
 
     def _render_slot_details(self, slot: FmmlxSlot):
-        self.detail_title.configure(text=f"Slot Details: {slot.slot_name}")
+        self.detail_title.configure(text=f"Slot Details: {slot.name}")
         self._set_detail_rows(
             [
-                ("Name", slot.slot_name, ""),
+                ("Name", slot.name, ""),
                 ("Value", slot.value, self._slot_type(slot)),
-                ("Owner", slot.owner.object_name if slot.owner else "", ""),
-                ("Attribute", slot.attribute.attr_name if slot.attribute else "", ""),
+                ("Owner", slot.owner.name if slot.owner else "", ""),
+                ("Attribute", slot.attribute.name if slot.attribute else "", ""),
             ]
         )
 

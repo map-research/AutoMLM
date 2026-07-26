@@ -3,7 +3,7 @@ from fmmlx_mlm_structure.model_property import ModelProperty
 
 class FmmlxOperation(ModelProperty):
     def __init__(self, operation_name: str, inst_level: int, return_type: str):
-        super().__init__(operation_name)
+        super().__init__(name=operation_name, print_name=operation_name)
         self.operation_name = operation_name
         self.inst_level = inst_level
         self.return_type = return_type

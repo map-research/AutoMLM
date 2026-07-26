@@ -57,15 +57,15 @@ class ModelDeepening:
         print_any: bool = print_slot_collectives | print_attribute_relations | print_slot_comparisons
         for flat_class in self.get_flat_classes():
             if print_any:
-                print("PROPERTY PRECEDENCE ANALYSIS FOR " + flat_class.object_name + "\n")
+                print("PROPERTY PRECEDENCE ANALYSIS FOR " + flat_class.name + "\n")
             flat_class.create_slot_collectives(ignore_case=True, print_progress=print_slot_collectives)
             flat_class.create_property_precedence_graphs(print_attr_relations=print_attribute_relations,
                                                          print_slots=print_slot_comparisons)
             attr_precedence_graph: AttributePrecedenceGraph = flat_class.get_attribute_precedence_graph()
             spg = flat_class.get_slot_precedence_graph()
             if export_graphs_as_png:
-                attr_precedence_graph.export_graph_as_image(flat_class.object_name, ImageFileFormat.SVG)
-                spg.export_graph_as_image(flat_class.object_name, ImageFileFormat.SVG)
+                attr_precedence_graph.export_graph_as_image(flat_class.name, ImageFileFormat.SVG)
+                spg.export_graph_as_image(flat_class.name, ImageFileFormat.SVG)
 
             if print_precedence_graph:
                 print(attr_precedence_graph)

@@ -1151,7 +1151,7 @@ class AutoMLMApp(ctk.CTk):
             if obj.level > 0 and obj.attr_list
         ]
         if class_objects:
-            return class_objects[0].object_name
+            return class_objects[0].name
         if model.path_name:
             return model.path_name.split("::")[-1]
         return "Model"
@@ -2575,7 +2575,7 @@ class AutoMLMApp(ctk.CTk):
             if obj.level == 1
                and (
                        not normalized_query
-                       or normalized_query in obj.object_name.lower()
+                       or normalized_query in obj.name.lower()
                )
         ]
         level_0_objects = [
@@ -2584,7 +2584,7 @@ class AutoMLMApp(ctk.CTk):
             if obj.level == 0
                and (
                        not normalized_query
-                       or normalized_query in obj.object_name.lower()
+                       or normalized_query in obj.name.lower()
                )
         ]
 
@@ -2599,12 +2599,12 @@ class AutoMLMApp(ctk.CTk):
 
         for obj in sorted(
                 level_1_objects,
-                key=lambda item: self._natural_sort_key(item.object_name),
+                key=lambda item: self._natural_sort_key(item.name),
         ):
             obj_id = self.model_tree.insert(
                 level_1_id,
                 "end",
-                text=obj.object_name,
+                text=obj.name,
                 open=False,
                 tags=("class_item",),
             )
@@ -2621,12 +2621,12 @@ class AutoMLMApp(ctk.CTk):
 
         for obj in sorted(
                 level_0_objects,
-                key=lambda item: self._natural_sort_key(item.object_name),
+                key=lambda item: self._natural_sort_key(item.name),
         ):
             obj_id = self.model_tree.insert(
                 level_0_id,
                 "end",
-                text=obj.object_name,
+                text=obj.name,
                 open=False,
                 tags=("object_item",),
             )
@@ -2755,7 +2755,7 @@ class AutoMLMApp(ctk.CTk):
         ]
         objects = sorted(
             objects,
-            key=lambda item: self._natural_sort_key(item.object_name),
+            key=lambda item: self._natural_sort_key(item.name),
         )
 
         self._reset_detail_canvas_table()
@@ -2975,7 +2975,7 @@ class AutoMLMApp(ctk.CTk):
         if mode == "random":
             return sorted(
                 random.sample(objects, count),
-                key=lambda item: self._natural_sort_key(item.object_name),
+                key=lambda item: self._natural_sort_key(item.name),
             )
         return objects[:count]
 
@@ -3221,15 +3221,15 @@ class AutoMLMApp(ctk.CTk):
         for object_index in range(start_index, end_index):
             obj = objects[object_index]
             slot_by_name = {
-                slot.slot_name: slot.value
+                slot.name: slot.value
                 for slot in obj.slot_list
             }
             row_values = [
-                slot_by_name.get(attr.attr_name, "")
+                slot_by_name.get(attr.name, "")
                 for attr in attributes
             ]
             self._pending_overview_rows.append(
-                (obj.object_name, row_values)
+                (obj.name, row_values)
             )
 
         self._update_model_loading_progress(
@@ -3325,7 +3325,7 @@ class AutoMLMApp(ctk.CTk):
         if overlay is not None and overlay.winfo_exists():
             overlay.lift()
 
-        headers = [model_name] + [attr.attr_name for attr in attributes]
+        headers = [model_name] + [attr.name for attr in attributes]
         x = 0
         for column, text in enumerate(headers):
             column_width = name_width if column == 0 else attribute_width
@@ -3673,7 +3673,7 @@ class AutoMLMApp(ctk.CTk):
 
     def _render_class_details(self, obj: FmmlxObject):
         self.detail_title.configure(
-            text=f"Class: {obj.object_name}",
+            text=f"Class: {obj.name}",
             text_color="#2563EB",
         )
         self.detail_subtitle.configure(
@@ -3684,7 +3684,7 @@ class AutoMLMApp(ctk.CTk):
         for attr in obj.attr_list:
             rows.append(
                 (
-                    attr.attr_name,
+                    attr.name,
                     attr.attr_type_short,
                     "",
                 )
@@ -3694,7 +3694,7 @@ class AutoMLMApp(ctk.CTk):
 
     def _render_object_details(self, obj: FmmlxObject):
         self.detail_title.configure(
-            text=f"Object: {obj.object_name}",
+            text=f"Object: {obj.name}",
             text_color="#16A34A",
         )
         self.detail_subtitle.configure(
@@ -3705,7 +3705,7 @@ class AutoMLMApp(ctk.CTk):
         for slot in obj.slot_list:
             rows.append(
                 (
-                    slot.slot_name,
+                    slot.name,
                     self._slot_type(slot),
                     slot.value,
                 )

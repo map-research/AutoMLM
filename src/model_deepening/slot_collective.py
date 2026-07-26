@@ -10,8 +10,8 @@ from src.fmmlx_mlm_structure.model_property import ModelProperty
 class SlotCollective(ModelProperty):
     def __init__(self, value: str, attribute: FmmlxAttribute):
         if attribute.get_attr_type() == "Boolean":
-            print_value = "is " + attribute.get_attribute_name() if value == "true" \
-                else "is not " + attribute.get_attribute_name()
+            print_value = "is " + attribute.get_name() if value == "true" \
+                else "is not " + attribute.get_name()
         else:
             print_value: str = value[:10]  # as a precaution only first 10 characters for printing,
         # too long names cause unreadable graphs
@@ -78,8 +78,8 @@ class SlotCollective(ModelProperty):
     def pretty_print_scope(self) -> str:
         pp_scope: str = ""
         for fm_object in self.scope_list:
-            pp_scope += fm_object.get_object_name() if pp_scope == "" else ", " + fm_object.get_object_name()
+            pp_scope += fm_object.get_name() if pp_scope == "" else ", " + fm_object.get_name()
         return pp_scope
 
     def __repr__(self):
-        return f"[SlotCollective] {self.attribute.attr_name}:\"{self.value}\": {{{self.pretty_print_scope()}}}"
+        return f"[SlotCollective] {self.attribute.name}:\"{self.value}\": {{{self.pretty_print_scope()}}}"
