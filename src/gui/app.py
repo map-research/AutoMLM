@@ -11,6 +11,7 @@ import tkinter as tk
 import customtkinter as ctk
 from dataclasses import dataclass, field
 from datetime import datetime
+from PIL import Image
 from tkinter import filedialog, messagebox, ttk
 from tkinter import font as tk_font
 from typing import Any, Dict, List, Optional
@@ -60,6 +61,18 @@ class LoadedModel:
 
 # noinspection PyAttributeOutsideInit,PyUnresolvedReferences,PyTypeChecker,SpellCheckingInspection
 class AutoMLMApp(ctk.CTk):
+    """
+    Main window of the Model Deepener desktop application.
+
+    The file is organized in the same order as the user works through the app:
+    1. App setup and navigation create the window, top tabs, and workflow sidebar.
+    2. New Model / Upload File validates CSV or XML input and shows Column Selection.
+    3. Create and Save Model creates the model, stores it, reloads it, and exports it.
+    4. Inspect Model shows the model tree, overview table, and detail tables.
+    5. Models Overview lists all imported models and opens or deletes them.
+    6. Shared helpers create repeated UI elements such as cards, headers, and table cells.
+    """
+
     COLUMN_WIDTH_INCLUDE = 100
     COLUMN_WIDTH_NAME = 280
     COLUMN_WIDTH_TYPE = 220
@@ -76,7 +89,6 @@ class AutoMLMApp(ctk.CTk):
         1: "Upload File or Select Example",
         2: "Inspect Model",
         3: "Conduct Model Deepening Analysis",
-        4: "Apply Change Operations",
     }
 
     def __init__(self):
@@ -84,7 +96,7 @@ class AutoMLMApp(ctk.CTk):
         ctk.set_appearance_mode("light")
         ctk.set_default_color_theme("blue")
 
-        self.title("AutoMLM")
+        self.title("")
         self.geometry("1500x900")
         self.minsize(1220, 760)
 
@@ -95,9 +107,9 @@ class AutoMLMApp(ctk.CTk):
             "border": "#e2e8f0",
             "text": "#0f172a",
             "muted": "#64748b",
-            "primary": "#155EEF",
-            "primary_hover": "#0F4FD6",
-            "primary_soft": "#EAF2FF",
+            "primary": "#04173D",
+            "primary_hover": "#013897",
+            "primary_soft": "#DFE9FD",
             "success": "#16a34a",
             "success_soft": "#ecfdf3",
             "disabled": "#cbd5e1",
@@ -118,10 +130,12 @@ class AutoMLMApp(ctk.CTk):
         self.tree_item_view: Dict[str, str] = {}
         self.loaded_models: List[LoadedModel] = []
         self.loaded_models_store_path = os.path.join(os.getcwd(), "mlm_files", "loaded_models.json")
-        self.action_unlocked = {1: True, 2: False, 3: False, 4: False}
-        self.action_completed = {1: False, 2: False, 3: False, 4: False}
+        self.action_unlocked = {1: True, 2: False, 3: False}
+        self.action_completed = {1: False, 2: False, 3: False}
         self.current_action = 1
         self.active_top_tab = "new"
+        self.model_tab = None
+        self.logo_image = None
         self._detail_load_token = 0
         self._detail_batch_after_id = None
         self._detail_loading_overlay = None
@@ -132,13 +146,16 @@ class AutoMLMApp(ctk.CTk):
         self._configure_ttk_style()
         self._build_layout()
         self._show_import_page()
-
-    # ------------------------------------------------------------------
-    # Main Window and Sidebar
-    # Builds the app frame, top navigation, and left action list.
-    # ------------------------------------------------------------------
+        self._apply_windows_icons()
+        self.after(250, self._apply_windows_icons)
 
     def _configure_ttk_style(self):
+        """
+        Defines the look of standard Tk tables and trees.
+
+        This is part of the app setup. The methods around it build the main
+        window, the top navigation, and the workflow sidebar on the left.
+        """
         self.style = ttk.Style(self)
         self.style.theme_use("clam")
 
@@ -187,11 +204,11 @@ class AutoMLMApp(ctk.CTk):
             self,
             fg_color=self.colors["surface"],
             corner_radius=0,
-            height=66,
+            height=82,
         )
         self.header.grid(row=0, column=0, sticky="ew")
         self.header.grid_propagate(False)
-        self.header.grid_columnconfigure(2, weight=1)
+        self.header.grid_columnconfigure(3, weight=1)
 
         self.new_model_tab = ctk.CTkButton(
             self.header,
@@ -220,6 +237,25 @@ class AutoMLMApp(ctk.CTk):
             command=self._show_models_overview_page,
         )
         self.models_tab.grid(row=0, column=1, padx=(0, 8), pady=12)
+
+        self.model_tab = ctk.CTkButton(
+            self.header,
+            text="",
+            width=160,
+            height=42,
+            corner_radius=8,
+            fg_color="transparent",
+            hover_color=self.colors["surface_alt"],
+            text_color=self.colors["text"],
+            font=ctk.CTkFont(size=14),
+            command=self._show_model_page,
+        )
+        self.model_tab.grid(row=0, column=2, padx=(0, 8), pady=12)
+        self.model_tab.grid_remove()
+
+        self.logo_label = ctk.CTkLabel(self.header, text="", width=1)
+        self.logo_label.grid(row=0, column=4, sticky="e", padx=(8, 24), pady=8)
+        self._load_header_logo()
 
         self.shell = ctk.CTkFrame(
             self,
@@ -286,6 +322,89 @@ class AutoMLMApp(ctk.CTk):
         self.content.grid_columnconfigure(0, weight=1)
         self.content.grid_rowconfigure(1, weight=1)
 
+    def _load_header_logo(self):
+        """
+        Loads the logo shown in the top-right header.
+
+        The header uses the wide logo with the product name. The taskbar icon is
+        loaded separately.
+        """
+        gui_dir = os.path.dirname(__file__)
+        logo_candidates = [
+            os.path.join(gui_dir, "Logo mit Namen.png"),
+            os.path.join(gui_dir, "assets", "logo.png"),
+        ]
+        logo_path = next((path for path in logo_candidates if os.path.exists(path)), None)
+        if logo_path is None:
+            return
+        try:
+            source_image = Image.open(logo_path)
+            max_height = 62
+            ratio = max_height / source_image.height
+            image_size = (max(1, int(source_image.width * ratio)), max_height)
+            self.logo_image = ctk.CTkImage(
+                light_image=source_image,
+                dark_image=source_image,
+                size=image_size,
+            )
+            self.logo_label.configure(image=self.logo_image)
+        except (OSError, tk.TclError, ValueError):
+            self.logo_image = None
+
+    def _apply_windows_icons(self):
+        """
+        Sets the app icon for Tk and the Windows taskbar.
+
+        Both Tk and Windows get the same icon so the taskbar does not show the
+        default Python icon.
+        """
+        gui_dir = os.path.dirname(__file__)
+        taskbar_icon_path = os.path.join(gui_dir, "md_app_icon.ico")
+        icon_png_path = os.path.join(gui_dir, "md_app_icon.png")
+        if not os.path.exists(taskbar_icon_path) or not os.path.exists(icon_png_path):
+            return
+        try:
+            import ctypes
+            self.update_idletasks()
+            try:
+                hwnd = int(self.frame(), 0)
+            except (tk.TclError, TypeError, ValueError):
+                hwnd = self.winfo_id()
+            image_icon = 1
+            lr_load_from_file = 0x00000010
+            wm_seticon = 0x0080
+            icon_small = 0
+            icon_big = 1
+            icon_small2 = 2
+            user32 = ctypes.windll.user32
+            user32.LoadImageW.restype = ctypes.c_void_p
+            user32.LoadImageW.argtypes = [
+                ctypes.c_void_p,
+                ctypes.c_wchar_p,
+                ctypes.c_uint,
+                ctypes.c_int,
+                ctypes.c_int,
+                ctypes.c_uint,
+            ]
+            user32.SendMessageW.restype = ctypes.c_void_p
+            user32.SendMessageW.argtypes = [
+                ctypes.c_void_p,
+                ctypes.c_uint,
+                ctypes.c_void_p,
+                ctypes.c_void_p,
+            ]
+            self.iconbitmap(taskbar_icon_path)
+            self.window_icon = tk.PhotoImage(file=icon_png_path)
+            self.iconphoto(True, self.window_icon)
+            taskbar_icon = user32.LoadImageW(None, taskbar_icon_path, image_icon, 0, 0, lr_load_from_file)
+            if taskbar_icon:
+                user32.SendMessageW(hwnd, wm_seticon, icon_big, taskbar_icon)
+                user32.SendMessageW(hwnd, wm_seticon, icon_small, taskbar_icon)
+                user32.SendMessageW(hwnd, wm_seticon, icon_small2, taskbar_icon)
+            self._windows_icon_handles = (taskbar_icon,)
+        except (AttributeError, OSError, tk.TclError):
+            self._windows_icon_handles = ()
+
     def _build_action_card(self, action: int):
         card = ctk.CTkFrame(
             self.sidebar,
@@ -311,6 +430,7 @@ class AutoMLMApp(ctk.CTk):
         title.grid(row=0, column=0, sticky="ew", padx=16, pady=16)
 
         for widget in (card, title):
+            widget.configure(cursor="hand2")
             widget.bind(
                 "<Button-1>",
                 lambda _event, selected_action=action: self._try_open_action(selected_action),
@@ -336,10 +456,13 @@ class AutoMLMApp(ctk.CTk):
         for button, is_active in (
                 (self.new_model_tab, active == "new"),
                 (self.models_tab, active == "models"),
+                (self.model_tab, active == "model"),
         ):
+            if button is None:
+                continue
             button.configure(
                 fg_color=self.colors["primary_soft"] if is_active else "transparent",
-                hover_color="#e8f0ff" if is_active else self.colors["surface_alt"],
+                hover_color=self.colors["primary_soft"] if is_active else self.colors["surface_alt"],
                 text_color=self.colors["primary"] if is_active else self.colors["text"],
                 border_width=1 if is_active else 0,
                 border_color="#bfdbfe" if is_active else self.colors["surface"],
@@ -349,10 +472,12 @@ class AutoMLMApp(ctk.CTk):
         for action, card in self.action_cards.items():
             is_current = action == self.current_action
             is_unlocked = self._is_navigation_item_available(action)
+            card.configure(cursor="hand2" if is_unlocked else "arrow")
+            self.action_title_labels[action].configure(cursor="hand2" if is_unlocked else "arrow")
 
             if is_current:
                 card.configure(
-                    fg_color="#EDF4FF",
+                    fg_color=self.colors["primary_soft"],
                     border_color=self.colors["primary"],
                     border_width=1,
                 )
@@ -383,12 +508,58 @@ class AutoMLMApp(ctk.CTk):
             self._open_placeholder_action(action)
 
     def _is_navigation_item_available(self, action: int) -> bool:
+        if action == 1:
+            return self.current_model is None
         if action != 1:
             return self.current_model is not None
         return True
 
+    def _update_model_tab(self):
+        """
+        Shows or hides the top tab for the open model.
+
+        The New Model tab starts a new import. The model tab returns to the
+        currently opened model.
+        """
+        if self.model_tab is None:
+            return
+        if self.current_model is None:
+            self.model_tab.grid_remove()
+            return
+        self.model_tab.configure(text=self._short_tab_text(self._current_model_display_name()))
+        self.model_tab.grid()
+
+    def _current_model_display_name(self) -> str:
+        """
+        Returns the model name shown in the top tab.
+
+        If the model has no path name, the file name is used instead.
+        """
+        if self.current_model is None:
+            return "Model"
+        name = self.current_model.path_name.split("::")[-1] if self.current_model.path_name else ""
+        if not name and self.current_file_path:
+            name = os.path.splitext(os.path.basename(self.current_file_path))[0]
+        return self._display_table_value(name or "Model")
+
+    @staticmethod
+    def _short_tab_text(text: str, max_length: int = 28) -> str:
+        """
+        Shortens long model names so the top navigation keeps its shape.
+        """
+        if len(text) <= max_length:
+            return text
+        return f"{text[:max_length - 3]}..."
+
     def _show_import_page(self):
+        """
+        Shows the New Model page.
+
+        This page contains Upload File, Select Example, Validation Results,
+        Column Selection, and the Create Model and Continue button.
+        """
         self._reset_current_import_state()
+        self._update_model_tab()
         self.current_action = 1
         self._set_last_action(1)
         self._show_workflow_sidebar()
@@ -476,7 +647,7 @@ class AutoMLMApp(ctk.CTk):
             height=40,
             corner_radius=7,
             fg_color=self.colors["primary_soft"],
-            hover_color="#DBEAFE",
+            hover_color=self.colors["primary_soft"],
             text_color=self.colors["primary"],
             border_width=1,
             border_color="#AFCBFF",
@@ -637,9 +808,15 @@ class AutoMLMApp(ctk.CTk):
         self.csv_preview = None
         self.xml_preview = None
         self.selected_csv_columns.clear()
-        self.action_completed = {1: False, 2: False, 3: False, 4: False}
+        self.action_completed = {1: False, 2: False, 3: False}
 
     def _show_model_page(self):
+        """
+        Shows the Inspect Model page.
+
+        This page shows the model metrics, the Model Structure tree on the left,
+        the Details area on the right, and the action buttons below.
+        """
         if self.current_model is None:
             return
         self._set_last_action(2)
@@ -648,7 +825,8 @@ class AutoMLMApp(ctk.CTk):
         self.current_action = 2
         self.action_completed[2] = True
         self._show_workflow_sidebar()
-        self._set_top_tab("new")
+        self._update_model_tab()
+        self._set_top_tab("model")
         self._refresh_actions()
         self._clear_content()
 
@@ -673,9 +851,10 @@ class AutoMLMApp(ctk.CTk):
         summary.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 14))
 
         summary_items = [
+            ("Higher Level Classes", self._count_higher_level_classes(model), "#315D9B"),
             ("Classes", len(model.get_all_flat_classes()), "#2563EB"),
             ("Attributes", self._count_attributes(model), "#7C3AED"),
-            ("Enumerations", len(model.enums), "#F59E0B"),
+            ("Enumeration Types", len(model.enums), "#F59E0B"),
             ("Operations", self._count_operations(model), "#0D9488"),
             ("Generalizations", self._count_generalizations(model), "#E11D48"),
             ("Associations", len(model.associations), "#64748B"),
@@ -874,7 +1053,7 @@ class AutoMLMApp(ctk.CTk):
 
         self.detail_subtitle = ctk.CTkLabel(
             detail_card,
-            text="Select a class or object to inspect its attributes and values.",
+            text="Select a class or object to inspect its attributes and slots.",
             anchor="w",
             text_color=self.colors["muted"],
             font=ctk.CTkFont(family="Segoe UI", size=11),
@@ -993,7 +1172,7 @@ class AutoMLMApp(ctk.CTk):
             height=42,
             corner_radius=8,
             fg_color="#FFFFFF",
-            hover_color="#EEF2FF",
+            hover_color=self.colors["primary_soft"],
             border_width=1,
             border_color="#C7D2E3",
             text_color=self.colors["text"],
@@ -1026,6 +1205,13 @@ class AutoMLMApp(ctk.CTk):
         self._render_model_structure_overview(model)
 
     def _bind_detail_scroll_events(self, _event=None):
+        """
+        Enables scrolling inside the Inspect Model detail area.
+
+        The methods below belong to the same technical block. They keep large
+        detail tables and the model overview table usable when many rows or
+        columns are displayed.
+        """
         self.bind_all("<MouseWheel>", self._on_detail_mousewheel)
         self.bind_all("<Shift-MouseWheel>", self._on_detail_shift_mousewheel)
 
@@ -1102,6 +1288,12 @@ class AutoMLMApp(ctk.CTk):
 
     @staticmethod
     def _natural_sort_key(text: str):
+        """
+        Sorts names with numbers in a human-readable order.
+
+        This starts the shared formatting helper block. The methods here prepare
+        names and values before they are shown in tables or labels.
+        """
         return [
             int(part) if part.isdigit() else part.lower()
             for part in re.split(r"(\d+)", text)
@@ -1122,8 +1314,16 @@ class AutoMLMApp(ctk.CTk):
 
 
     def _open_placeholder_action(self, action: int):
+        """
+        Shows workflow steps that are not implemented yet.
+
+        This block also contains the export logic, so the current model can be
+        written back as CSV or XML from the workflow.
+        """
         self.current_action = action
         self._set_last_action(action)
+        self._update_model_tab()
+        self._set_top_tab("model")
         self._refresh_actions()
         self._clear_content()
         self._page_header(
@@ -1157,7 +1357,7 @@ class AutoMLMApp(ctk.CTk):
                 height=42,
                 corner_radius=8,
                 fg_color="#FFFFFF",
-                hover_color="#EEF2FF",
+                hover_color=self.colors["primary_soft"],
                 border_width=1,
                 border_color="#C7D2E3",
                 text_color=self.colors["text"],
@@ -1265,6 +1465,12 @@ class AutoMLMApp(ctk.CTk):
         os.utime(target_path, None)
 
     def _show_models_overview_page(self):
+        """
+        Shows the Models Overview page.
+
+        This page lists all imported models, provides filters, shows model
+        metrics, and lets the user open or delete a stored model.
+        """
         self._hide_workflow_sidebar()
         self._set_top_tab("models")
         self._clear_content()
@@ -1351,12 +1557,12 @@ class AutoMLMApp(ctk.CTk):
             corner_radius=7,
             fg_color="#FFFFFF",
             button_color="#FFFFFF",
-            button_hover_color="#EEF4FF",
+            button_hover_color=self.colors["primary_soft"],
             border_color="#CBD8EA",
             border_width=1,
             text_color=self.colors["text"],
             dropdown_fg_color="#FFFFFF",
-            dropdown_hover_color="#EEF4FF",
+            dropdown_hover_color=self.colors["primary_soft"],
             dropdown_text_color=self.colors["text"],
             command=lambda _value: self._populate_models_table(),
             state="readonly",
@@ -1416,13 +1622,13 @@ class AutoMLMApp(ctk.CTk):
         self._populate_models_table()
         self._render_overview_details(None)
 
-    # ------------------------------------------------------------------
-    # Upload File or Select Example
-    # Handles file picking, validation results, and CSV column selection.
-    # ------------------------------------------------------------------
-
     def _select_example_file(self):
-        """Open a tree dialog with files from mlm_files."""
+        """
+        Opens the Select Example dialog.
+
+        The methods in this block handle both ways to choose input: selecting
+        an example from mlm_files or browsing for a CSV/XML file manually.
+        """
         examples_root = os.path.join(os.getcwd(), "mlm_files")
         if not os.path.isdir(examples_root):
             messagebox.showinfo(
@@ -1597,8 +1803,13 @@ class AutoMLMApp(ctk.CTk):
 
         self._set_create_button_enabled(can_create and self._can_create_current_file())
 
-
     def _set_create_button_enabled(self, enabled: bool):
+        """
+        Enables or disables Create Model and Continue.
+
+        This block controls the visible validation state: the create button,
+        the Validation Results badge, and the expanded/collapsed Column Selection area.
+        """
         self.create_button.configure(
             state="normal" if enabled else "disabled",
             fg_color=self.colors["primary"] if enabled else "#cbd5e1",
@@ -1622,6 +1833,13 @@ class AutoMLMApp(ctk.CTk):
 
     @staticmethod
     def _display_table_value(value) -> str:
+        """
+        Converts raw values into readable table text.
+
+        This starts the parsing helper block. The methods here detect CSV
+        separators, infer simple CSV attribute types, detect headers, and load
+        XML files far enough to show validation feedback.
+        """
         # Empty cells are easier to read as "-" than as a blank space.
         if value is None or value == "":
             return "-"
@@ -1800,6 +2018,12 @@ class AutoMLMApp(ctk.CTk):
             return XmlImportPreview(file_path=file_path, errors=[str(exc)], model=None)
 
     def _render_csv_validation(self, preview: CsvImportPreview):
+        """
+        Shows CSV validation results in the Validation Results card.
+
+        The methods in this block convert CSV/XML preview results into the
+        rows the user sees after selecting a file.
+        """
         is_ready = not preview.errors and preview.header_detected
         delimiter_name = {";": "Semicolon (;)", ",": "Comma (,)", "\t": "Tab", "|": "Pipe (|)"}.get(
             preview.delimiter, preview.delimiter
@@ -2015,7 +2239,12 @@ class AutoMLMApp(ctk.CTk):
             )
 
     def _reset_column_table(self, total_height: int):
-        """Create a fresh full-width table without an outer border."""
+        """
+        Clears and rebuilds the Column Selection table.
+
+        The methods in this block draw the CSV columns, inferred types, example
+        values, Include checkboxes, and Select All behavior.
+        """
         if self.column_table is not None:
             self.column_table.destroy()
 
@@ -2036,7 +2265,7 @@ class AutoMLMApp(ctk.CTk):
             highlightthickness=0,
         )
 
-        # Stable first columns; Example Values receives the remaining width.
+        # Stable first columns; Example Slots receives the remaining width.
         self.column_table.grid_columnconfigure(
             0,
             weight=0,
@@ -2121,12 +2350,12 @@ class AutoMLMApp(ctk.CTk):
         return cell
 
     def _build_column_table_header(self):
-        header_bg = "#DCEAFF"
+        header_bg = "#DFE9FD"
         specs = (
             (0, "include", "All"),
             (1, "label", "Column Name"),
             (2, "label", "Detected Data Type"),
-            (3, "label", "Example Values"),
+            (3, "label", "Example Slots"),
         )
 
         self.column_table.grid_rowconfigure(
@@ -2182,7 +2411,7 @@ class AutoMLMApp(ctk.CTk):
                 all_label = ctk.CTkLabel(
                     all_group,
                     text="All",
-                    text_color="#17365D",
+                    text_color="#04173D",
                     font=ctk.CTkFont(
                         family="Segoe UI",
                         size=12,
@@ -2200,7 +2429,7 @@ class AutoMLMApp(ctk.CTk):
                     text=text,
                     anchor="center",
                     justify="center",
-                    text_color="#17365D",
+                    text_color="#04173D",
                     font=ctk.CTkFont(
                         family="Segoe UI",
                         size=12,
@@ -2295,8 +2524,8 @@ class AutoMLMApp(ctk.CTk):
                 text=data_type,
                 height=26,
                 corner_radius=13,
-                fg_color="#E7F0FF",
-                text_color="#2457A6",
+                fg_color=self.colors["primary_soft"],
+                text_color="#013897",
                 font=ctk.CTkFont(
                     family="Segoe UI",
                     size=11,
@@ -2445,6 +2674,12 @@ class AutoMLMApp(ctk.CTk):
         return any(var.get() for var in self.selected_csv_columns.values())
 
     def _render_xml_preview(self, preview: XmlImportPreview):
+        """
+        Shows the XML state in the Column Selection area.
+
+        XML files do not use CSV Column Selection, so this block shows the
+        message for XML files and the empty state before a file is selected.
+        """
         total_height = 118
         self._reset_column_table(total_height)
 
@@ -2461,16 +2696,6 @@ class AutoMLMApp(ctk.CTk):
             text_color=self.colors["muted"],
             font=ctk.CTkFont(family="Segoe UI", size=13, weight="bold"),
         ).grid(row=0, column=0, sticky="new", padx=0, pady=18)
-
-    @staticmethod
-    def _level_summary(model: FmmlxModel) -> str:
-        counts = {}
-        for obj in model.mlm_objects:
-            counts[obj.level] = counts.get(obj.level, 0) + 1
-        return ", ".join(
-            f"Level {level}: {counts[level]}"
-            for level in sorted(counts, reverse=True)
-        ) or "-"
 
     def _render_empty_preview(self, text: str):
         if not hasattr(self, "column_canvas"):
@@ -2513,12 +2738,14 @@ class AutoMLMApp(ctk.CTk):
             ),
         ).place(relx=0.5, rely=0.5, anchor="center")
 
-    # ------------------------------------------------------------------
-    # Create, Save, and Export Model
-    # Creates the working model, remembers imported models, and writes exports.
-    # ------------------------------------------------------------------
-
     def _create_model(self):
+        """
+        Creates the model after validation succeeds.
+
+        This block turns the selected CSV/XML file into the current model,
+        stores the imported source file, updates Models Overview, and reloads
+        saved models from loaded_models.json.
+        """
         if not self.current_file_path:
             messagebox.showerror("Import blocked", "Select a file first.")
             return
@@ -2715,16 +2942,18 @@ class AutoMLMApp(ctk.CTk):
                 self._save_loaded_models()
                 break
 
-    # ------------------------------------------------------------------
-    # Inspect Model: Model Tree and Search
-    # Fills the tree on the left and opens the matching details on the right.
-    # ------------------------------------------------------------------
-
     def _populate_model_tree(
             self,
             model: FmmlxModel,
             query: str = "",
     ):
+        """
+        Fills the Model Structure tree in Inspect Model.
+
+        The methods in this block insert classes, objects, enums, and search
+        hits into the tree and open the matching Details view when the user
+        selects an entry.
+        """
         self.tree_item_payload.clear()
         self.tree_item_view.clear()
         self._clear_tree(self.model_tree)
@@ -2753,7 +2982,7 @@ class AutoMLMApp(ctk.CTk):
         enum_id = self.model_tree.insert(
             root_id,
             "end",
-            text=f"Enumerations ({len(enumerations)})",
+            text=f"Enumeration Types ({len(enumerations)})",
             open=True,
             tags=("enum_group",),
         )
@@ -2859,7 +3088,7 @@ class AutoMLMApp(ctk.CTk):
                 attr for attr in obj.attr_list
                 if self._query_matches_values(query, attr.attr_name, attr.attr_type_short, attr.inst_level)
             ]),
-            ("Values", "slot", [
+            ("Slots", "slot", [
                 slot for slot in obj.slot_list
                 if self._query_matches_values(query, slot.slot_name, slot.value, self._slot_type(slot))
             ]),
@@ -2913,7 +3142,7 @@ class AutoMLMApp(ctk.CTk):
         ]
         if not matching_values:
             return
-        group_id = self.model_tree.insert(parent_id, "end", text=f"Values ({len(matching_values)})", open=True)
+        group_id = self.model_tree.insert(parent_id, "end", text=f"Slots ({len(matching_values)})", open=True)
         self.tree_item_payload[group_id] = None
         self.tree_item_view[group_id] = "group"
         for value in matching_values:
@@ -2993,15 +3222,15 @@ class AutoMLMApp(ctk.CTk):
             self.detail_title.configure(text=f"Attribute: {attr.attr_name}", text_color="#7C3AED")
             self.detail_subtitle.configure(text=f"Defined on {obj.object_name}.")
             self._render_detail_table(
-                ("Attribute", "Type", "Value"),
+                ("Attribute", "Type", "Slot"),
                 [(attr.attr_name, attr.attr_type_short, "-")],
             )
         elif view_name == "slot":
             _view, obj, slot = payload
-            self.detail_title.configure(text=f"Value: {slot.slot_name}", text_color="#16A34A")
+            self.detail_title.configure(text=f"Slot: {slot.slot_name}", text_color="#16A34A")
             self.detail_subtitle.configure(text=f"Defined on {obj.object_name}.")
             self._render_detail_table(
-                ("Attribute", "Type", "Value"),
+                ("Attribute", "Type", "Slot"),
                 [(slot.slot_name, self._slot_type(slot), slot.value)],
             )
         elif view_name == "association":
@@ -3033,7 +3262,7 @@ class AutoMLMApp(ctk.CTk):
             self.detail_subtitle.configure(text=f"Defined for {obj.object_name}.")
             slot_by_name = {slot.slot_name: slot.value for slot in obj.slot_list}
             self._render_detail_table(
-                ("Operation", "Type", "Value"),
+                ("Operation", "Type", "Slot"),
                 [(operation.operation_name, self._short_type_name(operation.return_type), slot_by_name.get(operation.operation_name, "-"))],
             )
         elif view_name == "generalization":
@@ -3043,9 +3272,9 @@ class AutoMLMApp(ctk.CTk):
             self._render_detail_table(("Superclass", "Subclass"), [row])
         elif view_name == "enum_value":
             _view, enum, value = payload
-            self.detail_title.configure(text=f"Enumeration: {enum.enum_name}", text_color="#F59E0B")
-            self.detail_subtitle.configure(text="Matching enumeration value.")
-            self._render_detail_table(("Enumeration", "Value", "Index"), [(enum.enum_name, value, enum.enum_values.index(value) + 1)])
+            self.detail_title.configure(text=f"Enumeration Type: {enum.enum_name}", text_color="#F59E0B")
+            self.detail_subtitle.configure(text="Matching enumeration type slot.")
+            self._render_detail_table(("Enumeration Type", "Slot", "Index"), [(enum.enum_name, value, enum.enum_values.index(value) + 1)])
         else:
             self._render_empty_detail_state()
 
@@ -3122,12 +3351,13 @@ class AutoMLMApp(ctk.CTk):
             return
         self._detail_batch_after_id = self.after(delay_ms, callback)
 
-    # ------------------------------------------------------------------
-    # Inspect Model: Model Overview Table
-    # Loads and draws the large object/value overview inside Inspect Model.
-    # ------------------------------------------------------------------
-
     def _start_model_overview_loading(self, model: FmmlxModel):
+        """
+        Starts loading the large Model Overview table in Inspect Model.
+
+        This block asks how many objects should be shown, prepares the values,
+        shows progress, and draws the large object/value table in batches.
+        """
         self._render_model_structure_overview(model)
 
     @staticmethod
@@ -3336,7 +3566,7 @@ class AutoMLMApp(ctk.CTk):
         if links:
             parts.append(f"{len(links)} links")
         if obj.slot_list:
-            parts.append(f"{len(obj.slot_list)} values")
+            parts.append(f"{len(obj.slot_list)} slots")
         return ", ".join(parts)
 
     def _set_model_overview_count(self, count: int):
@@ -3356,7 +3586,7 @@ class AutoMLMApp(ctk.CTk):
             else:
                 button.configure(
                     fg_color="#FFFFFF",
-                    hover_color="#EEF4FF",
+                    hover_color=self.colors["primary_soft"],
                     border_color="#BBD0F4",
                     text_color=self.colors["text"],
                 )
@@ -3375,7 +3605,7 @@ class AutoMLMApp(ctk.CTk):
             else:
                 button.configure(
                     fg_color="#FFFFFF",
-                    hover_color="#EEF4FF",
+                    hover_color=self.colors["primary_soft"],
                     border_color="#BBD0F4",
                     text_color=self.colors["text"],
                 )
@@ -3826,8 +4056,8 @@ class AutoMLMApp(ctk.CTk):
                 width=column_width,
                 height=header_height,
                 text=text,
-                background="#DCEAFF",
-                foreground="#17365D",
+                background="#DFE9FD",
+                foreground="#04173D",
                 font=("Segoe UI", 12, "bold"),
                 tags=("overview_corner",) if column == 0 else ("overview_header",),
             )
@@ -4108,7 +4338,7 @@ class AutoMLMApp(ctk.CTk):
             height=32,
             corner_radius=7,
             fg_color="#FFFFFF",
-            hover_color="#EEF4FF",
+            hover_color=self.colors["primary_soft"],
             border_width=1,
             border_color="#BBD0F4",
             text_color=self.colors["primary"],
@@ -4129,13 +4359,13 @@ class AutoMLMApp(ctk.CTk):
         self._detail_overview_toolbar = None
         self._show_model_overview_load_options(model)
 
-    # ------------------------------------------------------------------
-    # Inspect Model: Detail Tables
-    # Shows attributes, values, associations, links, operations, and enums.
-    # ------------------------------------------------------------------
-
-
     def _render_empty_detail_state(self):
+        """
+        Shows the default Details state in Inspect Model.
+
+        The methods in this block render the Details area for classes, objects,
+        enums, attributes, values, associations, links, operations, and generalizations.
+        """
         self._clear_detail_option_bar()
         self.detail_title.configure(
             text="Details",
@@ -4165,7 +4395,7 @@ class AutoMLMApp(ctk.CTk):
             if enabled:
                 callback()
                 return
-        self._render_detail_table(("Name", "Type", "Value"), [])
+        self._render_detail_table(("Name", "Type", "Slot"), [])
 
     def _render_object_details(self, obj: FmmlxObject):
         self.detail_title.configure(
@@ -4173,10 +4403,10 @@ class AutoMLMApp(ctk.CTk):
             text_color="#16A34A",
         )
         self.detail_subtitle.configure(
-            text="Select whether values or links should be shown."
+            text="Select whether slots or links should be shown."
         )
         options = [
-            ("Values", bool(obj.slot_list), lambda: self._render_object_value_table(obj)),
+            ("Slots", bool(obj.slot_list), lambda: self._render_object_value_table(obj)),
             ("Operations", bool(self._operations_for_object(obj)), lambda: self._render_object_operation_table(obj)),
             ("Links", bool(self._links_for_object(self.current_model, obj)), lambda: self._render_object_link_table(obj)),
         ]
@@ -4185,19 +4415,19 @@ class AutoMLMApp(ctk.CTk):
             if enabled:
                 callback()
                 return
-        self._render_detail_table(("Name", "Type", "Value"), [])
+        self._render_detail_table(("Name", "Type", "Slot"), [])
 
     def _render_enum_details(self, enum: FmmlxEnumType):
         self._clear_detail_option_bar()
         self.detail_title.configure(
-            text=f"Enumeration: {enum.enum_name}",
+            text=f"Enumeration Type: {enum.enum_name}",
             text_color="#F59E0B",
         )
         self.detail_subtitle.configure(
-            text="Values defined for the selected enumeration."
+            text="Slots defined for the selected enumeration type."
         )
         self._render_detail_table(
-            ("Enumeration", "Value", "Index"),
+            ("Enumeration Type", "Slot", "Index"),
             [
                 (enum.enum_name, value, index)
                 for index, value in enumerate(enum.enum_values, start=1)
@@ -4218,7 +4448,7 @@ class AutoMLMApp(ctk.CTk):
                 corner_radius=7,
                 border_width=1,
                 fg_color="#FFFFFF" if enabled else self.colors["disabled_bg"],
-                hover_color="#EEF4FF" if enabled else self.colors["disabled_bg"],
+                hover_color=self.colors["primary_soft"] if enabled else self.colors["disabled_bg"],
                 border_color="#BBD0F4" if enabled else self.colors["border"],
                 text_color=self.colors["primary"] if enabled else "#94A3B8",
                 font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
@@ -4337,7 +4567,7 @@ class AutoMLMApp(ctk.CTk):
 
     def _render_class_operation_table(self, obj: FmmlxObject):
         self._render_detail_table(
-            ("Operation", "Type", "Value"),
+            ("Operation", "Type", "Slot"),
             [
                 (operation.operation_name, self._short_type_name(operation.return_type), "-")
                 for operation in obj.operations_list
@@ -4352,7 +4582,7 @@ class AutoMLMApp(ctk.CTk):
 
     def _render_object_value_table(self, obj: FmmlxObject):
         self._render_detail_table(
-            ("Attribute", "Type", "Value"),
+            ("Attribute", "Type", "Slot"),
             [
                 (slot.slot_name, self._slot_type(slot), slot.value)
                 for slot in obj.slot_list
@@ -4380,7 +4610,7 @@ class AutoMLMApp(ctk.CTk):
             for slot in obj.slot_list
         }
         self._render_detail_table(
-            ("Operation", "Type", "Value"),
+            ("Operation", "Type", "Slot"),
             [
                 (
                     operation.operation_name,
@@ -4392,7 +4622,7 @@ class AutoMLMApp(ctk.CTk):
         )
 
     def _render_detail_rows(self, rows):
-        self._render_detail_table(("Attribute", "Type", "Value"), rows)
+        self._render_detail_table(("Attribute", "Type", "Slot"), rows)
 
     def _render_detail_table(
             self,
@@ -4415,7 +4645,7 @@ class AutoMLMApp(ctk.CTk):
                 minsize=(column_minsizes[column] if column_minsizes and column < len(column_minsizes) else (220 if column == 0 else 170)),
             )
 
-        header_bg = "#DCEAFF"
+        header_bg = "#DFE9FD"
 
         for column, text in enumerate(headers):
             cell = tk.Frame(
@@ -4446,7 +4676,7 @@ class AutoMLMApp(ctk.CTk):
                 text=text,
                 anchor="center",
                 justify="center",
-                text_color="#17365D",
+                text_color="#04173D",
                 font=ctk.CTkFont(
                     family="Segoe UI",
                     size=12,
@@ -4519,8 +4749,8 @@ class AutoMLMApp(ctk.CTk):
                             text=self._display_table_value(cell_value),
                             height=24,
                             corner_radius=12,
-                            fg_color="#E2E8F0" if is_muted_row else "#E7F0FF",
-                            text_color="#64748B" if is_muted_row else "#2457A6",
+                            fg_color="#E2E8F0" if is_muted_row else self.colors["primary_soft"],
+                            text_color="#64748B" if is_muted_row else "#013897",
                             font=ctk.CTkFont(
                                 family="Segoe UI",
                                 size=11,
@@ -4561,12 +4791,13 @@ class AutoMLMApp(ctk.CTk):
         self.detail_canvas.xview_moveto(0)
         self.detail_canvas.yview_moveto(0)
 
-    # ------------------------------------------------------------------
-    # Models Overview
-    # Shows all stored models, filters them, and opens a selected model.
-    # ------------------------------------------------------------------
-
     def _populate_models_table(self):
+        """
+        Draws the table on the Models Overview page.
+
+        This block applies the filters, draws one row per stored model, handles
+        row selection, and updates the detail panel with Open Model and Delete Model.
+        """
         if not hasattr(self, "models_canvas"):
             return
         self.models_canvas.delete("all")
@@ -4574,15 +4805,16 @@ class AutoMLMApp(ctk.CTk):
 
         canvas_width = max(self.models_canvas.winfo_width(), 900)
         column_specs = [
-            ("name", "Model Name", 0.14),
-            ("source", "Source File", 0.18),
-            ("type", "Type", 0.08),
-            ("classes", "Classes", 0.08),
-            ("attributes", "Attributes", 0.10),
-            ("objects", "Objects", 0.10),
-            ("status", "Last Action", 0.14),
+            ("name", "Model Name", 0.13),
+            ("source", "Source File", 0.16),
+            ("type", "Type", 0.06),
+            ("level_classes", "Higher Level Classes", 0.09),
+            ("classes", "Classes", 0.07),
+            ("attributes", "Attributes", 0.09),
+            ("objects", "Objects", 0.08),
+            ("status", "Last Action", 0.12),
             ("worked", "Last worked on", 0.12),
-            ("overview", "Overview", 0.06),
+            ("open", "Open Model", 0.08),
         ]
         columns = [
             (key, label, max(78, int(canvas_width * fraction)))
@@ -4599,8 +4831,8 @@ class AutoMLMApp(ctk.CTk):
                 width=width,
                 height=header_height,
                 text=label,
-                background="#DCEAFF",
-                foreground="#17365D",
+                background="#DFE9FD",
+                foreground="#04173D",
                 font=("Segoe UI", 12, "bold"),
             )
             x += width
@@ -4619,21 +4851,21 @@ class AutoMLMApp(ctk.CTk):
                 loaded.name,
                 loaded.source_file,
                 loaded.file_type,
+                self._count_higher_level_classes(model),
                 len(model.get_all_flat_classes()),
                 self._count_attributes(model),
                 len(model.get_all_pure_objects()),
                 self._model_last_action_label(loaded),
                 loaded.last_worked_on or loaded.uploaded or "Unknown",
-                "Open",
+                "Open Model",
             ]
             x = 0
             row_items = []
-            overview_items = []
             for _column_index, ((key, _label, width), value) in enumerate(zip(columns, values)):
                 if key == "status":
                     foreground = self.colors["danger"] if "fail" in str(value).lower() else self.colors["success"]
                     font = ("Segoe UI", 12, "bold")
-                elif key == "overview":
+                elif key == "open":
                     foreground = self.colors["primary"]
                     font = ("Segoe UI", 12, "bold underline")
                 else:
@@ -4650,15 +4882,15 @@ class AutoMLMApp(ctk.CTk):
                     font=font,
                 )
                 row_items.extend(items)
-                if key == "overview":
-                    overview_items.extend(items)
                 x += width
-            for item in overview_items or row_items:
+            for item in row_items:
                 self.models_canvas.tag_bind(
                     item,
                     "<Button-1>",
-                    lambda _event, idx=model_index: self._show_model_overview_detail_from_table(idx),
+                    lambda _event, target=loaded: self._open_loaded_model(target),
                 )
+                self.models_canvas.tag_bind(item, "<Enter>", lambda _event: self.models_canvas.configure(cursor="hand2"))
+                self.models_canvas.tag_bind(item, "<Leave>", lambda _event: self.models_canvas.configure(cursor=""))
             self._models_canvas_rows[model_index] = row_items
 
         total_height = header_height + max(1, len(filtered)) * row_height
@@ -4817,9 +5049,10 @@ class AutoMLMApp(ctk.CTk):
         metrics = ctk.CTkFrame(self.overview_details, fg_color="transparent")
         metrics.grid(row=1, column=1, sticky="nsew", pady=(0, 12))
         metric_colors = {
+            "Higher Level Classes": "#315D9B",
             "Classes": "#2563EB",
             "Attributes": "#7C3AED",
-            "Enumerations": "#F59E0B",
+            "Enumeration Types": "#F59E0B",
             "Associations": "#64748B",
             "Objects": "#16A34A",
             "Slots": "#EA580C",
@@ -4860,9 +5093,10 @@ class AutoMLMApp(ctk.CTk):
 
     def _model_metrics(self, model: FmmlxModel):
         return [
+            ("Higher Level Classes", self._count_higher_level_classes(model)),
             ("Classes", len(model.get_all_flat_classes())),
             ("Attributes", self._count_attributes(model)),
-            ("Enumerations", len(model.enums)),
+            ("Enumeration Types", len(model.enums)),
             ("Operations", self._count_operations(model)),
             ("Generalizations", self._count_generalizations(model)),
             ("Associations", len(model.associations)),
@@ -4874,6 +5108,13 @@ class AutoMLMApp(ctk.CTk):
     @staticmethod
     def _count_attributes(model: FmmlxModel) -> int:
         return sum(len(obj.attr_list) for obj in model.mlm_objects)
+
+    @staticmethod
+    def _count_higher_level_classes(model: FmmlxModel) -> int:
+        """
+        Counts classes above level 1 for the separate higher-level metric card.
+        """
+        return sum(1 for obj in model.mlm_objects if obj.level > 1)
 
     @staticmethod
     def _count_slots(model: FmmlxModel) -> int:
@@ -4911,10 +5152,18 @@ class AutoMLMApp(ctk.CTk):
                 return AutoMLMApp._clean_display_value(matches[0].attr_type_short)
         return AutoMLMApp._clean_display_value(type(slot.value).__name__)
 
-    # ------------------------------------------------------------------
-    # Shared Visual Building Blocks
-    # Reusable cards, headers, metric blocks, tree setup, and canvas cells.
-    # ------------------------------------------------------------------
+    @staticmethod
+    def _set_windows_app_id():
+        """
+        Gives Windows a stable app id for the taskbar icon.
+
+        Without this, Windows can show the Python icon for Tk apps.
+        """
+        try:
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("ModelDeepener.App")
+        except (AttributeError, OSError):
+            pass
 
     def _metric_card_no_icon(
             self,
@@ -4923,6 +5172,13 @@ class AutoMLMApp(ctk.CTk):
             value: int,
             value_color: str,
     ) -> ctk.CTkFrame:
+        """
+        Creates one metric card used in the app.
+
+        This starts the shared UI helper block. The methods below create
+        repeated visual elements such as cards, page headers, tree widgets,
+        canvas table cells, and table clearing.
+        """
         card = self._card(parent)
         card.configure(height=104)
         card.grid_propagate(False)
@@ -4941,19 +5197,22 @@ class AutoMLMApp(ctk.CTk):
             value_size = 20
         else:
             value_size = 22
+        label_size = 10 if len(label) > 16 else 11 if len(label) > 13 else 13
 
         ctk.CTkLabel(
             card,
             text=label,
             text_color=label_color,
+            wraplength=112,
+            justify="center",
             font=ctk.CTkFont(
                 family="Segoe UI",
-                size=13,
+                size=label_size,
                 weight="bold",
             ),
         ).place(
             relx=0.5,
-            y=29,
+            y=28,
             anchor="center",
         )
 
@@ -5096,5 +5355,6 @@ class AutoMLMApp(ctk.CTk):
 
 
 def run():
+    AutoMLMApp._set_windows_app_id()
     app = AutoMLMApp()
     app.mainloop()
