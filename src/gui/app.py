@@ -16,8 +16,6 @@ from tkinter import filedialog, messagebox, ttk
 from tkinter import font as tk_font
 from typing import Any, Dict, List, Optional
 
-
-
 from src.fmmlx_mlm_structure.fm_attr import FmmlxAttribute
 from src.fmmlx_mlm_structure.fm_enum_type import FmmlxEnumType
 from src.fmmlx_mlm_structure.fm_multi_level_model import FmmlxModel
@@ -96,7 +94,7 @@ class ModelDeepenerApp(ctk.CTk):
         ctk.set_appearance_mode("light")
         ctk.set_default_color_theme("blue")
 
-        self.title("")
+        self.title("Model Deepener")
         self.geometry("1500x900")
         self.minsize(1220, 760)
 
@@ -129,7 +127,7 @@ class ModelDeepenerApp(ctk.CTk):
         self.tree_item_payload: Dict[str, object] = {}
         self.tree_item_view: Dict[str, str] = {}
         self.loaded_models: List[LoadedModel] = []
-        self.loaded_models_store_path = os.path.join(os.getcwd(), "mlm_files", "loaded_models.json")
+        self.loaded_models_store_path = os.path.join(os.getcwd(), "example_models", "loaded_models.json")
         self.action_unlocked = {1: True, 2: False, 3: False}
         self.action_completed = {1: False, 2: False, 3: False}
         self.current_action = 1
@@ -777,7 +775,6 @@ class ModelDeepenerApp(ctk.CTk):
         self.column_table = None
         self.column_canvas_window = None
         self._reset_column_table(self.TABLE_HEADER_HEIGHT + 76)
-
 
         actions = ctk.CTkFrame(self.content, fg_color="transparent")
         actions.grid(row=2, column=0, sticky="ew", pady=(14, 0))
@@ -1627,13 +1624,13 @@ class ModelDeepenerApp(ctk.CTk):
         Opens the Select Example dialog.
 
         The methods in this block handle both ways to choose input: selecting
-        an example from mlm_files or browsing for a CSV/XML file manually.
+        an example from example_models or browsing for a CSV/XML file manually.
         """
-        examples_root = os.path.join(os.getcwd(), "mlm_files")
+        examples_root = os.path.join(os.getcwd(), "example_models")
         if not os.path.isdir(examples_root):
             messagebox.showinfo(
                 "No examples found",
-                "Place XML files in mlm_files.",
+                "Place XML files in example_models.",
             )
             return
 
@@ -1641,7 +1638,7 @@ class ModelDeepenerApp(ctk.CTk):
         if not example_files:
             messagebox.showinfo(
                 "No examples found",
-                "No XML files were found in mlm_files.",
+                "No XML files were found in example_models.",
             )
             return
 
@@ -1655,7 +1652,7 @@ class ModelDeepenerApp(ctk.CTk):
 
         ctk.CTkLabel(
             dialog,
-            text="Select an example from mlm_files",
+            text="Select an example from example_models",
             anchor="w",
             text_color=self.colors["text"],
             font=ctk.CTkFont(family="Segoe UI", size=16, weight="bold"),
@@ -1673,7 +1670,7 @@ class ModelDeepenerApp(ctk.CTk):
         tree.configure(yscrollcommand=scrollbar.set)
 
         path_by_item = {}
-        root_id = tree.insert("", "end", text="mlm_files", open=True)
+        root_id = tree.insert("", "end", text="example_models", open=True)
         folder_ids = {examples_root: root_id}
         for folder_path, file_names in example_files:
             parent_path = os.path.dirname(folder_path)
@@ -2801,7 +2798,7 @@ class ModelDeepenerApp(ctk.CTk):
     ) -> Optional[str]:
         if not source_path:
             return source_path
-        target_dir = "csv_files" if extension == ".csv" else "mlm_files"
+        target_dir = "csv_files" if extension == ".csv" else "example_models"
         os.makedirs(target_dir, exist_ok=True)
 
         source_abs = os.path.abspath(source_path)
