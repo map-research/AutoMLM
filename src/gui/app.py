@@ -329,7 +329,7 @@ class ModelDeepenerApp(ctk.CTk):
         """
         gui_dir = os.path.dirname(__file__)
         logo_candidates = [
-            os.path.join(gui_dir, "Logo mit Namen.png"),
+            os.path.join(gui_dir, "md_logo_full.png"),
             os.path.join(gui_dir, "assets", "logo.png"),
         ]
         logo_path = next((path for path in logo_candidates if os.path.exists(path)), None)
