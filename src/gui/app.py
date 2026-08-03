@@ -1307,7 +1307,7 @@ class ModelDeepenerApp(ctk.CTk):
             if obj.level > 0 and obj.attr_list
         ]
         if class_objects:
-            return class_objects[0].object_name
+            return class_objects[0].name
         if model.path_name:
             return model.path_name.split("::")[-1]
         return "Model"
@@ -1843,7 +1843,7 @@ class ModelDeepenerApp(ctk.CTk):
         # Empty cells are easier to read as "-" than as a blank space.
         if value is None or value == "":
             return "-"
-        return AutoMLMApp._clean_display_value(value)
+        return ModelDeepenerApp._clean_display_value(value)
 
     @staticmethod
     def _clean_display_value(value) -> str:
@@ -2007,7 +2007,7 @@ class ModelDeepenerApp(ctk.CTk):
         try:
             model = FmmlxModel(file_path=file_path)
             warnings = []
-            if AutoMLMApp._count_attributes(model) == 0:
+            if ModelDeepenerApp._count_attributes(model) == 0:
                 warnings.append(
                     "No attributes were attached to model classes. The XML may not contain addAttribute entries, "
                     "or its attribute class names may not match the class names in the model."
@@ -2989,11 +2989,11 @@ class ModelDeepenerApp(ctk.CTk):
         self.tree_item_payload[enum_id] = None
         self.tree_item_view[enum_id] = "group"
 
-        for enum in sorted(enumerations, key=lambda item: self._natural_sort_key(item.enum_name)):
+        for enum in sorted(enumerations, key=lambda item: self._natural_sort_key(item.name)):
             item_id = self.model_tree.insert(
                 enum_id,
                 "end",
-                text=enum.enum_name,
+                text=enum.name,
                 open=False,
                 tags=("enum_item",),
             )
@@ -3020,12 +3020,12 @@ class ModelDeepenerApp(ctk.CTk):
 
             for obj in sorted(
                     level_objects,
-                    key=lambda item: self._natural_sort_key(item.object_name),
+                    key=lambda item: self._natural_sort_key(item.name),
             ):
                 obj_id = self.model_tree.insert(
                     level_id,
                     "end",
-                    text=obj.object_name,
+                    text=obj.name,
                     open=bool(normalized_query),
                     tags=("object_item" if level == 0 else "class_item",),
                 )
@@ -3041,17 +3041,17 @@ class ModelDeepenerApp(ctk.CTk):
     def _object_matches_search(self, model: FmmlxModel, obj: FmmlxObject, query: str) -> bool:
         if not query:
             return True
-        values = [obj.object_name, obj.full_name]
-        values.extend(attr.attr_name for attr in obj.attr_list)
+        values = [obj.name, obj.full_name]
+        values.extend(attr.name for attr in obj.attr_list)
         values.extend(attr.attr_type_short for attr in obj.attr_list)
         object_operations = self._operations_for_object(obj)
         values.extend(operation.operation_name for operation in object_operations)
         values.extend(operation.return_type for operation in object_operations)
-        values.extend(slot.slot_name for slot in obj.slot_list)
+        values.extend(slot.name for slot in obj.slot_list)
         values.extend(str(slot.value) for slot in obj.slot_list)
-        values.extend(parent.object_name for parent in obj.parent_classes)
+        values.extend(parent.name for parent in obj.parent_classes)
         values.extend(
-            candidate.object_name
+            candidate.name
             for candidate in model.mlm_objects
             if obj in candidate.parent_classes
         )
@@ -3060,8 +3060,8 @@ class ModelDeepenerApp(ctk.CTk):
             values.extend(
                 [
                     association.name,
-                    self._object_name(association.source_class),
-                    self._object_name(association.target_class),
+                    self._name(association.source_object),
+                    self._name(association.target_object),
                     self._association_multiplicity_text(association),
                 ]
             )
@@ -3070,8 +3070,8 @@ class ModelDeepenerApp(ctk.CTk):
             values.extend(
                 [
                     link.name,
-                    self._object_name(link.source_object),
-                    self._object_name(link.target_object),
+                    self._name(link.source_object),
+                    self._name(link.target_object),
                 ]
             )
         if object_operations:
@@ -3086,19 +3086,19 @@ class ModelDeepenerApp(ctk.CTk):
         hit_groups = [
             ("Attributes", "attribute", [
                 attr for attr in obj.attr_list
-                if self._query_matches_values(query, attr.attr_name, attr.attr_type_short, attr.inst_level)
+                if self._query_matches_values(query, attr.name, attr.attr_type_short, attr.inst_level)
             ]),
             ("Slots", "slot", [
                 slot for slot in obj.slot_list
-                if self._query_matches_values(query, slot.slot_name, slot.value, self._slot_type(slot))
+                if self._query_matches_values(query, slot.name, slot.value, self._slot_type(slot))
             ]),
             ("Associations", "association", [
                 association for association in self._associations_for_class(model, obj)
                 if query == "association" or self._query_matches_values(
                     query,
                     association.name,
-                    self._object_name(association.source_class),
-                    self._object_name(association.target_class),
+                    self._name(association.source_object),
+                    self._name(association.target_object),
                     self._association_multiplicity_text(association),
                 )
             ]),
@@ -3107,8 +3107,8 @@ class ModelDeepenerApp(ctk.CTk):
                 if query == "link" or self._query_matches_values(
                     query,
                     link.name,
-                    self._object_name(link.source_object),
-                    self._object_name(link.target_object),
+                    self._name(link.source_object),
+                    self._name(link.target_object),
                 )
             ]),
             ("Operations", "operation", [
@@ -3156,13 +3156,13 @@ class ModelDeepenerApp(ctk.CTk):
 
     def _search_hit_text(self, view_name: str, hit) -> str:
         if view_name == "attribute":
-            return f"{hit.attr_name}: {hit.attr_type_short}"
+            return f"{hit.name}: {hit.attr_type_short}"
         if view_name == "slot":
-            return f"{hit.slot_name}: {self._display_table_value(hit.value)}"
+            return f"{hit.name}: {self._display_table_value(hit.value)}"
         if view_name == "association":
-            return f"{hit.name}: {self._object_name(hit.source_class)} → {self._object_name(hit.target_class)}"
+            return f"{hit.name}: {self._name(hit.source_object)} → {self._name(hit.target_object)}"
         if view_name == "link":
-            return f"{hit.name}: {self._object_name(hit.source_object)} → {self._object_name(hit.target_object)}"
+            return f"{hit.name}: {self._name(hit.source_object)} → {self._name(hit.target_object)}"
         if view_name == "operation":
             return f"{hit.operation_name}: {self._short_type_name(hit.return_type)}"
         if view_name == "generalization":
@@ -3173,7 +3173,7 @@ class ModelDeepenerApp(ctk.CTk):
     def _enum_matches_search(enum: FmmlxEnumType, query: str) -> bool:
         if not query:
             return True
-        values = [enum.enum_name] + list(enum.enum_values)
+        values = [enum.name] + list(enum.enum_values)
         return any(query in str(value).lower() for value in values)
 
     def _filter_model_tree(self, _event=None):
@@ -3219,19 +3219,19 @@ class ModelDeepenerApp(ctk.CTk):
         view_name = payload[0] if payload else ""
         if view_name == "attribute":
             _view, obj, attr = payload
-            self.detail_title.configure(text=f"Attribute: {attr.attr_name}", text_color="#7C3AED")
-            self.detail_subtitle.configure(text=f"Defined on {obj.object_name}.")
+            self.detail_title.configure(text=f"Attribute: {attr.name}", text_color="#7C3AED")
+            self.detail_subtitle.configure(text=f"Defined on {obj.name}.")
             self._render_detail_table(
                 ("Attribute", "Type", "Slot"),
-                [(attr.attr_name, attr.attr_type_short, "-")],
+                [(attr.name, attr.attr_type_short, "-")],
             )
         elif view_name == "slot":
             _view, obj, slot = payload
-            self.detail_title.configure(text=f"Slot: {slot.slot_name}", text_color="#16A34A")
-            self.detail_subtitle.configure(text=f"Defined on {obj.object_name}.")
+            self.detail_title.configure(text=f"Slot: {slot.name}", text_color="#16A34A")
+            self.detail_subtitle.configure(text=f"Defined on {obj.name}.")
             self._render_detail_table(
                 ("Attribute", "Type", "Slot"),
-                [(slot.slot_name, self._slot_type(slot), slot.value)],
+                [(slot.name, self._slot_type(slot), slot.value)],
             )
         elif view_name == "association":
             _view, _obj, association = payload
@@ -3241,8 +3241,8 @@ class ModelDeepenerApp(ctk.CTk):
                 ("Associationname", "Source", "Target", "Multiplicity"),
                 [(
                     association.name,
-                    self._object_name(association.source_class),
-                    self._object_name(association.target_class),
+                    self._name(association.source_object),
+                    self._name(association.target_object),
                     self._association_multiplicity_text(association),
                 )],
                 highlight_column=3,
@@ -3253,14 +3253,14 @@ class ModelDeepenerApp(ctk.CTk):
             self.detail_subtitle.configure(text="Matching link.")
             self._render_detail_table(
                 ("Linkname", "Source", "Target", "Multiplicity"),
-                [(link.name, self._object_name(link.source_object), self._object_name(link.target_object), "-")],
+                [(link.name, self._name(link.source_object), self._name(link.target_object), "-")],
                 highlight_column=3,
             )
         elif view_name == "operation":
             _view, obj, operation = payload
             self.detail_title.configure(text=f"Operation: {operation.operation_name}", text_color="#0D9488")
-            self.detail_subtitle.configure(text=f"Defined for {obj.object_name}.")
-            slot_by_name = {slot.slot_name: slot.value for slot in obj.slot_list}
+            self.detail_subtitle.configure(text=f"Defined for {obj.name}.")
+            slot_by_name = {slot.name: slot.value for slot in obj.slot_list}
             self._render_detail_table(
                 ("Operation", "Type", "Slot"),
                 [(operation.operation_name, self._short_type_name(operation.return_type), slot_by_name.get(operation.operation_name, "-"))],
@@ -3272,9 +3272,9 @@ class ModelDeepenerApp(ctk.CTk):
             self._render_detail_table(("Superclass", "Subclass"), [row])
         elif view_name == "enum_value":
             _view, enum, value = payload
-            self.detail_title.configure(text=f"Enumeration Type: {enum.enum_name}", text_color="#F59E0B")
+            self.detail_title.configure(text=f"Enumeration Type: {enum.name}", text_color="#F59E0B")
             self.detail_subtitle.configure(text="Matching enumeration type slot.")
-            self._render_detail_table(("Enumeration Type", "Slot", "Index"), [(enum.enum_name, value, enum.enum_values.index(value) + 1)])
+            self._render_detail_table(("Enumeration Type", "Slot", "Index"), [(enum.name, value, enum.enum_values.index(value) + 1)])
         else:
             self._render_empty_detail_state()
 
@@ -3389,7 +3389,7 @@ class ModelDeepenerApp(ctk.CTk):
         ]
         objects = sorted(
             objects,
-            key=lambda item: self._natural_sort_key(item.object_name),
+            key=lambda item: self._natural_sort_key(item.name),
         )
         if not objects:
             self._render_model_structure_overview(model)
@@ -3535,13 +3535,13 @@ class ModelDeepenerApp(ctk.CTk):
         rows = []
         for obj in sorted(
                 model.mlm_objects,
-                key=lambda item: (-item.level, self._natural_sort_key(item.object_name)),
+                key=lambda item: (-item.level, self._natural_sort_key(item.name)),
         ):
             rows.append(
                 (
                     f"Level {obj.level}",
-                    obj.object_name,
-                    self._object_name(obj.class_of_object),
+                    obj.name,
+                    self._name(obj.class_of_object),
                     self._model_structure_content_text(model, obj),
                 )
             )
@@ -3700,7 +3700,7 @@ class ModelDeepenerApp(ctk.CTk):
         if mode == "random":
             return sorted(
                 random.sample(objects, count),
-                key=lambda item: self._natural_sort_key(item.object_name),
+                key=lambda item: self._natural_sort_key(item.name),
             )
         return objects[:count]
 
@@ -3957,15 +3957,15 @@ class ModelDeepenerApp(ctk.CTk):
         for object_index in range(start_index, end_index):
             obj = objects[object_index]
             slot_by_name = {
-                slot.slot_name: slot.value
+                slot.name: slot.value
                 for slot in obj.slot_list
             }
             row_values = [
-                slot_by_name.get(attr.attr_name, "-")
+                slot_by_name.get(attr.name, "-")
                 for attr in attributes
             ]
             self._pending_overview_rows.append(
-                (obj.object_name, row_values)
+                (obj.name, row_values)
             )
 
         self._update_model_loading_progress(
@@ -4046,7 +4046,7 @@ class ModelDeepenerApp(ctk.CTk):
         if overlay is not None and overlay.winfo_exists():
             overlay.lift()
 
-        headers = [model_name] + [attr.attr_name for attr in attributes]
+        headers = [model_name] + [attr.name for attr in attributes]
         x = 0
         for column, text in enumerate(headers):
             column_width = name_width if column == 0 else attribute_width
@@ -4077,10 +4077,10 @@ class ModelDeepenerApp(ctk.CTk):
         row_heights = []
         row_offsets = []
         current_y = header_height
-        for object_name, row_values in prepared_rows:
+        for name, row_values in prepared_rows:
             row_offsets.append(current_y)
             dynamic_height = self._model_overview_row_height(
-                object_name=object_name,
+                name=name,
                 row_values=row_values,
                 state=state,
             )
@@ -4153,14 +4153,14 @@ class ModelDeepenerApp(ctk.CTk):
 
     def _model_overview_row_height(
             self,
-            object_name: str,
+            name: str,
             row_values: List[Any],
             state: dict,
     ) -> int:
         # Pick a row height that can hold the object name and all shown values.
         line_counts = [
             self._wrapped_line_count(
-                object_name,
+                name,
                 state["name_width"],
                 ("Segoe UI", 12, "bold"),
             )
@@ -4192,7 +4192,7 @@ class ModelDeepenerApp(ctk.CTk):
         end_index = min(start_index + batch_size, len(prepared_rows))
 
         for object_index in range(start_index, end_index):
-            object_name, row_values = prepared_rows[object_index]
+            name, row_values = prepared_rows[object_index]
             row_index = object_index + 1
             row_bg = "#FFFFFF" if row_index % 2 else "#F3F7FD"
             y = state["row_offsets"][object_index]
@@ -4203,7 +4203,7 @@ class ModelDeepenerApp(ctk.CTk):
                 y=y,
                 width=state["name_width"],
                 height=row_height,
-                text=object_name,
+                text=name,
                 background=row_bg,
                 foreground="#16A34A",
                 font=("Segoe UI", 12, "bold"),
@@ -4378,7 +4378,7 @@ class ModelDeepenerApp(ctk.CTk):
 
     def _render_class_details(self, obj: FmmlxObject):
         self.detail_title.configure(
-            text=f"Class: {obj.object_name}",
+            text=f"Class: {obj.name}",
             text_color="#2563EB",
         )
         self.detail_subtitle.configure(
@@ -4399,7 +4399,7 @@ class ModelDeepenerApp(ctk.CTk):
 
     def _render_object_details(self, obj: FmmlxObject):
         self.detail_title.configure(
-            text=f"Object: {obj.object_name}",
+            text=f"Object: {obj.name}",
             text_color="#16A34A",
         )
         self.detail_subtitle.configure(
@@ -4420,7 +4420,7 @@ class ModelDeepenerApp(ctk.CTk):
     def _render_enum_details(self, enum: FmmlxEnumType):
         self._clear_detail_option_bar()
         self.detail_title.configure(
-            text=f"Enumeration Type: {enum.enum_name}",
+            text=f"Enumeration Type: {enum.name}",
             text_color="#F59E0B",
         )
         self.detail_subtitle.configure(
@@ -4429,7 +4429,7 @@ class ModelDeepenerApp(ctk.CTk):
         self._render_detail_table(
             ("Enumeration Type", "Slot", "Index"),
             [
-                (enum.enum_name, value, index)
+                (enum.name, value, index)
                 for index, value in enumerate(enum.enum_values, start=1)
             ],
         )
@@ -4464,8 +4464,8 @@ class ModelDeepenerApp(ctk.CTk):
         self._detail_option_bar = None
 
     @staticmethod
-    def _object_name(obj) -> str:
-        return obj.object_name if obj is not None else "-"
+    def _name(obj) -> str:
+        return obj.name if obj is not None else "-"
 
     @staticmethod
     def _associations_for_class(model: Optional[FmmlxModel], obj: FmmlxObject):
@@ -4474,7 +4474,7 @@ class ModelDeepenerApp(ctk.CTk):
         return [
             association
             for association in model.associations
-            if association.source_class is obj or association.target_class is obj
+            if association.source_object is obj or association.target_object is obj
         ]
 
     @staticmethod
@@ -4497,7 +4497,7 @@ class ModelDeepenerApp(ctk.CTk):
     def _short_type_name(type_name: str) -> str:
         if not type_name:
             return "-"
-        return AutoMLMApp._clean_display_value(type_name)
+        return ModelDeepenerApp._clean_display_value(type_name)
 
     @staticmethod
     def _operations_for_object(obj: FmmlxObject):
@@ -4512,12 +4512,12 @@ class ModelDeepenerApp(ctk.CTk):
 
     def _generalization_rows(self, obj: FmmlxObject):
         rows = [
-            (parent.object_name, obj.object_name)
+            (parent.name, obj.name)
             for parent in obj.parent_classes
         ]
         if self.current_model is not None:
             rows.extend(
-                (obj.object_name, candidate.object_name)
+                (obj.name, candidate.name)
                 for candidate in self.current_model.mlm_objects
                 if obj in candidate.parent_classes
             )
@@ -4536,11 +4536,11 @@ class ModelDeepenerApp(ctk.CTk):
 
     def _render_class_attribute_table(self, obj: FmmlxObject):
         rows = [
-            (attr.attr_name, attr.attr_type_short, attr.inst_level)
+            (attr.name, attr.attr_type_short, attr.inst_level)
             for attr in obj.attr_list
         ]
         inherited_rows = [
-            (attr.attr_name, attr.attr_type_short, f"Level {attr.inst_level}, inherited from {parent.object_name}")
+            (attr.name, attr.attr_type_short, f"Level {attr.inst_level}, inherited from {parent.name}")
             for parent in self._all_parent_classes(obj)
             for attr in parent.attr_list
         ]
@@ -4556,8 +4556,8 @@ class ModelDeepenerApp(ctk.CTk):
             [
                 (
                     association.name,
-                    self._object_name(association.source_class),
-                    self._object_name(association.target_class),
+                    self._name(association.source_object),
+                    self._name(association.target_object),
                     self._association_multiplicity_text(association),
                 )
                 for association in self._associations_for_class(self.current_model, obj)
@@ -4584,7 +4584,7 @@ class ModelDeepenerApp(ctk.CTk):
         self._render_detail_table(
             ("Attribute", "Type", "Slot"),
             [
-                (slot.slot_name, self._slot_type(slot), slot.value)
+                (slot.name, self._slot_type(slot), slot.value)
                 for slot in obj.slot_list
             ],
         )
@@ -4595,8 +4595,8 @@ class ModelDeepenerApp(ctk.CTk):
             [
                 (
                     link.name,
-                    self._object_name(link.source_object),
-                    self._object_name(link.target_object),
+                    self._name(link.source_object),
+                    self._name(link.target_object),
                     "-",
                 )
                 for link in self._links_for_object(self.current_model, obj)
@@ -4606,7 +4606,7 @@ class ModelDeepenerApp(ctk.CTk):
 
     def _render_object_operation_table(self, obj: FmmlxObject):
         slot_by_name = {
-            slot.slot_name: slot.value
+            slot.name: slot.value
             for slot in obj.slot_list
         }
         self._render_detail_table(
@@ -5131,7 +5131,7 @@ class ModelDeepenerApp(ctk.CTk):
     @staticmethod
     def _slot_type(slot: FmmlxSlot) -> str:
         if slot.attribute is not None:
-            return AutoMLMApp._clean_display_value(slot.attribute.attr_type_short)
+            return ModelDeepenerApp._clean_display_value(slot.attribute.attr_type_short)
         owner = getattr(slot, "owner", None)
         model = getattr(owner, "_active_model", None)
         if model is not None:
@@ -5139,18 +5139,18 @@ class ModelDeepenerApp(ctk.CTk):
                 attr
                 for obj in model.mlm_objects
                 for attr in obj.attr_list
-                if attr.attr_name == slot.slot_name
+                if attr.name == slot.name
             ]
             enum_matches = [
                 attr
                 for attr in matches
-                if any(enum.enum_name == AutoMLMApp._clean_display_value(attr.attr_type_short) for enum in model.enums)
+                if any(enum.name == ModelDeepenerApp._clean_display_value(attr.attr_type_short) for enum in model.enums)
             ]
             if enum_matches:
-                return AutoMLMApp._clean_display_value(enum_matches[0].attr_type_short)
+                return ModelDeepenerApp._clean_display_value(enum_matches[0].attr_type_short)
             if matches:
-                return AutoMLMApp._clean_display_value(matches[0].attr_type_short)
-        return AutoMLMApp._clean_display_value(type(slot.value).__name__)
+                return ModelDeepenerApp._clean_display_value(matches[0].attr_type_short)
+        return ModelDeepenerApp._clean_display_value(type(slot.value).__name__)
 
     @staticmethod
     def _set_windows_app_id():
@@ -5355,6 +5355,6 @@ class ModelDeepenerApp(ctk.CTk):
 
 
 def run():
-    AutoMLMApp._set_windows_app_id()
-    app = AutoMLMApp()
+    ModelDeepenerApp._set_windows_app_id()
+    app = ModelDeepenerApp()
     app.mainloop()
