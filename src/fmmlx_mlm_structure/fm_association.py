@@ -2,18 +2,18 @@ from __future__ import annotations
 
 from xml.etree.ElementTree import ElementTree
 
+from fmmlx_mlm_structure.model_connection import ModelConnection
 from src.fmmlx_mlm_structure.fm_object import FmmlxObject
+from src.fmmlx_mlm_structure.model_element import ModelElement
 from src.fmmlx_mlm_structure.multiplicity import Multiplicity
 
 
-class FmmlxAssociation:
-    def __init__(self, name: str, source_inst_level: int, target_inst_level: int,
-                 source_access_name: str, target_access_name: str):
-        self.name = name
+class FmmlxAssociation(ModelConnection):
+    def __init__(self, name: str, source_inst_level: int, target_inst_level: int, source_access_name: str,
+                 target_access_name: str):
+        super().__init__(source_object=None, target_object=None, name=name, print_name=f"<{name}> ASSOC")
         self.source_inst_level = source_inst_level
         self.target_inst_level = target_inst_level
-        self.source_class: FmmlxObject = None
-        self.target_class: FmmlxObject = None
         self.source_multiplicity: Multiplicity = None
         self.target_multiplicity: Multiplicity = None
         self.source_access_name = source_access_name
@@ -32,18 +32,6 @@ class FmmlxAssociation:
 
     def get_target_association_end(self):
         return self.target_association_end
-
-    def set_source_class(self, source_class):
-        self.source_class = source_class
-
-    def set_target_class(self, target_class):
-        self.target_class = target_class
-
-    def get_target_class(self) -> FmmlxObject:
-        return self.target_class
-
-    def get_source_class(self) -> FmmlxObject:
-        return self.source_class
 
     def get_source_inst_level(self) -> int:
         return self.source_inst_level
@@ -83,9 +71,9 @@ class FmmlxAssociation:
                 return False
 
     def __repr__(self):
-        return (f"[ASSOCIATION {self.name}] {self.source_multiplicity} From {self.source_class.object_name}"
+        return (f"[ASSOCIATION {self.name}] {self.source_multiplicity} From {self.source_object.name}"
                 f" (at L{self.source_inst_level})"
-                f" to {self.target_multiplicity} {self.target_class.object_name} (at L{self.target_inst_level})")
+                f" to {self.target_multiplicity} {self.target_object.name} (at L{self.target_inst_level})")
         # f"\n {self.source_multiplicity} {self.source_class.name}"
         # f" {self.name} {self.target_class.name}")
 
@@ -103,14 +91,14 @@ class FmmlxAssociation:
             self.source_multiplicity.is_unbounded).lower() + ',false}'
 
         # adapt class names to new projectname
-        classSourceName = projectName + "::" + self.source_class.object_name
-        targetSourceName = projectName + "::" + self.target_class.object_name
+        classSourceName = projectName + "::" + self.source_class.name
+        targetSourceName = projectName + "::" + self.target_class.name
 
         # associations use always the class name as an access name at the moment, this leads to a problem when more than one association exists between the same two classes, as the access name is no longer unique
         # TODO think about fix
         addAssoc = ElementTree.SubElement(model, 'addAssociation',
-                                          accessSourceFromTargetName=self.source_class.object_name.lower(),
-                                          accessTargetFromSourceName=self.target_class.object_name.lower(),
+                                          accessSourceFromTargetName=self.source_class.name.lower(),
+                                          accessTargetFromSourceName=self.target_class.name.lower(),
                                           associationType='Root::Associations::DefaultAssociation',
                                           classSource=classSourceName, classTarget=targetSourceName, fwName=self.name,
                                           instLevelSource=str(self.source_inst_level),

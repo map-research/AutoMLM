@@ -136,7 +136,7 @@ class FmmlxModel:
             #Slots einfügen
             for col_counter, value in enumerate(row):
                 attribute = all_csv_attr[col_counter]
-                new_slot: FmmlxSlot = FmmlxSlot(attribute.attr_name, self._convert_csv_value(value, attribute.attr_type))
+                new_slot: FmmlxSlot = FmmlxSlot(attribute.name, self._convert_csv_value(value, attribute.attr_type))
                 new_slot.set_owner_object(mlm_instance)
                 # Der Slot bekommt direkt das Attribut aus seiner Spalte.
                 new_slot.set_attribute(attribute)
@@ -411,16 +411,16 @@ class FmmlxModel:
         if len(self.associations) > 0:
             for assoc in self.associations:
                 src_assoc_end: FmmlxAssociationEnd = FmmlxAssociationEnd(assoc.get_source_access_name(),
-                                                                         assoc.get_target_class().full_name,
+                                                                         assoc.get_target_object().full_name,
                                                                          assoc.get_source_inst_level(),
                                                                          assoc, True)
                 tgt_assoc_end: FmmlxAssociationEnd = FmmlxAssociationEnd(assoc.get_target_access_name(),
-                                                                         assoc.get_source_class().full_name,
+                                                                         assoc.get_source_object().full_name,
                                                                          assoc.get_target_inst_level(),
                                                                          assoc, False)
-                assoc.get_source_class().add_attr(src_assoc_end)
+                assoc.get_source_object().add_attr(src_assoc_end)
                 assoc.set_source_association_end(src_assoc_end)
-                assoc.get_target_class().add_attr(tgt_assoc_end)
+                assoc.get_target_object().add_attr(tgt_assoc_end)
                 assoc.set_target_association_end(tgt_assoc_end)
 
     def add_slot_links(self):
@@ -447,7 +447,7 @@ class FmmlxModel:
             instance_object.set_class_of_object(self._get_class_of_mlm_object(instance_object.class_of_object.full_name,
                                                                               mlm_objects))
             if self.print_progress:
-                print(f"Object {instance_object.object_name} extracted.")
+                print(f"Object {instance_object.name} extracted.")
             mlm_objects.append(instance_object)
         return mlm_objects
 
@@ -491,7 +491,7 @@ class FmmlxModel:
             enums_tmp.append(FmmlxEnumType(enum_element.getAttribute("name")))
         for enum_value_element in self.parsed_xml.getElementsByTagName("addEnumerationValue"):
             for enum_tmp in enums_tmp:
-                if enum_value_element.getAttribute("enum_name") == enum_tmp.enum_name:
+                if enum_value_element.getAttribute("enum_name") == enum_tmp.name:
                     enum_tmp.add_enum_value(enum_value_element.getAttribute("enum_value_name"))
         return enums_tmp
 
@@ -518,7 +518,7 @@ class FmmlxModel:
         matching_objects = [
             mlm_object
             for mlm_object in self.mlm_objects
-            if short_name == mlm_object.object_name
+            if short_name == mlm_object.name
         ]
         if len(matching_objects) == 1:
             return matching_objects[0]
@@ -527,7 +527,7 @@ class FmmlxModel:
     def _is_custom_attribute_type_an_enum(self, mlm_attr: FmmlxAttribute) -> bool:
         # check 1: look if in list of enums
         for enum in self.enums:
-            if enum.enum_name == mlm_attr.attr_type_short:
+            if enum.name == mlm_attr.attr_type_short:
                 mlm_attr.set_enum_type(enum)
                 return True
         return False
@@ -582,9 +582,9 @@ class FmmlxModel:
             new_association.set_target_multiplicity(int(tgt_mult[0]), int(tgt_mult[1]))
             for mlm_object in self.mlm_objects:
                 if association_element.getAttribute("classSource") == mlm_object.full_name:
-                    new_association.set_source_class(mlm_object)
+                    new_association.set_source_object(mlm_object)
                 if association_element.getAttribute("classTarget") == mlm_object.full_name:
-                    new_association.set_target_class(mlm_object)
+                    new_association.set_target_object(mlm_object)
             self.associations.append(new_association)
 
     def retrieve_all_links(self):
