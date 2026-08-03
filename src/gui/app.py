@@ -60,7 +60,7 @@ class LoadedModel:
 
 
 # noinspection PyAttributeOutsideInit,PyUnresolvedReferences,PyTypeChecker,SpellCheckingInspection
-class AutoMLMApp(ctk.CTk):
+class ModelDeepenerApp(ctk.CTk):
     """
     Main window of the Model Deepener desktop application.
 
