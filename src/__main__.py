@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from src.gui.app import ModelDeepenerApplication
+from src.gui.app import ModelDeepenerApp
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
@@ -10,6 +10,6 @@ if str(PROJECT_ROOT) not in sys.path:
 
 if __name__ == "__main__":
     # This creates the window and starts the GUI event loop.
-    app = ModelDeepenerApplication()
+    app = ModelDeepenerApp()
     app.mainloop()
 
